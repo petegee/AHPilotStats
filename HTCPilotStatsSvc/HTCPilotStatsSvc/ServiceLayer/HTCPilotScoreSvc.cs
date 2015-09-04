@@ -12,9 +12,9 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
     /// Implements a service which retrieves the scores for a given pilot, tour, and 
     /// tour-type combination via a formatted HTTP request to http://www.hitechcreations.com/cgi-bin/105score/105stats.pl
     /// </summary>
-    internal class HTCPilotScoreSvc
+    public class HTCPilotScoreSvc
     {
-        internal HTCPilotScoreSvc()
+        public HTCPilotScoreSvc()
         {
         }
 
@@ -27,7 +27,7 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
         /// <param name="tourId">The tour number</param>
         /// <param name="proxySettings">DTO object detailing how we should connect to the internet.</param>
         /// <returns>The score for the nominated pilot/tour/tour-type combination.</returns>
-        internal AcesHighPilotScore GetPilotScore(string pilotId, TourNode tour, ProxySettingsDTO proxySettings, string scoresURL)
+        public AcesHighPilotScore GetPilotScore(string pilotId, TourNode tour, ProxySettingsDTO proxySettings, string scoresURL)
         {
             if (tour == null)
                 throw new ArgumentException("tour of type TourNode must be set!");
@@ -41,7 +41,7 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
             string postData = "playername=" + pilotId + "&selectTour=" + tour.TourSelectArg + "&action=1&Submit=Get+Scores";
             XmlDocument doc = loader.LoadHtmlPageAsXMLByPost(scoresURL, postData);
 
-            // XSLT 2.0 parse the Xml score page and transform to our internal format.
+            // XSLT 2.0 parse the Xml score page and transform to our public format.
             XmlTextReader xsltDocReader = new XmlTextReader("PilotScoreTransform.xslt");
             XSLT2Transformer xformer = new XSLT2Transformer(doc, xsltDocReader);
             XmlDocument result = xformer.DoTransform(); // may throw Saxon.Api.DynamicError when cant convert 

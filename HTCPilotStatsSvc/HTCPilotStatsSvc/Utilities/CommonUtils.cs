@@ -8,9 +8,9 @@ using My2Cents.HTC.PilotScoreSvc.Types;
 
 namespace My2Cents.HTC.PilotScoreSvc.Utilities
 {
-    class CommonUtils
-    {    
-        internal static string BuildTourDetailsTag(TourNode tour)
+    public class CommonUtils
+    {
+        public static string BuildTourDetailsTag(TourNode tour)
         {
             string shortStartDate = string.Format("{1}-{0}-{2}", tour.TourStartDate.Day, tour.TourStartDate.Month, tour.TourStartDate.Year);
             string shortEndDate = string.Format("{1}-{0}-{2}", tour.TourEndDate.Day, tour.TourEndDate.Month, tour.TourEndDate.Year);
@@ -18,7 +18,7 @@ namespace My2Cents.HTC.PilotScoreSvc.Utilities
         }
 
 
-        internal object DeserialiseFromXmlDoc(Type type, XmlDocument doc)
+        public object DeserialiseFromXmlDoc(Type type, XmlDocument doc)
         {
             XmlSerializer serilizer = new XmlSerializer(type);
             UTF8Encoding enc = new UTF8Encoding();
@@ -27,7 +27,7 @@ namespace My2Cents.HTC.PilotScoreSvc.Utilities
             return serilizer.Deserialize(memStream);
         }
 
-        internal static string ToUpperFirstChar(string str)
+        public static string ToUpperFirstChar(string str)
         {
             string capd1stLetter = str.Length > 0 ?
             (

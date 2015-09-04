@@ -13,7 +13,7 @@ namespace My2Cents.HTC.AHPilotStats
 {
     class Utility
     {
-        internal static readonly object syncRoot = new object();
+        public static readonly object syncRoot = new object();
 
         static public DataTable CreateDataTableFromList<T>(List<T> list)
         {
@@ -150,7 +150,7 @@ namespace My2Cents.HTC.AHPilotStats
         }
 
 
-        internal static void ConstructAcesHighPilotStatsInnerObjects(ref AcesHighPilotStats pilotStats, int objScoreLen)
+        public static void ConstructAcesHighPilotStatsInnerObjects(ref AcesHighPilotStats pilotStats, int objScoreLen)
         {
             pilotStats.VsCountry = new AcesHighPilotStatsVsCountry();
             pilotStats.VsCountry.CountryScore = new CountryScore[3];
@@ -160,7 +160,7 @@ namespace My2Cents.HTC.AHPilotStats
         }
 
 
-        internal static void WriteDebugTraceFile(Exception e)
+        public static void WriteDebugTraceFile(Exception e)
         {
             lock (Utility.syncRoot)
             {

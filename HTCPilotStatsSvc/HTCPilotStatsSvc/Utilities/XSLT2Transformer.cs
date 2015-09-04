@@ -11,13 +11,13 @@ namespace My2Cents.HTC.PilotScoreSvc.Utilities
         XmlDocument _docToTransform = null;
         XmlTextReader _xsltDocReader = null;
 
-        internal XSLT2Transformer(XmlDocument docToTransform, XmlTextReader xsltDocReader)
+        public XSLT2Transformer(XmlDocument docToTransform, XmlTextReader xsltDocReader)
         {
             _docToTransform = docToTransform;
             _xsltDocReader = xsltDocReader;
         }
 
-        internal XmlDocument DoTransform()
+        public XmlDocument DoTransform()
         {
             Processor processor = new Processor();
 

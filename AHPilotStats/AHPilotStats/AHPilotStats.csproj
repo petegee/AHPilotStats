@@ -12,8 +12,8 @@
     <AssemblyName>AHPilotStats</AssemblyName>
     <ApplicationIcon>AppIcon.ico</ApplicationIcon>
     <TargetZone>LocalIntranet</TargetZone>
-    <GenerateManifests>true</GenerateManifests>
-    <SignAssembly>true</SignAssembly>
+    <GenerateManifests>false</GenerateManifests>
+    <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>AKUAG.snk</AssemblyOriginatorKeyFile>
     <Win32Resource>
     </Win32Resource>

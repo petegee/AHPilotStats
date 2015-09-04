@@ -22,21 +22,21 @@ namespace My2Cents.HTC.AHPilotStats.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Resources() {
+        public Resources() {
         }
         
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("My2Cents.HTC.AHPilotStats.Properties.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace My2Cents.HTC.AHPilotStats.Properties {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace My2Cents.HTC.AHPilotStats.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap AKUAG2 {
+        public static System.Drawing.Bitmap AKUAG2 {
             get {
                 object obj = ResourceManager.GetObject("AKUAG2", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -73,7 +73,7 @@ namespace My2Cents.HTC.AHPilotStats.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Spatula1 {
+        public static System.Drawing.Bitmap Spatula1 {
             get {
                 object obj = ResourceManager.GetObject("Spatula1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -89,7 +89,7 @@ namespace My2Cents.HTC.AHPilotStats.Properties {
         ///\par
         ///This application continues  [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string Tip0 {
+        public static string Tip0 {
             get {
                 return ResourceManager.GetString("Tip0", resourceCulture);
             }
@@ -102,7 +102,7 @@ namespace My2Cents.HTC.AHPilotStats.Properties {
         ///\pard\cf2\b0\fs20\par
         ///Did you know you can right click on most grid column headers to define a custom filter for that column? You can define one filter per column for as many columns in the grid as you like. This is very useful for homing in on subsets of data within th [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string Tip1 {
+        public static string Tip1 {
             get {
                 return ResourceManager.GetString("Tip1", resourceCulture);
             }
@@ -115,7 +115,7 @@ namespace My2Cents.HTC.AHPilotStats.Properties {
         ///\b0\par
         ///\pard\cf2 The scores loader deliberately pauses a few seconds between loading multiple scores in order to save load on Hitech Creations web servers. While this adds more delay than technically necessary, you will still get your scores, and know that you are not causing  [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string Tip2 {
+        public static string Tip2 {
             get {
                 return ResourceManager.GetString("Tip2", resourceCulture);
             }

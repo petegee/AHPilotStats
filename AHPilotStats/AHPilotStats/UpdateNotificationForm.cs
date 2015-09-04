@@ -14,14 +14,14 @@ namespace My2Cents.HTC.AHPilotStats
         private bool userWantsToClose = false;
         private UpdateNotification updateInfo;
 
-        internal bool UserWantsToClose
+        public bool UserWantsToClose
         {
             get { return userWantsToClose; }
             set { userWantsToClose = value; }
         }
 
 
-        internal UpdateNotificationForm(UpdateNotification updateInfo)
+        public UpdateNotificationForm(UpdateNotification updateInfo)
         {
             InitializeComponent();
 

@@ -12,7 +12,7 @@
     <AssemblyName>HTCPilotStatsSvc</AssemblyName>
     <StartupObject>
     </StartupObject>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>AKUAG.snk</AssemblyOriginatorKeyFile>
     <FileUpgradeFlags>
     </FileUpgradeFlags>

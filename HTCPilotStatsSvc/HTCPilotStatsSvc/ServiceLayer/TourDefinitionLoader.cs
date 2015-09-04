@@ -13,16 +13,16 @@ using My2Cents.HTC.PilotScoreSvc.Utilities;
 
 namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
 {
-    internal class TourDefinitionLoader
+    public class TourDefinitionLoader
     {
         private TourDefinitions definitions = null;
                 
-        internal TourDefinitionLoader()
+        public TourDefinitionLoader()
         {
             definitions = new TourDefinitions();
         }
 
-        internal TourDefinitions LoadTourDefinitions(ProxySettingsDTO proxySettings, string scoresURL, string statsURL)
+        public TourDefinitions LoadTourDefinitions(ProxySettingsDTO proxySettings, string scoresURL, string statsURL)
         {
             BuildTourMap(proxySettings, scoresURL);
             return definitions;

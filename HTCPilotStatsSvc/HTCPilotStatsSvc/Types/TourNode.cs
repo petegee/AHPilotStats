@@ -6,7 +6,7 @@ using System.Globalization;
 
 namespace My2Cents.HTC.PilotScoreSvc.Types
 {
-    internal class TourNode
+    public class TourNode
     {
         private int _tourId;
         private string _tourStartDate;

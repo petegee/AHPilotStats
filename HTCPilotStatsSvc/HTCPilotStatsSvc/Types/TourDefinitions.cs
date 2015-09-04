@@ -5,31 +5,31 @@ using System.Text;
 
 namespace My2Cents.HTC.PilotScoreSvc.Types
 {
-    internal class TourDefinitions
+    public class TourDefinitions
     {
-        internal TourDefinitions()
+        public TourDefinitions()
         { 
         }
 
         private Dictionary<string, Dictionary<int, TourNode>> tours = new Dictionary<string, Dictionary<int, TourNode>>();
 
-        internal Dictionary<string, Dictionary<int, TourNode>> Tours
+        public Dictionary<string, Dictionary<int, TourNode>> Tours
         {
             get { return tours; }
         }
 
-        internal bool IsTourDefinitionsComplete()
+        public bool IsTourDefinitionsComplete()
         {
             return tours.Count > 1;
         }
 
-        internal TourNode FindTour(string tourType, int tourid)
+        public TourNode FindTour(string tourType, int tourid)
         {
             Dictionary<int, TourNode> tourDictionary = tours[tourType];
             return tourDictionary[tourid];
         }
 
-        internal void AddTourToMap(TourNode tour)
+        public void AddTourToMap(TourNode tour)
         {
             if (tours.ContainsKey(tour.TourType))
             {

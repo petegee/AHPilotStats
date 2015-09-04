@@ -12,17 +12,17 @@ namespace My2Cents.HTC.PilotScoreSvc.Utilities
     class HttpToXMLLoader
     {
         ProxySettingsDTO _proxySettings = null;
-        internal HttpToXMLLoader(ProxySettingsDTO proxySettings) 
+        public HttpToXMLLoader(ProxySettingsDTO proxySettings) 
         {
             _proxySettings = proxySettings;
         }
 
-        internal XmlDocument LoadHtmlPageAsXMLByGet(string uri)
+        public XmlDocument LoadHtmlPageAsXMLByGet(string uri)
         {
             return LoadHtmlPageAsXMLInternal(String.Empty, uri, "GET");
         }
 
-        internal XmlDocument LoadHtmlPageAsXMLByPost(string uri, string postData)
+        public XmlDocument LoadHtmlPageAsXMLByPost(string uri, string postData)
         {
             return LoadHtmlPageAsXMLInternal(postData, uri, "POST");
         }

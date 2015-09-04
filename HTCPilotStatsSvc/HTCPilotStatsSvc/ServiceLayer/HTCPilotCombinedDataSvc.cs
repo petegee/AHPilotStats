@@ -7,10 +7,10 @@ using My2Cents.HTC.PilotScoreSvc.Types;
 namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
 {
 /*
-    internal class HTCPilotCombinedDataSvc
+    public class HTCPilotCombinedDataSvc
     {
-        internal delegate void UpdateProgressCallBackDelegate();
-        internal delegate void LoadCompletedCallBackDelegate();
+        public delegate void UpdateProgressCallBackDelegate();
+        public delegate void LoadCompletedCallBackDelegate();
 
 
         class DataLoaderThreadParams
@@ -38,7 +38,7 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
         }
 
 
-        internal DataLoaderThreadParams _threadParams = new DataLoaderThreadParams();
+        public DataLoaderThreadParams _threadParams = new DataLoaderThreadParams();
 
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
         /// <param name="toursToLoad"></param>
         /// <param name="proxySettings"></param>
         /// <returns></returns>
-        internal List<CompleteTourData> LoadAllData(List<string> pilotsToLoad,
+        public List<CompleteTourData> LoadAllData(List<string> pilotsToLoad,
                                                     List<HTCTour> toursToLoad,
                                                     ProxySettingsDTO proxySettings)
         {
@@ -65,7 +65,7 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
         /// <param name="progressCallback"></param>
         /// <param name="completeCallback"></param>
         /// <returns></returns>
-        internal List<CompleteTourData> LoadAllData(List<string> pilotsToLoad, 
+        public List<CompleteTourData> LoadAllData(List<string> pilotsToLoad, 
                                                     List<HTCTour> toursToLoad, 
                                                     ProxySettingsDTO proxySettings, 
                                                     UpdateProgressCallBackDelegate progressCallback, 
@@ -117,7 +117,7 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
 
 
 
-        internal HTCPilotCombinedDataSvc() 
+        public HTCPilotCombinedDataSvc() 
         {
             _UpdateProgressCallBack = new UpdateProgressCallBackDelegate(UpdateProgressCallBack);
             _LoadCompletedCallBack = new LoadCompletedCallBackDelegate(LoadCompletedCallBack);
@@ -229,7 +229,7 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
         }
 
 
-        internal void UpdateProgressCallBack()
+        public void UpdateProgressCallBack()
         {
             lock (lockObj)
             {

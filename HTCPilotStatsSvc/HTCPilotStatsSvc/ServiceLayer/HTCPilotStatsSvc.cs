@@ -10,13 +10,13 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
 	/// Implements a service which retrieves the Obj Vs Obj statistics for a given pilot, tour, and 
     /// tour-type combination via a formatted HTTP request to http://www.hitechcreations.com/cgi-bin/105score/105stats.pl
 	/// </summary>
-    internal class HTCPilotStatsSvc
-	{  
-        internal HTCPilotStatsSvc()
+    public class HTCPilotStatsSvc
+	{
+        public HTCPilotStatsSvc()
 		{
 		}
 
-        internal AcesHighPilotStats GetPilotStats(string pilotId, TourNode tour, ProxySettingsDTO proxySettings,  string statsURL)
+        public AcesHighPilotStats GetPilotStats(string pilotId, TourNode tour, ProxySettingsDTO proxySettings, string statsURL)
         {
             if (tour == null)
                 throw new ArgumentException("tour of type TourNode must be set!");

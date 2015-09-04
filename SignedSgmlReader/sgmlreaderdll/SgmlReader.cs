@@ -37,7 +37,7 @@ namespace Sgml {
     /// used to maintain current state of the parser for element stack, and attributes
     /// in each element.
     /// </summary>
-    internal class HWStack {
+    public class HWStack {
         object[] items;
         int size;
         int count;
@@ -91,11 +91,11 @@ namespace Sgml {
     /// This class represents an attribute.  The AttDef is assigned
     /// from a validation process, and is used to provide default values.
     /// </summary>
-    internal class Attribute {
-        internal string Name;    // the atomized name (using XmlNameTable).
-        internal AttDef DtdType; // the AttDef of the attribute from the SGML DTD.
-        internal char QuoteChar; // the quote character used for the attribute value.
-        internal string literalValue; // tha attribute value
+    public class Attribute {
+        public string Name;    // the atomized name (using XmlNameTable).
+        public AttDef DtdType; // the AttDef of the attribute from the SGML DTD.
+        public char QuoteChar; // the quote character used for the attribute value.
+        public string literalValue; // tha attribute value
 
         /// <summary>
         /// Attribute objects are reused during parsing to reduce memory allocations, 
@@ -133,16 +133,16 @@ namespace Sgml {
     /// for validation purposes, and these Node objects are reused to reduce object allocation,
     /// hence the reset method.  
     /// </summary>
-    internal class Node {
-        internal XmlNodeType NodeType;
-        internal string Value;
-        internal XmlSpace Space;
-        internal string XmlLang;
-        internal bool IsEmpty;        
-        internal string Name;
-        internal ElementDecl DtdType; // the DTD type found via validation
-        internal State CurrentState;
-        internal bool Simulated; // tag was injected into result stream.
+    public class Node {
+        public XmlNodeType NodeType;
+        public string Value;
+        public XmlSpace Space;
+        public string XmlLang;
+        public bool IsEmpty;        
+        public string Name;
+        public ElementDecl DtdType; // the DTD type found via validation
+        public State CurrentState;
+        public bool Simulated; // tag was injected into result stream.
         HWStack attributes = new HWStack(10);
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace Sgml {
     }
 
     // This enum is used to track the current state of te SgmlReader
-    internal enum State {
+    public enum State {
         Initial,    // The initial state (Read has not been called yet)
         Markup,     // Expecting text or markup
         EndTag,     // Positioned on an end tag
@@ -367,7 +367,7 @@ namespace Sgml {
         }
 
         /// <summary>
-        /// The DTD internal subset in the DOCTYPE tag
+        /// The DTD public subset in the DOCTYPE tag
         /// </summary>
         public string InternalSubset {
             get { return this.subset; }
