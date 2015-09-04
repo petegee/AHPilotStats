@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xs:element name="AHTourList">
+    <xs:complexType>
+      <xs:sequence maxOccurs="unbounded">
+        <xs:element name="AHTourNode">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="TourNumber" type="xs:int" />
+              <xs:element name="TourStartDate" type="xs:date" />
+              <xs:element name="TourEndDate" type="xs:date" />
+              <xs:element name="TourType">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="AvaTour" />
+                    <xs:enumeration value="MainArenaTour" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="TourSelectArg" type="xs:string" />
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

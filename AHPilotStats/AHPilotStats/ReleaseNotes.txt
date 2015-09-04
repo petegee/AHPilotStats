@@ -1,0 +1,236 @@
+*******************************************************************************
+** Aces High II Pilot Stats 
+** By Spatula of "Airborne Kitchen Utensil Assualt Group" (AKUAG) C/- My2Cents.co.nz
+** Copyright 2006 AKUAG/My2Cents
+**
+** email: taurineman@lycos.com
+**
+** Redistribution of this application is NOT permitted. 
+** Anyone else wanting a copy of this application can download it from
+** http://www.my2cents.co.nz/AKUAG/Resources.aspx
+** The author takes no responsibility for the use of this application or its
+** constituant parts.
+**
+**
+** Release Notes:
+**
+*******************************************************************************
+
+Version:
+1.7.0 (Public/Only Version) [25-MAR-2010]
+===========================================
+1. Altered the way tour definitions are transformed, mapped, and used
+   to be more flexible when/if HTC add new tour types (eg the WW1 Arena).
+   This changes the tourdefinitions.xslt XSLT transform doc, the stats 
+   service, and the stats app.
+   * Note: This fixes the load errors that were seen since AH 2.18 was released.
+2. Added a new update check on application boot. Notifies users of a more recent version
+   than they are currently running.
+3. Fixed a bug in the Obj v Obj tab where switching between the group-by clauses did not cause
+   a refresh.
+4. Added Column filtering to all tables except obj v obj grid (which already had it sort of).
+5. Added start up tips.
+6. Added donation consideration message in the application status strip.
+   
+
+1.6.0 (Public/Only Version) [21-APR-2009]
+===========================================
+1. Changed the logic for assembling composite squad data. The squad members now no longer
+   need to be 'in sync' with each other. The squad page will now simply display the composite
+   of the data it has loaded. The onus is now on the user to ensure they keep the stats of the
+   contributing members of their squads up to date. The app will no longer attempt to warn/stop
+   if they are not.
+2. Brought the app up to speed with the new HTC stats pages after they were unified with the 
+   new(ish) scores pages. Removed all the extra code and leg-work needed to keep a list of
+   'legacy' tour meta data for the loading of stats. Now the stats loader can leverage the 
+   meta data the scores loader uses. 
+3. Altered the loader to use only one loader thread which now loads scores and then stats in sequence
+   5 seconds apart from each other.
+4. Fixed a bug where the loader were supposed to wait 5 seconds between calls if loading multiple
+   pilot/tours in one go and they didnt. Loader now waits 5 seconds as it should have all along.
+5. Fixed a bug where if a stats object failed to load then it would crash the app under some circum-
+   stances. Now it will just warn the user if data is missing.
+6. Fixed a bug in the life-time management of the Registry object. It was always intended to fully load
+   the stats at app start-up, however it never did and only loaded on demand. Now it does.
+   
+1.5.4 (Public/Only Version) [15th Nov 2008]
+===========================================
+1. Fixed a bug (introduced in 1.5.3) which stopped the application from displaying a pilot's 
+   statistics if you had no AKUAG sqaud defined. 
+
+1.5.3 (Public/Only Version) [5th Oct 2008]
+==========================================
+1. Fixed a bug where in the Obj Vs Obj tab, the All Tours selection counted the first
+   tour's data twice. Thanks to Lusche/Snailman for pointing this out.
+2. Fixed a minor bug on the loader screen.
+
+
+1.5.2 (Public/Only Version) [10 July 2008]
+==========================================
+1. Added a new "Tour" column and made the grids sorted by tour number only. This fixes
+   the apparent tour sort order bug for tours over 100. The new "Tour" column displays
+   only the tour number. The old "Tour" column is renamed to "Tour Details".
+2. Rebranded the old AKUAG icons with the new one.
+
+
+1.5.1 (Public/Only Version) [16 March 2008]
+============================================
+1. Made the stats/scores pages URLs configurable by way of the app.config file. 
+   This should make handling any URL changes easier in the future (eg only a 
+   config file patch, not a binary re-release). Should really have done this ages
+   ago, but i'm a slack bastard.
+2. Added the new server name to the stats/scores pages to fix the fault of loader
+   failing since HTC relocated/renamed their score and BB servers for the BB upgrade.
+3. Fixed the totals columns on the Obj v Obj page so you can actually see them - duh...
+ 
+
+1.5.0 (Public/Only Version) [11 October 2007]
+============================================
+1. Changed the Data loader to force download the HTC tour definitions 
+   during its initialisation, rather than during the first data load.
+   This means that the user can now only select valid tour type/tour 
+   number combinations. 
+2. You now filter the graphs page to only graph one tour type at a time. Theres
+   no point showing a graph containg AVA tour data in the same graph as say a MWMainArenaTour
+   etc. This is really a bug fix...
+3. Altered the way errors are reported to the user during load.
+4. The loader threads no longer write the files directly as they load. They are now assigned
+   to a list in the thread parameter which is marshalled back to the caller (main) thread
+   to do the writing and reporting of errors in one place for logical consistency. IT was possible 
+   to write a stats object and no scores object with the old arrangement as each thread didnt know 
+   the issues the other encounters. This ensures we write out both scores and stats objects as a 
+   logical whole - never one or the other if one errors during load.
+5. HTCPilotScoreSvc is now at version 1.4.0 and introduces a new TourDefinitionsLoaderSvc - which
+   is called the the data loader form constructor.
+6. Changed the interfaces to the Stats and Score Loader Services.
+7. Added TourDefinitions to the registry - they only are loaded when they are needed.
+8. Fixed a bug with the initial sort orders of the grids.
+9. Altered the layout of the loader form, so you choose the tour type before the
+   tour start and end numbers. This is because the number range you can select from
+   now depend on the tour type selected.
+10. Changed the TourListTransform and LegacyTourListTransform XSLT files to 
+    switch on the new tour types (LW, EW, MW etc). The XSLT transform pack is now
+    at version 1.5	
+11. LW Arena tour data will still be called simply "MainArenaTour". EW and MW are 
+	called EWMainArena and MWMainArena, respectively, and from Oct 07 start numbering
+	from 1 (where LW tours continue from where the old MA tour left off at 93).
+	
+
+
+1.4.0 (Public/Only Version) [12 July 2007]
+=========================================
+1. App now captures 'Died In' stat for each model. This means i have changed the XSD to 
+   add a new optional element 'Died In' (int). The new stat is shown in the Obj Vs Obj
+   tab. This also means i've changed the XSLT transform for the stats XML transform.
+   1.4.0 is tolerant of old XML stats files without the 'Died In' stat, the column
+   in the grid will show as empty and the running totals Died In and Kills/Death will be
+   empty. You are urged to reload all your data so that the new features can work properly.
+2. Added a new column ('Died In') in the Obj Vs Obj tab.
+3. Added a new column ('Kills/Death') in the Obj Vs Obj tab.
+4. Added new running totals boxes at the bottom of the Obj Vs Obj grid.
+5. The new version (1.4.0) includes the stats service dll version 1.3.0, and XSLT pack ver 1.4.
+6. Altered the loader dialog to always capitalise the first letter of the pilot name for consistency.
+7. Fixed the bug where you get two entries for the same pilot, if one of the first letters in the 
+   stats files filename are different case.
+8. Fixed a bug in the define squad form which crashes the app if you use illegal filename characters
+   in your squad name. Illegal characters are dropped from the filename.
+9. Refactored the CastNumberAndCompareTo() method in my SortableBindingList<T> class.
+   
+
+
+1.3.2 (Public/Only Version) [6th June 2007]
+===========================================
+1. Fixed a big which crashed the application if you try to download tour 88 stats. This fix
+   invloves code changes to the stats loader service assembly (now version 1.2.2) and a new
+   XSLT, and a change to an existing XSLT. The new XSLT pack which comes with this new version
+   is version 1.3.
+   Also added a new feature to the apps menu. It now includes a Help -> News menu which launches
+   your web browser and loads the new AKUAG support web page which may be useful to determine
+   any issues with the application. I will try keep it up to date so that it contains useful info.
+   
+
+1.3.1 (Public/Only Version) [2nd April 2007]
+===========================================
+1. Fixed a bug in the HTCPilotStatsSvc.dll assembly which causes the app to crash if 
+   try download data on days after when the tour is due to end due to the lag in HTC
+   rolling over the tours on the next business of the new month. Typically this would
+   only affect those who try DL data on the 1st, 2nd and maybe 3rd of a new month
+   if HTC hasnt rolled the tours for the new month yet.
+   
+
+1.3.0 (Public/Only Version) [28th Feb 2007]
+===========================================
+1. built new XSLT template for the new HTC scores page, and new XSLT for the existing stats page.
+2. Removed all existing limitations from the public version and replaced them with a simple
+   timer/Sleep code when doing multi-loads. Now the two loader threads enforce a 10 second sleep 
+   after each HTTP call before it does the next in its list. This should stagger the load and slow
+   the hits/minute on HTC's web servers to no more than 2 (average) per every ten seconds.
+3. Fixed numerous bugs with the squad functionality - now that people may actually use it... 
+4. Changed the definition of squad to include start/end tours for each member. 
+5. Altered the loader service (now version 1.2.0) to use XSLT 2.0 (Saxon Parser). Now it should be 
+   easier to stay up to date with any changes HTC make to their web pages. 
+6. Removed the clumbsy HTTPSender assembly - now its all .NET API calls.
+7. Added dependency on the SaxonAPI assembly for the XSLT 2.0 parsing.
+8. Added a delete pilot functionality. This deletes all xml data files for the nominated pilot in 
+   the data folder and forces a registry and menu refresh.
+9. Changed the net connection form to me non-modal (never should have been).
+10. Added restriction so that only one copy of this app can be run at any one time per PC.
+
+Notes: delete any squad def xml files in your squad subfolder if you have any. Redefine your squad.
+
+
+1.2.3
+=====
+Altered the host that the app uses to retrieve the data from since HTC has moved the 
+scores pages to a new host.
+
+
+1.2.2.0
+=======
+Fixed a bug which crashed the loader since the addition in AHII 2.09 of the F4u-1a.
+Made it slightly easier to keep the app up to date when new a/c are added by HTC.
+Fixed a sorting bug in the obj v obj grid.
+Fixed a defect on the loader form.
+
+
+1.2.1.0
+=======
+AHPilotStats.exe 1.2.1 (Public Version) [Built 15th September 2006]
+HTCPilotStatsSvc.dll 1.1.1
+Fixed issues with the comma decimal seperator for some locales in the HTCPilotStatsSvc.dll
+Also fixed a misc bug with the loader form in AHPilotStats.exe
+
+
+1.2.0.0 (Public version) [Built 10th September 2006]
+=================================
+The assembly and all its referenced assemblies (except nplot) are now strong-named and signed assemblies. 
+This will help limit the re-use of some of this applications parts for potential malicious use.
+Addition of release notes in build.
+Changed all public modifiers in the HTCPilotStatsSvc assembly to internal, and made AHPilotStats a 
+'friend' assembly of it so that only AHPilotStats can access the HTCPilotStatsSvc's methods and members.
+Rename the text on data loader form from "Loading Pilot Data - Please Wait..." to 
+"Down-loading Pilot Data - Please Wait...".
+
+
+1.1.2.0 (super-user version) [Built 31th August 2006]
+==============================
+Same as 1.1.2.0 public, but no restrictions.
+
+
+1.1.2.0 (Public version) [Built 30th August 2006]
+==============================
+Numerous bugs corrected. 
+The public version is now no longer just a viewer, ive included the download stats functions.
+Added limiting features added for the public version: the public version disallows 
+downloading an entire sqaudron, disallows downloading of more than one tour per time.
+
+
+1.1.1.0 (public version) [Built 20th August 2006]
+==============================
+Public version released.
+Public version is only a read-only viewer version only.
+Some bug fixes.
+
+
+
+*******************************************************************************
