@@ -10,7 +10,7 @@ namespace My2Cents.HTC.PilotScoreSvc.Types
     [Serializable()]
     public class ProxySettingsDTO
     {
-        public enum ProxyOption {Direct, UseIESettings, Custom };
+        public enum ProxyOption {Direct, Custom };
 
         public ProxySettingsDTO() 
         { 

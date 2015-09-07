@@ -55,12 +55,6 @@ namespace My2Cents.HTC.AHPilotStats
             _proxySettings.Option = ProxySettingsDTO.ProxyOption.Direct;
         }
 
-        private void radButUseIESettings_CheckedChanged(object sender, EventArgs e)
-        {
-            groupBox1.Enabled = false;
-            _proxySettings.Option = ProxySettingsDTO.ProxyOption.UseIESettings;
-        }
-
         private void radButCustom_CheckedChanged(object sender, EventArgs e)
         {
             groupBox1.Enabled = true;
@@ -76,9 +70,6 @@ namespace My2Cents.HTC.AHPilotStats
             { 
                 case ProxySettingsDTO.ProxyOption.Custom:
                     radButCustom.Checked = true;
-                    break;
-                case ProxySettingsDTO.ProxyOption.UseIESettings:
-                    radButUseIESettings.Checked = true;
                     break;
                 case ProxySettingsDTO.ProxyOption.Direct:
                     radButDirectConnection.Checked = true;

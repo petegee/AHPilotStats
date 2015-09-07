@@ -34,10 +34,6 @@ namespace My2Cents.HTC.PilotScoreSvc.Utilities
 
             // Deal with proxy details if any.
             WebProxy proxy = null;
-            if (_proxySettings.Option == ProxySettingsDTO.ProxyOption.UseIESettings)
-            {
-                throw new NotSupportedException("IE proxy settings are not supported by this module!");
-            }
             if (_proxySettings.Option == ProxySettingsDTO.ProxyOption.Custom)
             {
                 proxy = new WebProxy(_proxySettings.ProxyHost, _proxySettings.ProxyPort);
