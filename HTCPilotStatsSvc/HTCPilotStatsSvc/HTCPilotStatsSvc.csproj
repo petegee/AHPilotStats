@@ -13,7 +13,8 @@
     <StartupObject>
     </StartupObject>
     <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile>AKUAG.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
@@ -71,7 +72,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="AKUAG.snk" />
     <None Include="Schemas\TourList.xsd">
       <SubType>Designer</SubType>
     </None>

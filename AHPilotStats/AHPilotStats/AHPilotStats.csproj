@@ -14,7 +14,8 @@
     <TargetZone>LocalIntranet</TargetZone>
     <GenerateManifests>false</GenerateManifests>
     <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile>AKUAG.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
     <Win32Resource>
     </Win32Resource>
     <FileUpgradeFlags>
@@ -26,7 +27,7 @@
     <ManifestCertificateThumbprint>338356FD2F36C2AE3287290B9944C94912A6A43F</ManifestCertificateThumbprint>
     <ManifestKeyFile>AHPilotStats_TemporaryKey.pfx</ManifestKeyFile>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <PublishUrl>http://localhost/AHPilotStats/</PublishUrl>
     <Install>true</Install>
@@ -262,10 +263,8 @@
     <Content Include="AppIcon.ico" />
     <Content Include="netconxsettings.xml" />
     <Content Include="ReleaseNotes.txt" />
-    <None Include="AHPilotStats_TemporaryKey.pfx" />
     <None Include="Properties\app.manifest" />
     <None Include="Resources\AKUAG2.gif" />
-    <None Include="AKUAG.snk" />
     <None Include="App.config" />
     <None Include="Properties\DataSources\My2Cents.HTC.AHPilotStats.DomainObjects.Squad+SquadMember.datasource" />
     <None Include="Properties\DataSources\My2Cents.HTC.AHPilotStats.DomainObjects.Squad+SquadMember1.datasource" />
