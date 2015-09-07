@@ -312,11 +312,6 @@ namespace My2Cents.HTC.AHPilotStats
             form.Show();
         }
 
-        private void newsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            System.Diagnostics.Process.Start(@"http://www.major.geek.nz/AKUAG/Resources_Files/News.aspx");
-        }
-
         private void toolStripStatusLabel3_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start(@"http://www.paypal.com");

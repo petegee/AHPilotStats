@@ -26,8 +26,7 @@ namespace My2Cents.HTC.AHPilotStats
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                if(!UpdateNotifier.CheckForUpdates())
-                    Application.Run(new MainMDI());
+                Application.Run(new MainMDI());
             }
             else
             {

@@ -37,13 +37,12 @@ namespace My2Cents.HTC.AHPilotStats
             this.newPilotStatsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.squadsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.windowsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tipsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.newsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tipsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -74,21 +73,21 @@ namespace My2Cents.HTC.AHPilotStats
             // loadNewPilotToolStripMenuItem
             // 
             this.loadNewPilotToolStripMenuItem.Name = "loadNewPilotToolStripMenuItem";
-            this.loadNewPilotToolStripMenuItem.Size = new System.Drawing.Size(230, 22);
+            this.loadNewPilotToolStripMenuItem.Size = new System.Drawing.Size(219, 22);
             this.loadNewPilotToolStripMenuItem.Text = "&Download Data";
             this.loadNewPilotToolStripMenuItem.Click += new System.EventHandler(this.loadNewPilotToolStripMenuItem_Click);
             // 
             // defineSquadronToolStripMenuItem
             // 
             this.defineSquadronToolStripMenuItem.Name = "defineSquadronToolStripMenuItem";
-            this.defineSquadronToolStripMenuItem.Size = new System.Drawing.Size(230, 22);
+            this.defineSquadronToolStripMenuItem.Size = new System.Drawing.Size(219, 22);
             this.defineSquadronToolStripMenuItem.Text = "Define &Squadron";
             this.defineSquadronToolStripMenuItem.Click += new System.EventHandler(this.defineSquadronToolStripMenuItem_Click);
             // 
             // editConnectionTypeToolStripMenuItem
             // 
             this.editConnectionTypeToolStripMenuItem.Name = "editConnectionTypeToolStripMenuItem";
-            this.editConnectionTypeToolStripMenuItem.Size = new System.Drawing.Size(230, 22);
+            this.editConnectionTypeToolStripMenuItem.Size = new System.Drawing.Size(219, 22);
             this.editConnectionTypeToolStripMenuItem.Text = "&Edit Internet Connection Type";
             this.editConnectionTypeToolStripMenuItem.Click += new System.EventHandler(this.editConnectionTypeToolStripMenuItem_Click);
             // 
@@ -108,11 +107,17 @@ namespace My2Cents.HTC.AHPilotStats
             // 
             this.windowsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tipsToolStripMenuItem,
-            this.aboutToolStripMenuItem,
-            this.newsToolStripMenuItem});
+            this.aboutToolStripMenuItem});
             this.windowsToolStripMenuItem.Name = "windowsToolStripMenuItem";
             this.windowsToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
             this.windowsToolStripMenuItem.Text = "&Help";
+            // 
+            // tipsToolStripMenuItem
+            // 
+            this.tipsToolStripMenuItem.Name = "tipsToolStripMenuItem";
+            this.tipsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.tipsToolStripMenuItem.Text = "&Tips";
+            this.tipsToolStripMenuItem.Click += new System.EventHandler(this.tipsToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem
             // 
@@ -120,13 +125,6 @@ namespace My2Cents.HTC.AHPilotStats
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.aboutToolStripMenuItem.Text = "&About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
-            // 
-            // newsToolStripMenuItem
-            // 
-            this.newsToolStripMenuItem.Name = "newsToolStripMenuItem";
-            this.newsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.newsToolStripMenuItem.Text = "&News";
-            this.newsToolStripMenuItem.Click += new System.EventHandler(this.newsToolStripMenuItem_Click);
             // 
             // statusStrip1
             // 
@@ -145,7 +143,7 @@ namespace My2Cents.HTC.AHPilotStats
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(446, 17);
             this.toolStripStatusLabel1.Text = "If you like this application, please consider supporting it by making a donation " +
-                "via paypal to:";
+    "via paypal to:";
             // 
             // toolStripStatusLabel2
             // 
@@ -161,13 +159,6 @@ namespace My2Cents.HTC.AHPilotStats
             this.toolStripStatusLabel3.Size = new System.Drawing.Size(62, 17);
             this.toolStripStatusLabel3.Text = "PayPal.com";
             this.toolStripStatusLabel3.Click += new System.EventHandler(this.toolStripStatusLabel3_Click);
-            // 
-            // tipsToolStripMenuItem
-            // 
-            this.tipsToolStripMenuItem.Name = "tipsToolStripMenuItem";
-            this.tipsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.tipsToolStripMenuItem.Text = "&Tips";
-            this.tipsToolStripMenuItem.Click += new System.EventHandler(this.tipsToolStripMenuItem_Click);
             // 
             // MainMDI
             // 
@@ -203,7 +194,6 @@ namespace My2Cents.HTC.AHPilotStats
         private System.Windows.Forms.ToolStripMenuItem loadNewPilotToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem squadsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem defineSquadronToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem newsToolStripMenuItem;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;

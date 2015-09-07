@@ -180,9 +180,6 @@
     <EmbeddedResource Include="StartupTips.resx">
       <DependentUpon>StartupTips.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UpdateNotificationForm.resx">
-      <DependentUpon>UpdateNotificationForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="WaitDialog.resx">
       <SubType>Designer</SubType>
       <DependentUpon>WaitDialog.cs</DependentUpon>
@@ -221,13 +218,6 @@
     <Compile Include="StartupTips.Designer.cs">
       <DependentUpon>StartupTips.cs</DependentUpon>
     </Compile>
-    <Compile Include="UpdateNotificationForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UpdateNotificationForm.Designer.cs">
-      <DependentUpon>UpdateNotificationForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UpdateNotifier.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="WaitDialog.cs">
       <SubType>Form</SubType>
