@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace My2Cents.HTC.AHPilotStats
@@ -13,11 +8,11 @@ namespace My2Cents.HTC.AHPilotStats
         public About()
         {
             InitializeComponent();
-        }
 
-        private void label2_Click(object sender, EventArgs e)
-        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
 
+            label2.Text = "Version " + fvi.FileVersion;
         }
     }
 

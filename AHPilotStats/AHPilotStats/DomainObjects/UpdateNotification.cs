@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Reflection;
 using System.Xml.Serialization;
 
 namespace My2Cents.HTC.AHPilotStats.DomainObjects
 {
-    [Serializable()]
+    [Serializable]
     [XmlRootAttribute(Namespace = "", IsNullable = false)]
     public class UpdateNotification
     {

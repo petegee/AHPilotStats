@@ -1,75 +1,76 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Sgml;
-using System.Xml;
-using System.Net;
 using System.IO;
+using System.Net;
+using System.Text;
+using System.Xml;
 using My2Cents.HTC.PilotScoreSvc.Types;
+using Sgml;
 
 namespace My2Cents.HTC.PilotScoreSvc.Utilities
 {
-    class HttpToXMLLoader
+    internal class HttpToXMLLoader
     {
-        ProxySettingsDTO _proxySettings = null;
-        public HttpToXMLLoader(ProxySettingsDTO proxySettings) 
+        private readonly ProxySettingsDTO _proxySettings;
+
+        public HttpToXMLLoader(ProxySettingsDTO proxySettings)
         {
             _proxySettings = proxySettings;
         }
 
-        public XmlDocument LoadHtmlPageAsXMLByGet(string uri)
+        public XmlDocument LoadHtmlPageAsXmlByGet(string uri)
         {
-            return LoadHtmlPageAsXMLInternal(String.Empty, uri, "GET");
+            return LoadHtmlPageAsXmlInternal(string.Empty, uri, "GET");
         }
 
-        public XmlDocument LoadHtmlPageAsXMLByPost(string uri, string postData)
+        public XmlDocument LoadHtmlPageAsXmlByPost(string uri, string postData)
         {
-            return LoadHtmlPageAsXMLInternal(postData, uri, "POST");
+            return LoadHtmlPageAsXmlInternal(postData, uri, "POST");
         }
 
-        private XmlDocument LoadHtmlPageAsXMLInternal(string postData, string uri, string httpMethod)
+        private XmlDocument LoadHtmlPageAsXmlInternal(string postData, string uri, string httpMethod)
         {
             // Prepare web request...
-            HttpWebRequest webrequest = (HttpWebRequest)WebRequest.Create(uri);
+            var webrequest = (HttpWebRequest) WebRequest.Create(uri);
 
             // Deal with proxy details if any.
-            WebProxy proxy = null;
             if (_proxySettings.Option == ProxySettingsDTO.ProxyOption.Custom)
             {
-                proxy = new WebProxy(_proxySettings.ProxyHost, _proxySettings.ProxyPort);
+                var proxy = new WebProxy(_proxySettings.ProxyHost, _proxySettings.ProxyPort);
                 webrequest.Proxy = proxy;
             }
             webrequest.Method = httpMethod;
 
-            if(String.Equals(httpMethod, "POST", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(httpMethod, "POST", StringComparison.OrdinalIgnoreCase))
             {
-                ASCIIEncoding encoding = new ASCIIEncoding();
-                byte[] data = encoding.GetBytes(postData);
+                var encoding = new ASCIIEncoding();
+                var data = encoding.GetBytes(postData);
 
                 webrequest.ContentType = "application/x-www-form-urlencoded";
                 webrequest.ContentLength = data.Length;
 
-                using (Stream newStream = webrequest.GetRequestStream())
+                using (var newStream = webrequest.GetRequestStream())
                 {
                     newStream.Write(data, 0, data.Length);
                 }
             }
 
 
-            HttpWebResponse webresponse = (HttpWebResponse)webrequest.GetResponse();
-            Encoding enc = System.Text.Encoding.GetEncoding(1252);
-            StreamReader loResponseStream = new StreamReader(webresponse.GetResponseStream(), enc);
-            string Buffer = loResponseStream.ReadToEnd();
+            var webresponse = (HttpWebResponse) webrequest.GetResponse();
+            var enc = Encoding.GetEncoding(1252);
+            var loResponseStream = new StreamReader(webresponse.GetResponseStream(), enc);
+            var buffer = loResponseStream.ReadToEnd();
             loResponseStream.Close();
             webresponse.Close();
 
-            StringReader stringReader = new StringReader(Buffer);
+            var stringReader = new StringReader(buffer);
 
             // Use the cool sgml reader to 'interpret' the HTML as XML :) very nice!
-            SgmlReader sgmlReader = new SgmlReader();
-            sgmlReader.DocType = "HTML";
-            sgmlReader.InputStream = stringReader;
-            XmlDocument doc = new XmlDocument();
+            var sgmlReader = new SgmlReader
+            {
+                DocType = "HTML",
+                InputStream = stringReader
+            };
+            var doc = new XmlDocument();
             doc.Load(sgmlReader);
 
             return doc;

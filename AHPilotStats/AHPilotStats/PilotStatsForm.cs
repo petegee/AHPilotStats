@@ -1,67 +1,118 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
+using System.Linq;
 using System.Windows.Forms;
-
-using My2Cents.HTC.PilotScoreSvc; 
-using My2Cents.HTC.AHPilotStats.DomainObjects;
 using DgvFilterPopup;
+using My2Cents.HTC.AHPilotStats.DomainObjects;
 
 namespace My2Cents.HTC.AHPilotStats
 {
     public partial class PilotStatsForm : Form
     {
-        public class NVPair
+        private bool _compositeObjVsObjDataIncomplete;
+        private readonly bool _isCompositeData;
+
+        private readonly GraphBuilder _grapher;
+        private readonly DgvFilterManager _attackScoreFilterManager = new DgvFilterManager();
+        private readonly DgvFilterManager _attackStatsFilterManager = new DgvFilterManager();
+        private readonly DgvFilterManager _bomberScoreFilterManager = new DgvFilterManager();
+        private readonly DgvFilterManager _bomberStatsFilterManager = new DgvFilterManager();
+        private readonly DgvFilterManager _fighterScoreFilterManager = new DgvFilterManager();
+        private readonly DgvFilterManager _fighterStatsFilterManager = new DgvFilterManager();
+        private readonly DgvFilterManager _vehicleScoreFilterManager = new DgvFilterManager();
+        private readonly DgvFilterManager _vehicleStatsFilterManager = new DgvFilterManager();
+
+        public string PilotName { get; private set; }
+
+        public bool CompositeObjVsObjDataIncomplete
+        {
+            get { return _compositeObjVsObjDataIncomplete; }
+            set {
+                _compositeObjVsObjDataIncomplete = _isCompositeData && value;
+            }
+        }
+
+
+        private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var control = (TabControl) sender;
+
+            if (control.SelectedTab.Text != "Obj Vs Obj" || !_compositeObjVsObjDataIncomplete) 
+                return;
+
+            const string message = "Some pilots in your squad need reloading to get the new 'Died In' data.\n" +
+                                   "Identify the pilots/tours without 'Died In' data, and reload those.\n" +
+                                   "Until then there will some gaps in your sqauds data.";
+
+            MessageBox.Show(message, "Warning");
+        }
+
+        private void fighterStatsDODataGridView_DataBindingComplete(object sender,
+            DataGridViewBindingCompleteEventArgs e)
+        {
+            fighterScoresDODataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+        }
+
+        private void fighterStatsDODataGridView1_DataBindingComplete(object sender,
+            DataGridViewBindingCompleteEventArgs e)
+        {
+            fighterStatsDODataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+        }
+
+        private void attackScoresDODataGridView_DataBindingComplete(object sender,
+            DataGridViewBindingCompleteEventArgs e)
+        {
+            attackScoresDODataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+        }
+
+        private void attackStatsDODataGridView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            attackStatsDODataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+        }
+
+        private void bomberScoresDODataGridView_DataBindingComplete(object sender,
+            DataGridViewBindingCompleteEventArgs e)
+        {
+            bomberScoresDODataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+        }
+
+        private void bomberStatsDODataGridView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            bomberStatsDODataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+        }
+
+        private void vehicleBoatScoresDODataGridView_DataBindingComplete(object sender,
+            DataGridViewBindingCompleteEventArgs e)
+        {
+            vehicleBoatScoresDODataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+        }
+
+        private void vehicleBoatStatsDODataGridView_DataBindingComplete(object sender,
+            DataGridViewBindingCompleteEventArgs e)
+        {
+            vehicleBoatStatsDODataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+        }
+
+        public class NameValuePair
         {
             public string Name;
             public string Value;
-            public NVPair(string name, string value)
+
+            public NameValuePair(string name, string value)
             {
                 Name = name;
                 Value = value;
             }
+
             public override string ToString()
             {
                 return Value;
             }
         }
 
-        private DgvFilterManager fighterScoreFilterManager = new DgvFilterManager();
-        private DgvFilterManager fighterStatsFilterManager = new DgvFilterManager();
-        private DgvFilterManager attackScoreFilterManager = new DgvFilterManager();
-        private DgvFilterManager attackStatsFilterManager = new DgvFilterManager();
-        private DgvFilterManager bomberScoreFilterManager = new DgvFilterManager();
-        private DgvFilterManager bomberStatsFilterManager = new DgvFilterManager();
-        private DgvFilterManager vehicleScoreFilterManager = new DgvFilterManager();
-        private DgvFilterManager vehicleStatsFilterManager = new DgvFilterManager();
-
-        private string _PilotName;
-        private GraphBuilder grapher;
-        private bool _isCompositeData = false;
-        private bool _compositeObjVsObjDataIncomplete = false;
-
-        public string PilotName
-        {
-            get { return _PilotName;  }
-        }
-
-        public bool CompositeObjVsObjDataIncomplete
-        {
-            get { return _compositeObjVsObjDataIncomplete; }
-            set 
-            {
-                if (_isCompositeData)
-                    _compositeObjVsObjDataIncomplete = value;
-                else
-                    _compositeObjVsObjDataIncomplete = false;
-            }
-        }
-
-
         #region Construction
+
         //////////////////////////////////////////////////////////////////////////////////
         //
         // Construction
@@ -73,97 +124,87 @@ namespace My2Cents.HTC.AHPilotStats
 
             BindDataToGrids(pilotName);
 
-            this.Text = pilotName;
+            Text = pilotName;
             _isCompositeData = isCompositeData;
-            _PilotName = pilotName;
+            PilotName = pilotName;
 
-            grapher = new GraphBuilder(pilotName);
+            _grapher = new GraphBuilder(pilotName);
 
             PopulateTourTypeFilterComboBox();
-            //BindPilotStatsToGrids(pilotName);
 
-            foreach (string model in Registry.Instance.ModelList)
-                this.cmboxModelSelector.Items.Add(model);
+            foreach (var model in Registry.Instance.ModelList)
+                cmboxModelSelector.Items.Add(model);
 
             PopulateObjVsObjTourDropDownList();
-            //radBtnByTour.Checked = true;
-            //radBtnByModel.Checked = false;
             cmboxModelSelector.Enabled = false;
             cmbBoxObjVObjTourList.Enabled = true;
 
             cmbBoxMode.SelectedItem = "Fighter";
             plotSurface2D.Hide();
-
-            if (_PilotName == "AKUAG")
-            {
-                TabPage akuagTabPage = new TabPage("AKUAG");
-                AKUAGStatsPanel panel = new AKUAGStatsPanel();
-                akuagTabPage.Controls.Add(panel);
-                this.tabControl.TabPages.Add(akuagTabPage);
-            }
-
-           
         }
 
 
         private void BindDataToGrids(string pilotName)
         {
-            this.fighterScoresDODataGridView.DataSource = Utility.CreateDataTableFromList<FighterScoresDO>(Registry.Instance.GetPilotStats(pilotName).FighterScoresList);
-            fighterScoreFilterManager.ColumnFilterAdding += new ColumnFilterEventHandler(ColumnFilterAdding);
-            fighterScoreFilterManager.DataGridView = this.fighterScoresDODataGridView;
+            fighterScoresDODataGridView.DataSource =
+                Utility.CreateDataTableFromList(Registry.Instance.GetPilotStats(pilotName).FighterScoresList);
+            _fighterScoreFilterManager.ColumnFilterAdding += ColumnFilterAdding;
+            _fighterScoreFilterManager.DataGridView = fighterScoresDODataGridView;
 
-            this.fighterStatsDODataGridView.DataSource = Utility.CreateDataTableFromList<StatsDomainObject>(Registry.Instance.GetPilotStats(pilotName).FighterStatsList);
-            fighterStatsFilterManager.ColumnFilterAdding += new ColumnFilterEventHandler(ColumnFilterAdding);
-            fighterStatsFilterManager.DataGridView = this.fighterStatsDODataGridView;
+            fighterStatsDODataGridView.DataSource =
+                Utility.CreateDataTableFromList(Registry.Instance.GetPilotStats(pilotName).FighterStatsList);
+            _fighterStatsFilterManager.ColumnFilterAdding += ColumnFilterAdding;
+            _fighterStatsFilterManager.DataGridView = fighterStatsDODataGridView;
 
-            this.attackScoresDODataGridView.DataSource = Utility.CreateDataTableFromList<AttackScoresDO>(Registry.Instance.GetPilotStats(pilotName).AttackScoresList);
-            this.attackScoreFilterManager.ColumnFilterAdding += new ColumnFilterEventHandler(ColumnFilterAdding);
-            this.attackScoreFilterManager.DataGridView = this.attackScoresDODataGridView;
+            attackScoresDODataGridView.DataSource =
+                Utility.CreateDataTableFromList(Registry.Instance.GetPilotStats(pilotName).AttackScoresList);
+            _attackScoreFilterManager.ColumnFilterAdding += ColumnFilterAdding;
+            _attackScoreFilterManager.DataGridView = attackScoresDODataGridView;
 
-            this.attackStatsDODataGridView.DataSource = Utility.CreateDataTableFromList<StatsDomainObject>(Registry.Instance.GetPilotStats(pilotName).AttackStatsList );
-            this.attackStatsFilterManager.ColumnFilterAdding += new ColumnFilterEventHandler(ColumnFilterAdding);
-            this.attackStatsFilterManager.DataGridView = this.attackStatsDODataGridView;
+            attackStatsDODataGridView.DataSource =
+                Utility.CreateDataTableFromList(Registry.Instance.GetPilotStats(pilotName).AttackStatsList);
+            _attackStatsFilterManager.ColumnFilterAdding += ColumnFilterAdding;
+            _attackStatsFilterManager.DataGridView = attackStatsDODataGridView;
 
-            this.bomberScoresDODataGridView.DataSource = Utility.CreateDataTableFromList<BomberScoresDO>(Registry.Instance.GetPilotStats(pilotName).BomberScoresList);
-            this.bomberScoreFilterManager.ColumnFilterAdding += new ColumnFilterEventHandler(ColumnFilterAdding);
-            this.bomberScoreFilterManager.DataGridView = this.bomberScoresDODataGridView;
+            bomberScoresDODataGridView.DataSource =
+                Utility.CreateDataTableFromList(Registry.Instance.GetPilotStats(pilotName).BomberScoresList);
+            _bomberScoreFilterManager.ColumnFilterAdding += ColumnFilterAdding;
+            _bomberScoreFilterManager.DataGridView = bomberScoresDODataGridView;
 
-            this.bomberStatsDODataGridView.DataSource = Utility.CreateDataTableFromList<StatsDomainObject>(Registry.Instance.GetPilotStats(pilotName).BomberStatsList);
-            this.bomberStatsFilterManager.ColumnFilterAdding += new ColumnFilterEventHandler(ColumnFilterAdding);
-            this.bomberStatsFilterManager.DataGridView = this.bomberStatsDODataGridView;
+            bomberStatsDODataGridView.DataSource =
+                Utility.CreateDataTableFromList(Registry.Instance.GetPilotStats(pilotName).BomberStatsList);
+            _bomberStatsFilterManager.ColumnFilterAdding += ColumnFilterAdding;
+            _bomberStatsFilterManager.DataGridView = bomberStatsDODataGridView;
 
-            this.vehicleBoatScoresDODataGridView.DataSource = Utility.CreateDataTableFromList<VehicleBoatScoresDO>(Registry.Instance.GetPilotStats(pilotName).VehicleBoatScoresList);
-            this.vehicleScoreFilterManager.ColumnFilterAdding += new ColumnFilterEventHandler(ColumnFilterAdding);
-            this.vehicleScoreFilterManager.DataGridView = this.vehicleBoatScoresDODataGridView;
+            vehicleBoatScoresDODataGridView.DataSource =
+                Utility.CreateDataTableFromList(Registry.Instance.GetPilotStats(pilotName).VehicleBoatScoresList);
+            _vehicleScoreFilterManager.ColumnFilterAdding += ColumnFilterAdding;
+            _vehicleScoreFilterManager.DataGridView = vehicleBoatScoresDODataGridView;
 
-            this.vehicleBoatStatsDODataGridView.DataSource = Utility.CreateDataTableFromList<StatsDomainObject>(Registry.Instance.GetPilotStats(pilotName).VehicleBoatStatsList);
-            this.vehicleStatsFilterManager.ColumnFilterAdding += new ColumnFilterEventHandler(ColumnFilterAdding);
-            this.vehicleStatsFilterManager.DataGridView = this.vehicleBoatStatsDODataGridView;
-
+            vehicleBoatStatsDODataGridView.DataSource =
+                Utility.CreateDataTableFromList(Registry.Instance.GetPilotStats(pilotName).VehicleBoatStatsList);
+            _vehicleStatsFilterManager.ColumnFilterAdding += ColumnFilterAdding;
+            _vehicleStatsFilterManager.DataGridView = vehicleBoatStatsDODataGridView;
         }
 
 
-        void ColumnFilterAdding(object sender, ColumnFilterEventArgs e)
+        private void ColumnFilterAdding(object sender, ColumnFilterEventArgs e)
         {
-            switch (e.Column.Name)
-            {
-                case "Type":
-                    e.ColumnFilter = new DgvComboBoxColumnFilter();
-                    break;
-            }
+            if (e.Column.Name == "Type")
+                e.ColumnFilter = new DgvComboBoxColumnFilter();
         }
 
 
         private void PopulateTourTypeFilterComboBox()
         {
-            List<string> tourTypesList = new List<string>();
+            var tourTypesList = new List<string>();
 
             SortableList<StatsDomainObject> pilotStats = null;
             try
             {
-                pilotStats = Registry.Instance.GetPilotStats(_PilotName).FighterStatsList ;
+                pilotStats = Registry.Instance.GetPilotStats(PilotName).FighterStatsList;
             }
-            catch(PilotDoesNotExistInRegistryException)
+            catch (PilotDoesNotExistInRegistryException)
             {
                 //ignore.
             }
@@ -171,40 +212,22 @@ namespace My2Cents.HTC.AHPilotStats
             if (pilotStats == null)
                 return;
 
-            foreach (FighterStatsDO fs in pilotStats)
+            foreach (var fs in pilotStats.Where(fs => fs.TourType != "[UNKNOWN]")
+                .Where(fs => !tourTypesList.Contains(fs.TourType)))
             {
-                // if we try to process an empty (due to missing data?) then silently ignore and dont add to drop down.
-                if (fs.TourType == "[UNKNOWN]")
-                    continue;
-
-                if (!tourTypesList.Contains(fs.TourType))
-                    tourTypesList.Add(fs.TourType);
+                tourTypesList.Add(fs.TourType);
             }
 
-            foreach (string tourType in tourTypesList)
+            foreach (var tourType in tourTypesList)
                 cmbxTourTypeFilter.Items.Add(tourType);
 
             cmbxTourTypeFilter.SelectedIndex = 0;
         }
 
-        //private void BindPilotStatsToGrids(string pilotName)
-        //{
-            // Bind to Grids
-            //this.fighterScoresDOBindingSource.DataSource = Registry.Instance.GetPilotStats(pilotName).FighterScoresList;
-
-            //this.fighterStatsDOBindingSource.DataSource = Registry.Instance.GetPilotStats(pilotName).FighterStatsList;
-            //this.attackScoresDOBindingSource.DataSource = Registry.Instance.GetPilotStats(pilotName).AttackScoresList;
-            //this.attackStatsDOBindingSource.DataSource = Registry.Instance.GetPilotStats(pilotName).AttackStatsList;
-            //this.bomberScoresDOBindingSource.DataSource = Registry.Instance.GetPilotStats(pilotName).BomberScoresList;
-            //this.bomberStatsDOBindingSource.DataSource = Registry.Instance.GetPilotStats(pilotName).BomberStatsList;
-            //this.vehicleBoatScoresDOBindingSource.DataSource = Registry.Instance.GetPilotStats(pilotName).VehicleBoatScoresList;
-            //this.vehicleBoatStatsDOBindingSource.DataSource = Registry.Instance.GetPilotStats(pilotName).VehicleBoatStatsList;
-        //}
-
         #endregion
 
-
         #region Graphs Tab
+
         //////////////////////////////////////////////////////////////////////////////////
         //
         // Graphs Tab
@@ -219,13 +242,14 @@ namespace My2Cents.HTC.AHPilotStats
 
         private void RefreshGraph()
         {
-            grapher.ResetGraph(plotSurface2D);
+            _grapher.ResetGraph(plotSurface2D);
 
             foreach (int i in chkLstBoxSelectGraph.CheckedIndices)
             {
-                grapher.AddPlot(plotSurface2D, chkLstBoxSelectGraph.Items[i].ToString(), cmbBoxMode.Text, cmbxTourTypeFilter.Text);
+                _grapher.AddPlot(plotSurface2D, chkLstBoxSelectGraph.Items[i].ToString(), cmbBoxMode.Text,
+                    cmbxTourTypeFilter.Text);
             }
-            grapher.RefreshPlots(plotSurface2D);
+            _grapher.RefreshPlots(plotSurface2D);
         }
 
 
@@ -247,7 +271,6 @@ namespace My2Cents.HTC.AHPilotStats
 
         #endregion
 
-
         #region Object Vs Object Tab
 
         //////////////////////////////////////////////////////////////////////////////////
@@ -259,51 +282,39 @@ namespace My2Cents.HTC.AHPilotStats
 
         private void PopulateObjVsObjTourDropDownList()
         {
-            Registry.Instance.GetPilotStats(_PilotName).FighterStatsList.SortList("TourNumber",ListSortDirection.Descending);
+            Registry.Instance.GetPilotStats(PilotName)
+                .FighterStatsList.SortList("TourNumber", ListSortDirection.Descending);
 
 
-            foreach (FighterStatsDO fs in Registry.Instance.GetPilotStats(_PilotName).FighterStatsList)
+            foreach (var fs in Registry.Instance.GetPilotStats(PilotName).FighterStatsList)
             {
                 // if we try to process an empty (due to missing data?) then silently ignore and dont add to drop down.
                 if (fs.TourType == "[UNKNOWN]")
                     continue;
 
-                NVPair pair = new NVPair(fs.TourNumber.ToString(), string.Format("{1} ({0})", fs.TourType.ToString(), fs.TourNumber));
+                var pair = new NameValuePair(fs.TourNumber, string.Format("{1} ({0})", fs.TourType, fs.TourNumber));
                 cmbBoxObjVObjTourList.Items.Add(pair);
             }
 
-            NVPair allPair = new NVPair("ALL", "All Tours");
+            var allPair = new NameValuePair("ALL", "All Tours");
             cmbBoxObjVObjTourList.Items.Add(allPair);
         }
 
 
         private void cmboxModelSelector_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Registry.Instance.GetPilotStats(_PilotName).ObjVsObjVisibleList.Clear();
-            string selectedModel = (string)cmboxModelSelector.SelectedItem;
-            foreach (ObjectVsObjectDO objScore in Registry.Instance.GetPilotStats(_PilotName).ObjVsObjCompleteList)
+            Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList.Clear();
+            var selectedModel = (string) cmboxModelSelector.SelectedItem;
+            foreach (var objScore in Registry.Instance.GetPilotStats(PilotName).ObjVsObjCompleteList.Where(objScore => objScore.Model == selectedModel))
             {
-                if (objScore.Model == selectedModel)
-                {
-                    Registry.Instance.GetPilotStats(_PilotName).ObjVsObjVisibleList.Add(objScore);
-                }
+                Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList.Add(objScore);
             }
 
-            this.objectVsObjectDOBindingSource.DataSource = Registry.Instance.GetPilotStats(_PilotName).ObjVsObjVisibleList;
-            PopulateObjVObjTotals(Registry.Instance.GetPilotStats(_PilotName).ObjVsObjVisibleList);
-            this.objectVsObjectDOBindingSource.ResetBindings(false);
+            objectVsObjectDOBindingSource.DataSource = Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList;
+            PopulateObjVObjTotals(Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList);
+            objectVsObjectDOBindingSource.ResetBindings(false);
         }
 
-
-        private bool IsModelInObjVsObjList(SortableBindingList<ObjectVsObjectDO> list, string model)
-        {
-            foreach (ObjectVsObjectDO objScore in list)
-            {
-                if (objScore.Model == model)
-                    return true;
-            }
-            return false;
-        }
 
 
         private void radBtnByModel_CheckedChanged(object sender, EventArgs e)
@@ -325,208 +336,116 @@ namespace My2Cents.HTC.AHPilotStats
 
 
         private void cmbBoxObjVObjTourList_SelectedIndexChanged(object sender, EventArgs e)
-        {            
-            NVPair selectedPair = (NVPair)cmbBoxObjVObjTourList.SelectedItem;
+        {
+            var selectedPair = (NameValuePair) cmbBoxObjVObjTourList.SelectedItem;
             if (selectedPair == null)
             {
-                this.objectVsObjectDOBindingSource.Clear();
+                objectVsObjectDOBindingSource.Clear();
                 return;
             }
 
-            Registry.Instance.GetPilotStats(_PilotName).ObjVsObjVisibleList.Clear();
+            Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList.Clear();
 
             if (selectedPair.Name == "ALL")
             {
                 // Collate all the kills, killed by, kills in for each model. Build a temorary list 
                 // for this one.
 
-                SortableBindingList<ObjectVsObjectDO> compositeList = new SortableBindingList<ObjectVsObjectDO>();
-                Registry.Instance.GetPilotStats(_PilotName).ObjVsObjVisibleList.Clear();
+                var compositeList = new SortableBindingList<ObjectVsObjectDO>();
+                Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList.Clear();
 
                 // build a temp place holder object for each model.
-                foreach (ObjectVsObjectDO objScore in Registry.Instance.GetPilotStats(_PilotName).ObjVsObjCompleteList)
+                foreach (var objScore in Registry.Instance.GetPilotStats(PilotName).ObjVsObjCompleteList
+                        .Where(objScore => compositeList.Any(score => score.Model == objScore.Model)))
                 {
-                    if (!IsModelInObjVsObjList(compositeList, objScore.Model))
-                    {
-                        ObjectVsObjectDO compositeObject = new ObjectVsObjectDO(objScore.ObjScore, objScore.TourIdentfier, objScore.TourType, objScore.TourNumber);
-                        compositeObject.TourIdentfier = "All Tours"; // change the tour id tag.
-
-                        // delete their stats otherwise they get counted twice for the first tour.
-                        compositeObject.KilledBy = 0;
-                        compositeObject.KillsIn = 0;
-                        compositeObject.KillsOf = 0;
-                        compositeObject.DiedIn = 0;
-
-                        compositeList.Add(compositeObject);
-                    }
+                    compositeList.Add(
+                        new ObjectVsObjectDO(objScore.ObjScore, objScore.TourIdentfier, objScore.TourType,objScore.TourNumber)
+                        {
+                            TourIdentfier = "All Tours", // change the tour id tag.
+                            // delete their stats otherwise they get counted twice for the first tour.
+                            KilledBy = 0,
+                            KillsIn = 0,
+                            KillsOf = 0,
+                            DiedIn = 0
+                        });
                 }
 
                 // now sum up for each model.
-                foreach (ObjectVsObjectDO compositeObjScore in compositeList)
+                foreach (var compositeObjScore in compositeList)
                 {
-                    foreach (ObjectVsObjectDO objScore in Registry.Instance.GetPilotStats(_PilotName).ObjVsObjCompleteList)
+                    var score = compositeObjScore;
+                    foreach (var objScore in 
+                        Registry.Instance.GetPilotStats(PilotName).ObjVsObjCompleteList.Where(objScore => score.Model == objScore.Model))
                     {
-                        if (compositeObjScore.Model == objScore.Model)
-                        {
-                            compositeObjScore.KilledBy += objScore.KilledBy;
-                            compositeObjScore.KillsIn += objScore.KillsIn;
-                            compositeObjScore.KillsOf += objScore.KillsOf;
-                            compositeObjScore.DiedIn += objScore.DiedIn;
-                        }
+                        compositeObjScore.KilledBy += objScore.KilledBy;
+                        compositeObjScore.KillsIn += objScore.KillsIn;
+                        compositeObjScore.KillsOf += objScore.KillsOf;
+                        compositeObjScore.DiedIn += objScore.DiedIn;
                     }
                 }
 
 
                 // all done rebind to grid and we off singing!
-                this.objectVsObjectDOBindingSource.DataSource = compositeList;
+                objectVsObjectDOBindingSource.DataSource = compositeList;
 
                 // Hide the Tour Number column, as it makes no sense in this context.
-                this.objectVsObjectDODataGridView.Columns[0].Visible = false;
+                objectVsObjectDODataGridView.Columns[0].Visible = false;
 
                 PopulateObjVObjTotals(compositeList);
             }
             else
             {
                 // ensure we re-enable the Tour Number column
-                this.objectVsObjectDODataGridView.Columns[0].Visible = true;
+                objectVsObjectDODataGridView.Columns[0].Visible = true;
 
                 // Else we are just listing from actual stats objects in the registry.
 
-                int selectedTour = System.Convert.ToInt32(selectedPair.Name);
-                foreach (ObjectVsObjectDO objScore in Registry.Instance.GetPilotStats(_PilotName).ObjVsObjCompleteList)
+                var selectedTour = Convert.ToInt32(selectedPair.Name);
+                foreach (var objScore in Registry.Instance.GetPilotStats(PilotName).ObjVsObjCompleteList
+                    .Where(objScore => objScore.TourNumber == selectedTour))
                 {
-                    if (objScore.TourNumber == selectedTour)
-                    {
-                        Registry.Instance.GetPilotStats(_PilotName).ObjVsObjVisibleList.Add(objScore);
-                    }
+                    Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList.Add(objScore);
                 }
 
-                this.objectVsObjectDOBindingSource.DataSource = Registry.Instance.GetPilotStats(_PilotName).ObjVsObjVisibleList;
-                PopulateObjVObjTotals(Registry.Instance.GetPilotStats(_PilotName).ObjVsObjVisibleList);
+                objectVsObjectDOBindingSource.DataSource =
+                    Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList;
+
+                PopulateObjVObjTotals(Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList);
             }
 
             // Reset bindings
-            this.objectVsObjectDOBindingSource.ResetBindings(false);
+            objectVsObjectDOBindingSource.ResetBindings(false);
 
-            this.objectVsObjectDOBindingSource.Sort = "Model";
+            objectVsObjectDOBindingSource.Sort = "Model";
         }
 
 
         private void PopulateObjVObjTotals(SortableBindingList<ObjectVsObjectDO> filteredStatsList)
         {
-            int totalKills = 0;
+            var totalKills = 0;
             int? totalDeaths = 0;
-            decimal averageKillsDeath = 0;
-            foreach (DomainObjects.ObjectVsObjectDO objStat in filteredStatsList)
+            foreach (var objStat in filteredStatsList)
             {
                 totalKills += objStat.KillsIn;
                 totalDeaths += objStat.DiedIn;
             }
 
-            this.txtBoxTotalKills.Text = totalKills.ToString();
+            txtBoxTotalKills.Text = totalKills.ToString();
 
             if (totalDeaths != null)
             {
-                averageKillsDeath = (decimal)totalKills / ((decimal)totalDeaths + 1);
+                var averageKillsDeath = totalKills/((decimal) totalDeaths + 1);
                 averageKillsDeath = decimal.Round(averageKillsDeath, 2);
-                this.txtBoxTotalDeaths.Text = totalDeaths.ToString();
-                this.txtBoxAvergageKillsDeath.Text = averageKillsDeath.ToString();
+                txtBoxTotalDeaths.Text = totalDeaths.ToString();
+                txtBoxAvergageKillsDeath.Text = averageKillsDeath.ToString();
             }
             else
             {
-                this.txtBoxTotalDeaths.Text = "No Data";
-                this.txtBoxAvergageKillsDeath.Text = "No Data";
+                txtBoxTotalDeaths.Text = "No Data";
+                txtBoxAvergageKillsDeath.Text = "No Data";
             }
         }
 
         #endregion
-
-
-        private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            TabControl tabControl = (TabControl)sender;
-
-            if (tabControl.SelectedTab.Text == "Obj Vs Obj" && this._compositeObjVsObjDataIncomplete)
-            {
-                string message =
-                    "Some pilots in your squad need reloading to get the new 'Died In' data.\n" +
-                    "Identify the pilots/tours without 'Died In' data, and reload those.\n" +
-                    "Until then there will some gaps in your sqauds data.";
-                MessageBox.Show(message, "Warning");
-            }
-        }
-
-
-
-
-
-        //////////////////////////////////////////////////////////////////////////////////
-        //
-        // On Form being first shown Event.
-        //
-        // Used so we can set the sort order on the correct column.
-        //
-        //////////////////////////////////////////////////////////////////////////////////
-
-
-        //private void PilotStatsForm_Shown(object sender, EventArgs e)
-        //{
-        //    SortByColumn0Desc(fighterStatsDODataGridView);
-        //    SortByColumn0Desc(fighterStatsDODataGridView1);
-        //    SortByColumn0Desc(attackScoresDODataGridView);
-        //    SortByColumn0Desc(attackStatsDODataGridView);
-        //    SortByColumn0Desc(bomberScoresDODataGridView);
-        //    SortByColumn0Desc(bomberStatsDODataGridView);
-        //    SortByColumn0Desc(vehicleBoatScoresDODataGridView);
-        //    SortByColumn0Desc(vehicleBoatStatsDODataGridView);
-        //}
-
-        //private void SortByColumn0Desc(DataGridView gridToSetSortColumn)
-        //{
-        //    //TODO:
-        //    //gridToSetSortColumn.Sort(gridToSetSortColumn.Columns[0], ListSortDirection.Descending);
-        //}
-
-        private void fighterStatsDODataGridView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-            this.fighterScoresDODataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
-        }
-
-        private void fighterStatsDODataGridView1_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-            this.fighterStatsDODataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
-        }
-
-        private void attackScoresDODataGridView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-            this.attackScoresDODataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
-        }
-
-        private void attackStatsDODataGridView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-            this.attackStatsDODataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
-        }
-
-        private void bomberScoresDODataGridView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-            this.bomberScoresDODataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
-        }
-
-        private void bomberStatsDODataGridView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-            this.bomberStatsDODataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
-        }
-
-        private void vehicleBoatScoresDODataGridView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-            this.vehicleBoatScoresDODataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
-        }
-
-        private void vehicleBoatStatsDODataGridView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-            this.vehicleBoatStatsDODataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
-        }
-
-
     }
 }

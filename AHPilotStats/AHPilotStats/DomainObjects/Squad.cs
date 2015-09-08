@@ -1,130 +1,97 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows.Forms;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace My2Cents.HTC.AHPilotStats.DomainObjects
 {
-    [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
+    [XmlRootAttribute(Namespace = "", IsNullable = false)]
     public class Squad
     {
+        public Squad()
+        {
+            Members = new BindingList<SquadMember>();
+        }
+
         #region Nested Members Class
 
-        [Serializable()]
+        [Serializable]
         public class SquadMember
         {
-            public SquadMember() { }
+            public SquadMember()
+            {
+                EndTour = 999;
+            }
 
             private string _pilotName = "";
-            private int _startTour;
-            private int _endTour=999;
-
             public string PilotName
             {
                 get { return _pilotName; }
                 set { _pilotName = value.TrimEnd().TrimStart(); }
             }
 
-            public int StartTour
-            {
-                get { return _startTour;  }
-                set { _startTour = value; }
-            }
+            public int StartTour { get; set; }
 
-            public int EndTour
-            {
-                get { return _endTour; }
-                set { _endTour = value; }
-            }
-            
+            public int EndTour { get; set; }
         }
 
         #endregion
 
-
         #region Fields
-        private string _squadName;
-        private string _homePage;
-        public BindingList<SquadMember> Members = new BindingList<SquadMember>();
-        private const string _squadFilePrototype = @".\squads\{0}_SquadDef.xml";
 
+        private const string SquadFilePrototype = @".\squads\{0}_SquadDef.xml";
 
         #endregion
 
         #region Properties
-        public string SquadName
-        {
-            get { return _squadName;  }
-            set { _squadName = value; }
-        }
 
-        public string HomePage
-        {
-            get { return _homePage; }
-            set { _homePage = value; }
-        }
+        public BindingList<SquadMember> Members { get; set; }
+
+        public string SquadName { get; set; }
+
+        public string HomePage { get; set; }
+
         #endregion
-
-        public Squad() 
-        { 
-        }
-
 
         public void AddMember(string pilot)
         {
-            SquadMember squadMember = new SquadMember();
-            squadMember.PilotName = pilot;
-            Members.Add(squadMember);
+            Members.Add(new SquadMember {PilotName = pilot});
         }
 
 
         public int GetMinTour(Squad squad)
         {
-            int startTour = 999;
-            foreach (SquadMember squadMember in this.Members)
-            {
-                // capture the min
-                if (squadMember.StartTour < startTour)
-                    startTour = squadMember.StartTour;
-            }
-            return startTour;
+            return Members
+                .Select(squadMember => squadMember.StartTour)
+                .Concat(new[] {999})
+                .Min();
         }
 
 
         public int GetMaxTour(Squad squad)
         {
-            int endTourByData = 0;
-            int endTourBySqaudDefinition = 0;
-            foreach (SquadMember squadMember in this.Members)
+            var endTourByData = 0;
+            foreach (var squadMember in Members)
             {
-                if (Registry.Instance.PilotStatsContains(squadMember.PilotName))
-                {
-                    Registry.PilotStatsRegistry pilotStats = Registry.Instance.GetPilotStats(squadMember.PilotName);
-                    foreach (StatsDomainObject obj in pilotStats.FighterStatsList)
-                    {
-                        int thisTourNumber = System.Convert.ToInt32(obj.TourNumber);
-                        if (thisTourNumber > endTourByData)
-                            endTourByData = thisTourNumber;
-                    }
-                }
+                if (!Registry.Instance.PilotStatsContains(squadMember.PilotName)) 
+                    continue;
+
+                endTourByData = 
+                    Registry.Instance.GetPilotStats(squadMember.PilotName)
+                        .FighterStatsList.Select(obj => Convert.ToInt32(obj.TourNumber))
+                        .Concat(new[] {endTourByData})
+                        .Max();
             }
 
-            foreach (SquadMember squadMember in this.Members)
-            {
-                // capture the min
-                if (squadMember.EndTour > endTourBySqaudDefinition)
-                    endTourBySqaudDefinition = squadMember.EndTour;
-            }
+            var endTourBySqaudDefinition = Members.Select(squadMember => squadMember.EndTour)
+                .Concat(new[] {0})
+                .Max();
 
             // if pilot has data which continues past their membership in a sqaud definition
             // ensure we return their sqaud defined end tour.
-            if (endTourBySqaudDefinition < endTourByData)
-                return endTourBySqaudDefinition;
-            else
-                return endTourByData;
+            return endTourBySqaudDefinition < endTourByData ? endTourBySqaudDefinition : endTourByData;
         }
 
         /// <summary>
@@ -133,7 +100,7 @@ namespace My2Cents.HTC.AHPilotStats.DomainObjects
         /// <param name="tourNumber">the tour in question</param>
         /// <param name="squadMember">the sqaud member details.</param>
         /// <returns>true if pilot was in squad for that tour, false otherwise.</returns>
-        public bool WasPilotInSquadForThisTour(int tourNumber, Squad.SquadMember squadMember)
+        public bool WasPilotInSquadForThisTour(int tourNumber, SquadMember squadMember)
         {
             return (tourNumber >= squadMember.StartTour && tourNumber <= squadMember.EndTour);
         }
@@ -141,79 +108,49 @@ namespace My2Cents.HTC.AHPilotStats.DomainObjects
         public int CountMembersForTour(int tour)
         {
             // count the pilots for this tour.
-            int numPilots = 0;
-            foreach (Squad.SquadMember squadMember in Members)
-            {
-                if (WasPilotInSquadForThisTour(tour, squadMember))
-                    numPilots++;
-            }
-
-            return numPilots;
+            return Members.Count(squadMember => WasPilotInSquadForThisTour(tour, squadMember));
         }
 
         public void Serialise()
         {
-            new XMLObjectSerialiser<Squad>().WriteXMLFile(this, string.Format(_squadFilePrototype, SafeFileName(this.SquadName)));
+            new XMLObjectSerialiser<Squad>().WriteXmlFile(this, string.Format(SquadFilePrototype, SafeFileName(SquadName)));
         }
 
         public void CheckSquadInSync(int startTour, int endTour)
         {
-            string errorMessage = "";
+            var errorMessage = "";
 
-            for (int tour = startTour; tour <= endTour; tour++)
+            for (var tour = startTour; tour <= endTour; tour++)
             {
-                foreach (Squad.SquadMember member in Members)
+                foreach (var member in Members.Where(member => WasPilotInSquadForThisTour(tour, member)))
                 {
-                    if (WasPilotInSquadForThisTour(tour, member))
+                    Registry.PilotStatsRegistry pilotReg;
+                    try
                     {
-                        bool scoresFound = false;
-                        bool statsFound = false;
+                        pilotReg = Registry.Instance.GetPilotStats(member.PilotName);
+                    }
+                    catch (PilotDoesNotExistInRegistryException notExistEx)
+                    {
+                        errorMessage += notExistEx.Text;
+                        goto end;
+                    }
+                    catch (ApplicationException appEx)
+                    {
+                        errorMessage += appEx.Message;
+                        continue;
+                    }
 
-                        Registry.PilotStatsRegistry pilotReg = null;
-                        try
-                        {
-                            pilotReg = Registry.Instance.GetPilotStats(member.PilotName);
-                        }
-                        catch (PilotDoesNotExistInRegistryException notExistEx)
-                        {
-                            errorMessage += notExistEx.Text;
-                            goto end;
-                        }
-                        catch (ApplicationException appEx)
-                        {
-                            errorMessage += appEx.Message;
-                            continue;
-                        }
+                    // do we have the required scores data for this pilot for this tour?
+                    var scoresFound = pilotReg.FighterScoresList.Any(score => score.TourNumber == tour);
 
-                        // do we have the required scores data for this pilot for this tour?
-                        foreach (FighterScoresDO score in pilotReg.FighterScoresList)
-                        {
-                            if (score.TourNumber == tour)
-                            {
-                                // found :)
-                                scoresFound = true;
-                                break;
-                            }
-                        }
+                    // do we have the required stats data for this pilot for this tour?
+                    var statsFound = pilotReg.FighterStatsList.Any(stats => stats.TourNumber == tour.ToString());
 
-                        // do we have the required stats data for this pilot for this tour?
-                        foreach (StatsDomainObject stats in pilotReg.FighterStatsList)
-                        {
-                            if (stats.TourNumber == tour.ToString())
-                            {
-                                // found :)
-                                statsFound = true;
-                                break;
-                            }
-                        }
-
-                        // if we have one type and not the other type, then something is wrong.
-                        if ( (scoresFound && !statsFound)  ||
-                             (statsFound  && !scoresFound)
-                           )
-                        {
-                            errorMessage += string.Format("\nCannot find all the data for squad member {0} for tour {1}", member.PilotName, tour);
-                        }
+                    // if we have one type and not the other type, then something is wrong.
+                    if ( (scoresFound && !statsFound)  ||
+                         (statsFound  && !scoresFound))
+                    {
+                        errorMessage += string.Format("\nCannot find all the data for squad member {0} for tour {1}", member.PilotName, tour);
                     }
                 }
             }
@@ -229,13 +166,13 @@ namespace My2Cents.HTC.AHPilotStats.DomainObjects
 
         public static Squad LoadSquad(string squadFileName)
         {
-            Squad squad = new Squad();
+            var squad = new Squad();
 
             StreamReader reader = null;
             try
             {
-                reader = new StreamReader(string.Format(_squadFilePrototype, SafeFileName(squadFileName)));
-                XmlSerializer xSerializer = new XmlSerializer(typeof(Squad));
+                reader = new StreamReader(string.Format(SquadFilePrototype, SafeFileName(squadFileName)));
+                var xSerializer = new XmlSerializer(typeof(Squad));
                 squad = (Squad)xSerializer.Deserialize(reader);
                 reader.Close();
             }
@@ -255,24 +192,10 @@ namespace My2Cents.HTC.AHPilotStats.DomainObjects
 
         public static string SafeFileName(string unsafeFileName)
         {
-            string safeName = "";
-            char[] unsafeFileNameChars = {'\\','/',':','*','?','"','<','>','|',};
-            foreach (char c in unsafeFileName)
-            {
-                bool isSafe = true;
-                foreach(char unSafeChar in unsafeFileNameChars)
-                {
-                    if(c == unSafeChar)
-                        isSafe = false;
-                }
+            char[] unsafeFileNameChars = { '\\', '/', ':', '*', '?', '"', '<', '>', '|' };
 
-                if (isSafe)
-                {
-                    safeName = safeName + c;
-                }
-            }
-
-            return safeName;
+            // strip out the above characters if in the string.
+            return unsafeFileNameChars.Aggregate(unsafeFileName, (str, c) => str.Replace(c.ToString(), ""));
         }
         
         #endregion

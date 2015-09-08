@@ -1,13 +1,12 @@
 *******************************************************************************
 ** Aces High II Pilot Stats 
-** By Spatula of "Airborne Kitchen Utensil Assualt Group" (AKUAG) C/- My2Cents.co.nz
+** By Spatula of "Airborne Kitchen Utensil Assualt Group"
 ** Copyright 2006 AKUAG/My2Cents
 **
-** email: taurineman@lycos.com
+** email: peteg@hotmail.co.nz
 **
 ** Redistribution of this application is NOT permitted. 
-** Anyone else wanting a copy of this application can download it from
-** http://www.my2cents.co.nz/AKUAG/Resources.aspx
+** Anyone else wanting a copy of this application can contact me directly.
 ** The author takes no responsibility for the use of this application or its
 ** constituant parts.
 **
@@ -15,6 +14,19 @@
 ** Release Notes:
 **
 *******************************************************************************
+Version:
+1.8.0 (Public/Only Version) [XX-SEP-2015]
+===========================================
+1. Removed check for updates code
+2. Removed code-signing
+3. Removed click-once deployment rubbish.
+4. Upgraded nPlot
+5. Removed the News link on the menu.
+6. Upgraded to .NET 4.5.1
+7. Misc Refactors/spring-clean
+8. R# refactors.
+
+
 
 Version:
 1.7.0 (Public/Only Version) [25-MAR-2010]

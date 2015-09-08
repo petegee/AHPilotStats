@@ -3,8 +3,8 @@ using System.ComponentModel;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using System.Drawing;
+using System.Linq;
 using NPlot;
 using My2Cents.HTC.AHPilotStats.DomainObjects;
 
@@ -12,11 +12,13 @@ namespace My2Cents.HTC.AHPilotStats
 {
     class GraphBuilder
     {
-        private List<XYData> _plots = new List<XYData>();
-        private string _pilotName ;
+        private readonly List<XyData> _plots;
+        private readonly string _pilotName;
+
         public GraphBuilder(string pilotName)
         {
             _pilotName = pilotName;
+            _plots = new List<XyData>();
         }
 
 
@@ -90,21 +92,23 @@ namespace My2Cents.HTC.AHPilotStats
         public void AddHitPercentageTrendPlot(string pilotName, string plotName, string mode, string tourTypeFilter)
         {
             Registry.Instance.GetPilotStats(pilotName).FighterScoresList.SortList("TourNumber", ListSortDirection.Ascending);
-            XYData xy = new XYData(pilotName, plotName, mode, tourTypeFilter, null, null, Color.DarkOrange);
+            var xy = new XyData(pilotName, plotName, mode, tourTypeFilter, null, null, Color.DarkOrange);
             _plots.Add(xy);
 
             // hmmm, im not 100% convinced this will add the data in the correct order?? 
-            foreach (FighterScoresDO score in Registry.Instance.GetPilotStats(pilotName).FighterScoresList)
+            foreach (var score in 
+                Registry.Instance.GetPilotStats(pilotName)
+                    .FighterScoresList
+                    .Where(score => score.TourType == tourTypeFilter))
             {
-                if(score.TourType == tourTypeFilter)
-                    xy.yData.Add((double)score.VsEnemyHitPercentageScore);
+                xy.YData.Add((double)score.VsEnemyHitPercentageScore);
             }
         }
 
 
         public void AddRatioTrendPlot(string pilotName, string plotName, string statNameDividend, string statNameDivisor, Color lineColour, string mode, string tourTypeFilter)
         {
-            XYData xy = new XYData(pilotName, plotName, mode, tourTypeFilter, statNameDividend, statNameDivisor, lineColour);
+            var xy = new XyData(pilotName, plotName, mode, tourTypeFilter, statNameDividend, statNameDivisor, lineColour);
             _plots.Add(xy);
         }
 
@@ -112,7 +116,7 @@ namespace My2Cents.HTC.AHPilotStats
 
         public void AddSimpleTrendPlot(string pilotName, string plotName, string statName, Color lineColour, string mode, string tourTypeFilter)
         {
-            XYData xy = new XYData(pilotName, plotName, mode, tourTypeFilter, statName, null, lineColour);
+            var xy = new XyData(pilotName, plotName, mode, tourTypeFilter, statName, null, lineColour);
             _plots.Add(xy);
         }
 
@@ -127,32 +131,39 @@ namespace My2Cents.HTC.AHPilotStats
             }
 
 
-            foreach (XYData plot in _plots)
-            { 
-                LinePlot lp = new LinePlot();
-                lp.Color = plot.PlotColour;
-                lp.AbscissaData = plot.xData;
-                lp.OrdinateData = plot.yData;
-                lp.Label = plot.PlotName;
+            foreach (var plot in _plots)
+            {
+                var lp = new LinePlot
+                {
+                    Color = plot.PlotColour,
+                    AbscissaData = plot.XData,
+                    OrdinateData = plot.YData,
+                    Label = plot.PlotName
+                };
                 graphSurface.Add(lp);               
             }
 
             graphSurface.Title = "Pilot Trends";
-            Grid grid = new Grid();
-            grid.VerticalGridType = Grid.GridType.Fine;
-            grid.HorizontalGridType = Grid.GridType.Fine;
-            grid.MajorGridPen = new Pen(Color.LightGray, 0.5f);
+            var grid = new Grid
+            {
+                VerticalGridType = Grid.GridType.Fine,
+                HorizontalGridType = Grid.GridType.Fine,
+                MajorGridPen = new Pen(Color.LightGray, 0.5f)
+            };
             graphSurface.Add(grid);
 
             graphSurface.Refresh();
 
 
-            Legend leg = new Legend();
+            var leg = new Legend
+            {
+                HorizontalEdgePlacement = Legend.Placement.Inside,
+                VerticalEdgePlacement = Legend.Placement.Outside,
+                XOffset = 10,
+                YOffset = 10
+            };
             leg.AttachTo(PlotSurface2D.XAxisPosition.Top, PlotSurface2D.YAxisPosition.Right);
-            leg.HorizontalEdgePlacement = Legend.Placement.Inside;
-            leg.VerticalEdgePlacement = Legend.Placement.Outside;
-            leg.XOffset = 10;
-            leg.YOffset = 10;
+
             graphSurface.Legend = leg;
             graphSurface.LegendZOrder = 10;
 
@@ -167,32 +178,34 @@ namespace My2Cents.HTC.AHPilotStats
 
 
 
-        class XYData // ***** NESTED CLASS ***** //
+        class XyData // ***** NESTED CLASS ***** //
         {
-            public ArrayList xData = new ArrayList();
-            public ArrayList yData = new ArrayList();
-            public string PlotName;
-            public string PilotName;
-            public Color PlotColour;
+            private readonly string _pilotName;
 
-            public XYData(string pilotName, string name, string mode, string tourTypeFilter, string PropertyA, string PropertyB, Color plotColour)
+            public ArrayList XData { get; private set; }
+            public ArrayList YData { get; private set; }
+            public string PlotName { get; private set; }
+            public Color PlotColour { get; private set; }
+
+            public XyData(string pilotName, string name, string mode, string tourTypeFilter, string propertyA, string propertyB, Color plotColour)
             {
                 PlotName = name;
                 PlotColour = plotColour;
-                PilotName = pilotName;
-
-                foreach (StatsDomainObject stats in GetStats(mode, tourTypeFilter))
+                _pilotName = pilotName;
+                XData = new ArrayList();
+                YData = new ArrayList();
+                foreach (var stats in GetStats(mode, tourTypeFilter))
                 {
-                    xData.Add(stats.TourNumber);
+                    XData.Add(stats.TourNumber);
 
-                    if (PropertyA != null && PropertyB == null)
+                    if (propertyA != null && propertyB == null)
                     {
-                        yData.Add(GetMemberAsDouble(PropertyA, stats));
+                        YData.Add(GetMemberAsDouble(propertyA, stats));
                     }
 
-                    if (PropertyA != null && PropertyB != null)
+                    if (propertyA != null && propertyB != null)
                     {
-                        yData.Add(GetRatio(GetMemberAsDouble(PropertyA, stats), GetMemberAsDouble(PropertyB, stats)));
+                        YData.Add(GetRatio(GetMemberAsDouble(propertyA, stats), GetMemberAsDouble(propertyB, stats)));
                     }
                 }
             }
@@ -200,16 +213,15 @@ namespace My2Cents.HTC.AHPilotStats
 
             private double GetMemberAsDouble(string propName, StatsDomainObject stats)
             {
-                double value=0;
+                double value;
         
                 try
                 {
-                    int intVal;
-                    intVal = (int)typeof(StatsDomainObject).InvokeMember(propName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty,
-                                    null,
-                                    stats,
-                                    null);
-                    value = (double)intVal;
+                    var intVal = (int)typeof(StatsDomainObject).InvokeMember(propName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty,
+                        null,
+                        stats,
+                        null);
+                    value = intVal;
                 }
                 catch (InvalidCastException)
                 {
@@ -234,31 +246,27 @@ namespace My2Cents.HTC.AHPilotStats
 
             private SortableList<StatsDomainObject> GetStats(string mode, string filterTourType)
             {
-                SortableList<StatsDomainObject> list = new SortableList<StatsDomainObject>();
+                var list = new SortableList<StatsDomainObject>();
 
                 switch (mode)
                 {
                     case "Fighter":
-                        list = Registry.Instance.GetPilotStats(PilotName).FighterStatsList;
+                        list = Registry.Instance.GetPilotStats(_pilotName).FighterStatsList;
                         break;
                     case "Attack":
-                        list = Registry.Instance.GetPilotStats(PilotName).AttackStatsList;
+                        list = Registry.Instance.GetPilotStats(_pilotName).AttackStatsList;
                         break;
                     case "Bomber":
-                        list = Registry.Instance.GetPilotStats(PilotName).BomberStatsList;
+                        list = Registry.Instance.GetPilotStats(_pilotName).BomberStatsList;
                         break;
                     case "Vehicle/Boat":
-                        list = Registry.Instance.GetPilotStats(PilotName).VehicleBoatStatsList;
+                        list = Registry.Instance.GetPilotStats(_pilotName).VehicleBoatStatsList;
                         break;
                 }
 
-                SortableList<StatsDomainObject> filteredList = new SortableList<StatsDomainObject>();
+                var filteredList = new SortableList<StatsDomainObject>();
 
-                foreach (StatsDomainObject statsObj in list)
-                {
-                    if (statsObj.TourType == filterTourType)
-                        filteredList.Add(statsObj);
-                }
+                filteredList.AddRange(list.Where(statsObj => statsObj.TourType == filterTourType));
 
                 if (filteredList.Count > 0)
                 {

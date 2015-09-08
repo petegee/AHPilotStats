@@ -1,35 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace My2Cents.HTC.AHPilotStats
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class GridHelperAttribute : System.Attribute
+    public class GridHelperAttribute : Attribute
     {
-        private string friendlyName = "x";
-        private bool hideColumn = false;
-
         public GridHelperAttribute(string friendlyName)
         {
-            this.friendlyName = friendlyName;
+            FriendlyName = friendlyName;
+            HideColumn = false;
         }
 
         public GridHelperAttribute(bool hideColumn)
         {
-            this.hideColumn = hideColumn;
+            FriendlyName = "x";
+            HideColumn = hideColumn;
         }
 
-        public bool HideColumn
-        {
-            get { return hideColumn; }
-            set { hideColumn = value; }                
-        }
+        public bool HideColumn { get; set; }
 
-        public string FriendlyName
-        {
-            get { return friendlyName; }
-            set { friendlyName = value; }
-        }
+        public string FriendlyName { get; set; }
     }
 }

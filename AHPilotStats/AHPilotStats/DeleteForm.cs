@@ -1,11 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
 using System.IO;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace My2Cents.HTC.AHPilotStats
 {
@@ -15,47 +11,43 @@ namespace My2Cents.HTC.AHPilotStats
         {
             InitializeComponent();
             PopulateDropList();
-
         }
 
         public void PopulateDropList()
         {
-            this.pilotListCmbBox.DataSource = Registry.Instance.PilotNamesSet;
-            this.pilotListCmbBox.Update();
+            pilotListCmbBox.DataSource = Registry.Instance.PilotNamesSet;
+            pilotListCmbBox.Update();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         private void deletePilotButton_Click(object sender, EventArgs e)
         {
-            if (this.pilotListCmbBox.SelectedItem == null)
+            if (pilotListCmbBox.SelectedItem == null)
                 return;
 
-            string pilotToDelete = this.pilotListCmbBox.SelectedItem.ToString();
+            var pilotToDelete = pilotListCmbBox.SelectedItem.ToString();
             if (pilotToDelete == "<Select pilot to delete>")
                 return;
 
-            DialogResult result = MessageBox.Show(this, string.Format("Are you sure you want to delete {0}?", pilotToDelete), "Confirm Delete", MessageBoxButtons.YesNo);
+            var result = MessageBox.Show(this, string.Format("Are you sure you want to delete {0}?", pilotToDelete), "Confirm Delete", MessageBoxButtons.YesNo);
             if (result != DialogResult.Yes)
                 return;
 
             Registry.Instance.RemovePilot(pilotToDelete);
             Registry.Instance.PilotNamesSet.Remove(pilotToDelete);
 
-            bool found = false;
+            var found = false;
             try
             {
-                DirectoryInfo dinf = new DirectoryInfo("data");
-                foreach (FileInfo finf in dinf.GetFiles())
+                var dinf = new DirectoryInfo("data");
+                foreach (var finf in dinf.GetFiles().Where(finf => finf.Name.Contains(pilotToDelete)))
                 {
-                    if (finf.Name.Contains(pilotToDelete))
-                    {
-                        File.Delete(finf.FullName);
-                        found = true;
-                    }
+                    File.Delete(finf.FullName);
+                    found = true;
                 }
 
                 if (!found)
@@ -64,16 +56,16 @@ namespace My2Cents.HTC.AHPilotStats
             }
             catch (FileNotFoundException)
             {
-                this.statusLabel.Visible = true;
-                this.statusLabel.Text = string.Format("Failed to delete {0} or no data files exist.", pilotToDelete);
+                statusLabel.Visible = true;
+                statusLabel.Text = string.Format("Failed to delete {0} or no data files exist.", pilotToDelete);
                 return;
             }
 
-            this.statusLabel.Visible = true;
-            this.statusLabel.Text = string.Format("Pilot {0} has been sucessfully deleted.", pilotToDelete);
-            this.pilotListCmbBox.Refresh();
+            statusLabel.Visible = true;
+            statusLabel.Text = string.Format("Pilot {0} has been sucessfully deleted.", pilotToDelete);
+            pilotListCmbBox.Refresh();
             
-            ((MainMDI)this.MdiParent).RefreshPilotLists(pilotToDelete);
+            ((MainMDI)MdiParent).RefreshPilotLists(pilotToDelete);
 
         }
     }

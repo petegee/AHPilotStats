@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using My2Cents.HTC.AHPilotStats.Properties;
 
 namespace My2Cents.HTC.AHPilotStats
 {
@@ -7,61 +8,58 @@ namespace My2Cents.HTC.AHPilotStats
     {
         private const int NumberOfTips = 3;
 
-        private string[] tips = new string[NumberOfTips];
-        private int currentTip = NumberOfTips-1;
-
+        private readonly string[] _tips = new string[NumberOfTips];
+        private int _currentTip = NumberOfTips - 1;
 
         public StartupTips()
         {
             InitializeComponent();
-            showTipsChkBx.Checked = Properties.Settings.Default.ShowTipsAtStart;
+            showTipsChkBx.Checked = Settings.Default.ShowTipsAtStart;
             SetupTipArray();
-            this.richTextBox.Rtf = GetTip();
+            richTextBox.Rtf = GetTip();
         }
 
         private void SetupTipArray()
         {
-            tips[0] = Properties.Resources.Tip0;
-            tips[1] = Properties.Resources.Tip2;
-            tips[2] = Properties.Resources.Tip1;
+            _tips[0] = Resources.Tip0;
+            _tips[1] = Resources.Tip2;
+            _tips[2] = Resources.Tip1;
         }
-
 
         private string GetTip()
         {
-            return tips[currentTip];
+            return _tips[_currentTip];
         }
-
 
         private void prevTipButton_Click(object sender, EventArgs e)
         {
-            if (currentTip == 0)
-                currentTip = NumberOfTips - 1;
+            if (_currentTip == 0)
+                _currentTip = NumberOfTips - 1;
             else
-                currentTip--;
+                _currentTip--;
 
-            this.richTextBox.Rtf = GetTip();
+            richTextBox.Rtf = GetTip();
         }
 
         private void nextTipButton_Click(object sender, EventArgs e)
         {
-            if (currentTip == NumberOfTips - 1)
-                currentTip = 0;
+            if (_currentTip == NumberOfTips - 1)
+                _currentTip = 0;
             else
-                currentTip++;
+                _currentTip++;
 
-            this.richTextBox.Rtf = GetTip();
+            richTextBox.Rtf = GetTip();
         }
 
         private void closeButton_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         private void showTipsChkBx_CheckedChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.ShowTipsAtStart = showTipsChkBx.Checked;
-            Properties.Settings.Default.Save();
+            Settings.Default.ShowTipsAtStart = showTipsChkBx.Checked;
+            Settings.Default.Save();
         }
     }
 }

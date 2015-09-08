@@ -1,21 +1,13 @@
 using System;
-using System.IO;
-using System.Xml.Serialization;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
-using System.Threading;
 using System.Configuration;
-
-using My2Cents.HTC.PilotScoreSvc;
-using My2Cents.HTC.AHPilotStats.DomainObjects;
-using My2Cents.HTC.PilotScoreSvc.Types;
+using System.Linq;
+using System.Threading;
+using System.Windows.Forms;
 using My2Cents.HTC.PilotScoreSvc.ServiceLayer;
+using My2Cents.HTC.PilotScoreSvc.Types;
 using My2Cents.HTC.PilotScoreSvc.Utilities;
-
 
 namespace My2Cents.HTC.AHPilotStats
 {
@@ -25,34 +17,40 @@ namespace My2Cents.HTC.AHPilotStats
 
         class LoaderError
         {
-            public int tourId;
-            public string pilotName = "";
-            public string errorMessage = "";
+            public int TourId;
+            public string PilotName = "";
+            public string ErrorMessage = "";
         }
 
         class DataLoaderThreadParams
         {
-            public DataLoaderThreadParams() 
-            { 
+            public DataLoaderThreadParams()
+            {
+                ToursToLoad = new List<TourNode>();
+                PilotIdList = new List<string>();
+                StatsErrorList = new List<LoaderError>();
+                ScoreErrorList = new List<LoaderError>();
+                ScoreList = new List<AcesHighPilotScore>();
+                StatsList = new List<AcesHighPilotStats>();
             }
 
-            public List<TourNode> toursToLoad = new List<TourNode>();
-            public UpdateProgressCallBackDelegate updateProgressCallBack;
-            public LoadCompletedCallBackDelegate loadCompletedCallBack;
-            public ProxySettingsDTO proxySettings;
-            public List<string> pilotIdList = new List<string>();
-            public List<LoaderError> statsErrorList = new List<LoaderError>();
-            public List<LoaderError> scoreErrorList = new List<LoaderError>();
-            public List<AcesHighPilotScore> scoreList = new List<AcesHighPilotScore>();
-            public List<AcesHighPilotStats> statsList = new List<AcesHighPilotStats>();
+            public List<TourNode> ToursToLoad { get; private set; }
+            public UpdateProgressCallBackDelegate ProgressCallBack { get; set; }
+            public LoadCompletedCallBackDelegate CompletedCallBack { get; set; }
+            public ProxySettingsDTO ProxySettings { get; set; }
+            public List<string> PilotIdList { get; private set; }
+            public List<LoaderError> StatsErrorList { get; private set; }
+            public List<LoaderError> ScoreErrorList { get; private set; }
+            public List<AcesHighPilotScore> ScoreList { get; private set; }
+            public List<AcesHighPilotStats> StatsList { get; private set; }
         }
 
         class CompleteTourData
         {
-            public int tourId;
-            public string pilotId;
-            public AcesHighPilotStats stats;
-            public AcesHighPilotScore score;
+            public int TourId { get; set; }
+            public string PilotId { get; set; }
+            public AcesHighPilotStats Stats { get; set; }
+            public AcesHighPilotScore Score { get; set; }
         }
 
         #endregion
@@ -62,38 +60,37 @@ namespace My2Cents.HTC.AHPilotStats
         // Thread callback delegates.
         private delegate void UpdateProgressCallBackDelegate();
         private delegate void LoadCompletedCallBackDelegate();
-        private delegate void TourDefLoadCompletedCallBackDelegate();
 
         // Threads state
-        private ParameterizedThreadStart _LoaderThreadStart;
-        private Thread _LoaderThread;
-        private int _ThreadsCompleted = 0;
-        private int _UnitsLoaded = 0;
-        private int _TotalStarted = 0;
-        private UpdateProgressCallBackDelegate _UpdateProgressCallBack;
-        private LoadCompletedCallBackDelegate _LoadCompletedCallBack;
+        private ParameterizedThreadStart _loaderThreadStart;
+        private Thread _loaderThread;
+        private int _threadsCompleted;
+        private int _unitsLoaded;
+        private int _totalStarted;
+        private UpdateProgressCallBackDelegate _updateProgressCallBack;
+        private LoadCompletedCallBackDelegate _loadCompletedCallBack;
         private DataLoaderThreadParams _threadParam;
 
-        private readonly object lockObj = new object();
+        private readonly object _lockObj = new object();
 
-        private ProxySettingsDTO _proxySettings;
-        private Form _parent;
+        private readonly ProxySettingsDTO _proxySettings;
+        private readonly Form _parent;
 
         // validation
-        private ErrorProvider _StartTourErrorProvider;
-        private ErrorProvider _EndTourErrorProvider;
-        private ErrorProvider _PilotNameErrorProvider;
-        private ErrorProvider _TourTypeSelectorErrorProvider;
+        private readonly ErrorProvider _startTourErrorProvider;
+        private readonly ErrorProvider _endTourErrorProvider;
+        private readonly ErrorProvider _pilotNameErrorProvider;
+        private readonly ErrorProvider _tourTypeSelectorErrorProvider;
 
-        private const string _notSelectedText = "<Load Single Pilot>";
-        private const string _selectTourTypeText = "<Select a Tour Type>";
+        private const string NotSelectedText = "<Load Single Pilot>";
+        private const string SelectTourTypeText = "<Select a Tour Type>";
 
         /// <summary>
         /// HTC seem to only allow a scores or stats lookup from the same session once every 
         /// four seconds. To be on the safe-side, lets enforce a 5 second wait between calls
         /// to meet their assumed rule.
         /// </summary>
-        private const int _waitTimeMillsecondsBetweenHttpCallsToHtc = 5000;
+        private const int WaitTimeMillsecondsBetweenHttpCallsToHtc = 5000;
 
         #endregion
 
@@ -112,29 +109,29 @@ namespace My2Cents.HTC.AHPilotStats
             
             LoadTourDefs();
 
-            _StartTourErrorProvider = new System.Windows.Forms.ErrorProvider();
-            _StartTourErrorProvider.SetIconAlignment(this.txtbxStartTour, ErrorIconAlignment.MiddleRight);
-            _StartTourErrorProvider.SetIconPadding(this.txtbxStartTour, 2);
-            _StartTourErrorProvider.BlinkRate = 700;
-            _StartTourErrorProvider.BlinkStyle = System.Windows.Forms.ErrorBlinkStyle.AlwaysBlink;
+            _startTourErrorProvider = new ErrorProvider();
+            _startTourErrorProvider.SetIconAlignment(txtbxStartTour, ErrorIconAlignment.MiddleRight);
+            _startTourErrorProvider.SetIconPadding(txtbxStartTour, 2);
+            _startTourErrorProvider.BlinkRate = 700;
+            _startTourErrorProvider.BlinkStyle = ErrorBlinkStyle.AlwaysBlink;
 
-            _EndTourErrorProvider = new System.Windows.Forms.ErrorProvider();
-            _EndTourErrorProvider.SetIconAlignment(this.txtbxEndTour, ErrorIconAlignment.MiddleRight);
-            _EndTourErrorProvider.SetIconPadding(this.txtbxEndTour, 2);
-            _EndTourErrorProvider.BlinkRate = 700;
-            _EndTourErrorProvider.BlinkStyle = System.Windows.Forms.ErrorBlinkStyle.AlwaysBlink;
+            _endTourErrorProvider = new ErrorProvider();
+            _endTourErrorProvider.SetIconAlignment(txtbxEndTour, ErrorIconAlignment.MiddleRight);
+            _endTourErrorProvider.SetIconPadding(txtbxEndTour, 2);
+            _endTourErrorProvider.BlinkRate = 700;
+            _endTourErrorProvider.BlinkStyle = ErrorBlinkStyle.AlwaysBlink;
 
-            _PilotNameErrorProvider = new System.Windows.Forms.ErrorProvider();
-            _PilotNameErrorProvider.SetIconAlignment(this.txtbxPilotToLoad, ErrorIconAlignment.MiddleRight);
-            _PilotNameErrorProvider.SetIconPadding(this.txtbxPilotToLoad, 2);
-            _PilotNameErrorProvider.BlinkRate = 700;
-            _PilotNameErrorProvider.BlinkStyle = System.Windows.Forms.ErrorBlinkStyle.AlwaysBlink;
+            _pilotNameErrorProvider = new ErrorProvider();
+            _pilotNameErrorProvider.SetIconAlignment(txtbxPilotToLoad, ErrorIconAlignment.MiddleRight);
+            _pilotNameErrorProvider.SetIconPadding(txtbxPilotToLoad, 2);
+            _pilotNameErrorProvider.BlinkRate = 700;
+            _pilotNameErrorProvider.BlinkStyle = ErrorBlinkStyle.AlwaysBlink;
 
-            _TourTypeSelectorErrorProvider = new System.Windows.Forms.ErrorProvider();
-            _TourTypeSelectorErrorProvider.SetIconAlignment(this.txtbxPilotToLoad, ErrorIconAlignment.MiddleRight);
-            _TourTypeSelectorErrorProvider.SetIconPadding(this.txtbxPilotToLoad, 2);
-            _TourTypeSelectorErrorProvider.BlinkRate = 700;
-            _TourTypeSelectorErrorProvider.BlinkStyle = System.Windows.Forms.ErrorBlinkStyle.AlwaysBlink;
+            _tourTypeSelectorErrorProvider = new ErrorProvider();
+            _tourTypeSelectorErrorProvider.SetIconAlignment(txtbxPilotToLoad, ErrorIconAlignment.MiddleRight);
+            _tourTypeSelectorErrorProvider.SetIconPadding(txtbxPilotToLoad, 2);
+            _tourTypeSelectorErrorProvider.BlinkRate = 700;
+            _tourTypeSelectorErrorProvider.BlinkStyle = ErrorBlinkStyle.AlwaysBlink;
         }
 
 
@@ -145,30 +142,27 @@ namespace My2Cents.HTC.AHPilotStats
         /// <param name="e"></param>
         private void PilotDataLoaderForm_Load(object sender, EventArgs e)
         {
-            this.cmboxTourType.Items.Add(_selectTourTypeText);
-            foreach (string tour in Registry.Instance.TourDefinitions.Tours.Keys)
-            {
-                this.cmboxTourType.Items.Add(tour);  
-            }
+            cmboxTourType.Items.Add(SelectTourTypeText);
 
-            this.cmboxTourType.SelectedIndex = 0;
+            foreach (var tour in Registry.Instance.TourDefinitions.Tours.Keys)
+                cmboxTourType.Items.Add(tour);  
 
-            this.cmbBoxSquadSelect.Items.Add(_notSelectedText);
-            foreach(string squadName in Registry.Instance.SquadNamesSet)
-            {
-                this.cmbBoxSquadSelect.Items.Add(squadName);
-            }
-            this.cmbBoxSquadSelect.SelectedItem = _notSelectedText;
+            cmboxTourType.SelectedIndex = 0;
+
+            cmbBoxSquadSelect.Items.Add(NotSelectedText);
+            foreach(var squadName in Registry.Instance.SquadNamesSet)
+                cmbBoxSquadSelect.Items.Add(squadName);
+
+            cmbBoxSquadSelect.SelectedItem = NotSelectedText;
             
             EnableLoadButton(false);
 
-            _UpdateProgressCallBack = new UpdateProgressCallBackDelegate(UpdateProgressCallBack);
-            _LoadCompletedCallBack = new LoadCompletedCallBackDelegate(LoadCompletedCallBack);
+            _updateProgressCallBack = UpdateProgressCallBack;
+            _loadCompletedCallBack = LoadCompletedCallBack;
+            _loaderThreadStart = LoaderThreadEntryPoint;
 
-            _LoaderThreadStart = new ParameterizedThreadStart(this.LoaderThreadEntryPoint);
-
-            this.txtbxStartTour.Enabled = false;
-            this.txtbxEndTour.Enabled = false;
+            txtbxStartTour.Enabled = false;
+            txtbxEndTour.Enabled = false;
         }
 
         
@@ -177,10 +171,10 @@ namespace My2Cents.HTC.AHPilotStats
         /// </summary>
         private void UpdateProgressCallBack()
         {
-            lock (lockObj)
+            lock (_lockObj)
             { 
-                this.progressBarLoading.Increment(1);
-                this.lblUnitsLoaded.Text = (++_UnitsLoaded).ToString();
+                progressBarLoading.Increment(1);
+                lblUnitsLoaded.Text = (++_unitsLoaded).ToString();
             }
         }
 
@@ -189,10 +183,10 @@ namespace My2Cents.HTC.AHPilotStats
         /// </summary>
         private void LoadCompletedCallBack()
         {
-            lock (lockObj)
+            lock (_lockObj)
             {
-                _ThreadsCompleted++;
-                if (_ThreadsCompleted == _TotalStarted)
+                _threadsCompleted++;
+                if (_threadsCompleted == _totalStarted)
                 {
                     ProcessLoadCompleted();
                 }
@@ -205,46 +199,39 @@ namespace My2Cents.HTC.AHPilotStats
         /// </summary>
         private void ProcessLoadCompleted()
         {
-            List<CompleteTourData> results = new List<CompleteTourData>();
+            var results = new List<CompleteTourData>();
 
             // Compile stats and scores into one logical unit.
-            foreach (string pilotId in _threadParam.pilotIdList)
+            foreach (var pilotId in _threadParam.PilotIdList)
             {
-                foreach (TourNode tour in _threadParam.toursToLoad)
+                results.AddRange(_threadParam.ToursToLoad.Select(tour => new CompleteTourData
                 {
-                    CompleteTourData compTourData = new CompleteTourData();
-
-                    compTourData.pilotId = pilotId;
-                    compTourData.tourId = tour.TourId;
-                    compTourData.score = FindPilotTourScore(pilotId, tour.TourId); 
-                    compTourData.stats = FindPilotTourStats(pilotId, tour.TourId); 
-                    
-                    results.Add(compTourData);
-                }              
+                    PilotId = pilotId,
+                    TourId = tour.TourId,
+                    Score = FindPilotTourScore(pilotId, tour.TourId),
+                    Stats = FindPilotTourStats(pilotId, tour.TourId)
+                }));
             }
 
             // Write each complete tour data results out to disk.
-            foreach(CompleteTourData tourData in results)
+            foreach (var tourData in results.Where(tourData => !TourIsInError(tourData)))
             {
-                if (!TourIsInError(tourData))
-                {
-                    // write out as one logical whole.
-                    new XMLObjectSerialiser<AcesHighPilotScore>().WriteXMLFile(tourData.score, string.Format(".\\Data\\{0}_{1}_Score_{2}.xml", tourData.pilotId, tourData.score.TourType, tourData.score.TourId));
-                    new XMLObjectSerialiser<AcesHighPilotStats>().WriteXMLFile(tourData.stats, string.Format(".\\Data\\{0}_{1}_Stats_{2}.xml", tourData.pilotId, tourData.stats.TourType, tourData.stats.TourId));
-                }
+                // write out as one logical whole.
+                new XMLObjectSerialiser<AcesHighPilotScore>().WriteXmlFile(tourData.Score, string.Format(".\\Data\\{0}_{1}_Score_{2}.xml", tourData.PilotId, tourData.Score.TourType, tourData.Score.TourId));
+                new XMLObjectSerialiser<AcesHighPilotStats>().WriteXmlFile(tourData.Stats, string.Format(".\\Data\\{0}_{1}_Stats_{2}.xml", tourData.PilotId, tourData.Stats.TourType, tourData.Stats.TourId));
             }
 
             // Display any errors that the loader threads caught to the user.
             BuildAndDisplayAnyErrorMessage();
 
             // Update the Registry and refresh the form.
-            if (cmbBoxSquadSelect.SelectedItem.ToString() == _notSelectedText)
-                ((MainMDI)MdiParent).RefreshPilotLists(this.txtbxPilotToLoad.Text);
+            if (cmbBoxSquadSelect.SelectedItem.ToString() == NotSelectedText)
+                ((MainMDI)MdiParent).RefreshPilotLists(txtbxPilotToLoad.Text);
             else
-                ((MainMDI)MdiParent).RefreshSquadMemberPilotLists(this.cmbBoxSquadSelect.SelectedItem.ToString());
+                ((MainMDI)MdiParent).RefreshSquadMemberPilotLists(cmbBoxSquadSelect.SelectedItem.ToString());
 
             RestoreForm();
-            this.progressBarLoading.Value = 0;
+            progressBarLoading.Value = 0;
 
         }
 
@@ -257,15 +244,8 @@ namespace My2Cents.HTC.AHPilotStats
         /// <returns>the relevant score object</returns>
         private AcesHighPilotScore FindPilotTourScore(string pilotId, int tourId)
         {
-            foreach (AcesHighPilotScore score in _threadParam.scoreList)
-            {
-                if (score.GameId == pilotId && score.TourId == tourId.ToString())
-                {
-                    return score;
-                }
-            }
-
-            return null;
+            return _threadParam.ScoreList
+                .FirstOrDefault(score => score.GameId == pilotId && score.TourId == tourId.ToString());
         }
 
 
@@ -277,15 +257,8 @@ namespace My2Cents.HTC.AHPilotStats
         /// <returns>the relevant stats object</returns>
         private AcesHighPilotStats FindPilotTourStats(string pilotId, int tourId)
         {
-            foreach (AcesHighPilotStats stats in _threadParam.statsList)
-            {
-                if (stats.GameId == pilotId && stats.TourId == tourId.ToString())
-                {
-                    return stats;
-                }
-            }
-
-            return null;
+            return _threadParam.StatsList
+                .FirstOrDefault(stats => stats.GameId == pilotId && stats.TourId == tourId.ToString());
         }
 
 
@@ -295,19 +268,19 @@ namespace My2Cents.HTC.AHPilotStats
         /// </summary>
         private void BuildAndDisplayAnyErrorMessage()
         {
-            bool inError = false;
+            var inError = false;
 
-            string errorMessageToDisplay = "Loading did not complete sucessfully:\n\n";
+            var errorMessageToDisplay = "Loading did not complete sucessfully:\n\n";
 
-            foreach (LoaderError error in _threadParam.scoreErrorList)
+            foreach (var error in _threadParam.ScoreErrorList)
             {
-                errorMessageToDisplay += error.errorMessage + "\n";
+                errorMessageToDisplay += error.ErrorMessage + "\n";
                 inError = true;
             }
 
-            foreach (LoaderError error in _threadParam.statsErrorList)
+            foreach (var error in _threadParam.StatsErrorList)
             {
-                errorMessageToDisplay += error.errorMessage + "\n";
+                errorMessageToDisplay += error.ErrorMessage + "\n";
                 inError = true;
             }
 
@@ -327,28 +300,12 @@ namespace My2Cents.HTC.AHPilotStats
         /// <returns>true if loader errors found, false otherwise.</returns>
         private bool TourIsInError(CompleteTourData tourData)
         {
-            if (tourData.score == null || tourData.stats == null)
+            if (tourData.Score == null || tourData.Stats == null)
                 return true;
 
-            bool inError = false;
-
-            // See if we can find a match for this tour/person combo in the errors lists.
-            foreach (LoaderError error in _threadParam.scoreErrorList)
-            {
-                if (error.tourId == tourData.tourId && error.pilotName == tourData.pilotId)
-                {
-                    inError = true;
-                }
-            }
-            foreach (LoaderError error in _threadParam.statsErrorList)
-            {
-                if (error.tourId == tourData.tourId && error.pilotName == tourData.pilotId)
-                {
-                    inError = true;
-                }
-            }
-
-            return inError;
+            // See if we can find a match for this tour/person combo in the errors lists
+            return  _threadParam.ScoreErrorList.Any(error => error.TourId == tourData.TourId && error.PilotName == tourData.PilotId) ||
+                    _threadParam.StatsErrorList.Any(error => error.TourId == tourData.TourId && error.PilotName == tourData.PilotId);
         }
 
 
@@ -363,68 +320,64 @@ namespace My2Cents.HTC.AHPilotStats
             try
             {
                 EnableControls(false);
-                this.btnCancel.Enabled = false;
+                btnCancel.Enabled = false;
 
-                int tourStart = System.Convert.ToInt32(this.txtbxStartTour.Text);
-                int tourEnd = System.Convert.ToInt32(this.txtbxEndTour.Text);
+                var tourStart = Convert.ToInt32(txtbxStartTour.Text);
+                var tourEnd = Convert.ToInt32(txtbxEndTour.Text);
 
                 _threadParam = new DataLoaderThreadParams();
 
                 // if a single pilot, add single pilot name to the list.
-                if (cmbBoxSquadSelect.SelectedItem.ToString() == _notSelectedText)
+                if (cmbBoxSquadSelect.SelectedItem.ToString() == NotSelectedText)
                 {
-                    _threadParam.pilotIdList.Add(CommonUtils.ToUpperFirstChar(this.txtbxPilotToLoad.Text));
+                    _threadParam.PilotIdList.Add(CommonUtils.ToUpperFirstChar(txtbxPilotToLoad.Text));
                 }
                 else // its a squad - so add each member of the sqaud to the list.
-                { 
-                    Squad squad = Registry.Instance.GetSquad(cmbBoxSquadSelect.SelectedItem.ToString());
-                    foreach (Squad.SquadMember squadMember in squad.Members)
+                {
+                    var squad = Registry.Instance.GetSquad(cmbBoxSquadSelect.SelectedItem.ToString());
+                    foreach (var squadMember in squad.Members.Where(squadMember => squadMember.StartTour <= tourStart && squadMember.EndTour >= tourStart))
                     {
-                        //only load this member if they were actually a member for that tour.
-                        if (squadMember.StartTour <= tourStart && squadMember.EndTour >= tourStart)
-                        {
-                            _threadParam.pilotIdList.Add(CommonUtils.ToUpperFirstChar(squadMember.PilotName));
-                        }
+                        _threadParam.PilotIdList.Add(CommonUtils.ToUpperFirstChar(squadMember.PilotName));
                     }
                 }
 
-                string tourType = this.cmboxTourType.SelectedItem.ToString();
+                var tourType = cmboxTourType.SelectedItem.ToString();
                
                 // build the list of tours to load.
-                for (int tourId = tourStart; tourId <= tourEnd; tourId++)
+                for (var tourId = tourStart; tourId <= tourEnd; tourId++)
                 {
-                    _threadParam.toursToLoad.Add(Registry.Instance.TourDefinitions.FindTour(tourType, tourId));
+                    _threadParam.ToursToLoad.Add(Registry.Instance.TourDefinitions.FindTour(tourType, tourId));
                 }
 
                 // Set the thread callbacks.
-                _threadParam.loadCompletedCallBack = _LoadCompletedCallBack;
-                _threadParam.updateProgressCallBack = _UpdateProgressCallBack;
+                _threadParam.CompletedCallBack = _loadCompletedCallBack;
+                _threadParam.ProgressCallBack  = _updateProgressCallBack;
 
                 // Make sure they actually selected something sane. Shouldnt happen due to form validation.
-                if (cmbBoxSquadSelect.SelectedItem.ToString() == _notSelectedText && string.IsNullOrEmpty(txtbxPilotToLoad.Text))
+                if (cmbBoxSquadSelect.SelectedItem.ToString() == NotSelectedText && string.IsNullOrEmpty(txtbxPilotToLoad.Text))
                 {
                     throw new Exception();
                 }
               
-                _threadParam.proxySettings = _proxySettings;
+                _threadParam.ProxySettings = _proxySettings;
 
                 // Kick off the threads to do the dirty work.
-                _LoaderThread = new Thread(_LoaderThreadStart);
-                _LoaderThread.Start(_threadParam);
+                _loaderThread = new Thread(_loaderThreadStart);
+                _loaderThread.Start(_threadParam);
 
-                _TotalStarted = 1;
+                _totalStarted = 1;
 
-                if (cmbBoxSquadSelect.SelectedItem.ToString() == _notSelectedText)
-                    this.progressBarLoading.Maximum = (tourEnd - tourStart + 1) * 2;
+                if (cmbBoxSquadSelect.SelectedItem.ToString() == NotSelectedText)
+                    progressBarLoading.Maximum = (tourEnd - tourStart + 1) * 2;
                 else
                 {
-                    Squad squad = Registry.Instance.GetSquad(cmbBoxSquadSelect.SelectedItem.ToString());
-                    this.progressBarLoading.Maximum = _threadParam.pilotIdList.Count * 2;
+                    //var squad = Registry.Instance.GetSquad(cmbBoxSquadSelect.SelectedItem.ToString());
+                    progressBarLoading.Maximum = _threadParam.PilotIdList.Count * 2;
                 }
                     
 
-                this.lblUnitsToLoad.Text = this.progressBarLoading.Maximum.ToString();
-                this.lblLoading.Visible = true;
+                lblUnitsToLoad.Text = progressBarLoading.Maximum.ToString();
+                lblLoading.Visible = true;
             }
             catch (Exception)
             {
@@ -441,11 +394,11 @@ namespace My2Cents.HTC.AHPilotStats
         private void RestoreForm()
         {
             EnableControls(true);
-            this.lblUnitsToLoad.Text = "0";
-            this.btnCancel.Enabled = true;
-            this.lblLoading.Visible = false;
-            _UnitsLoaded = 0;
-            _ThreadsCompleted = 0;
+            lblUnitsToLoad.Text = "0";
+            btnCancel.Enabled = true;
+            lblLoading.Visible = false;
+            _unitsLoaded = 0;
+            _threadsCompleted = 0;
         }
 
 
@@ -455,22 +408,19 @@ namespace My2Cents.HTC.AHPilotStats
         /// <param name="enable">true to enable, false to disable.</param>
         private void EnableControls(bool enable)
         {
-            this.label1.Enabled = enable;
-            this.label2.Enabled = enable;
-            this.label3.Enabled = enable;
-            this.label4.Enabled = enable;
-            this.label5.Enabled = enable;
-            this.txtbxPilotToLoad.Enabled = enable;
-            this.txtbxPilotToLoad.Enabled = enable;
-            this.txtbxStartTour.Enabled = enable;
-            this.cmboxTourType.Enabled = enable;
+            label1.Enabled = enable;
+            label2.Enabled = enable;
+            label3.Enabled = enable;
+            label4.Enabled = enable;
+            label5.Enabled = enable;
+            txtbxPilotToLoad.Enabled = enable;
+            txtbxPilotToLoad.Enabled = enable;
+            txtbxStartTour.Enabled = enable;
+            cmboxTourType.Enabled = enable;
 
-            if (cmbBoxSquadSelect.SelectedItem.ToString() != _notSelectedText)
-                this.txtbxEndTour.Enabled = false;
-            else
-                this.txtbxEndTour.Enabled = enable;
+            txtbxEndTour.Enabled = cmbBoxSquadSelect.SelectedItem.ToString() == NotSelectedText && enable;
 
-            this.cmbBoxSquadSelect.Enabled = enable;
+            cmbBoxSquadSelect.Enabled = enable;
 
             EnableLoadButton(enable);  
         }
@@ -482,69 +432,77 @@ namespace My2Cents.HTC.AHPilotStats
         /// <param name="obj">DataLoaderThreadParams</param>
         public void LoaderThreadEntryPoint(object obj)
         {
-            DataLoaderThreadParams param = (DataLoaderThreadParams)obj;
+            var param = (DataLoaderThreadParams)obj;
 
             try
             {
-                bool onlyOneToLoad = param.toursToLoad.Count * param.pilotIdList.Count == 1;
+                var onlyOneToLoad = param.ToursToLoad.Count * param.PilotIdList.Count == 1;
 
-                foreach (TourNode tour in param.toursToLoad)
+                foreach (var tour in param.ToursToLoad)
                 {
-                    foreach (string pilotId in param.pilotIdList)
+                    foreach (var pilotId in param.PilotIdList)
                     {
                         //
                         // Load the Stats objects.
                         //
-                        string statsURL = ConfigurationManager.AppSettings["statsURL"];
-                        HTCPilotStatsSvc statsSvc = new HTCPilotStatsSvc();
+                        var statsUrl = ConfigurationManager.AppSettings["statsURL"];
+                        var statsSvc = new HTCPilotStatsSvc();
                         try
                         {
-                            param.statsList.Add(statsSvc.GetPilotStats(pilotId, tour, param.proxySettings, statsURL));
+                            param.StatsList.Add(statsSvc.GetPilotStats(pilotId, tour, param.ProxySettings, statsUrl));
                         }
                         catch (Exception e)
                         {
-                            LoaderError loaderError = new LoaderError();
-                            loaderError.tourId = tour.TourId;
-                            loaderError.pilotName = pilotId;
-                            loaderError.errorMessage = string.Format(" - could not load stats objects for pilot {0} for {1} tour {2}.", pilotId, tour.TourType.ToString(), tour.TourId);
-                            param.statsErrorList.Add(loaderError);
+                            var loaderError = new LoaderError
+                            {
+                                TourId = tour.TourId,
+                                PilotName = pilotId,
+                                ErrorMessage =
+                                    string.Format(" - could not load stats objects for pilot {0} for {1} tour {2}.",
+                                        pilotId, tour.TourType, tour.TourId)
+                            };
+                            param.StatsErrorList.Add(loaderError);
                             Utility.WriteDebugTraceFile(e);
                         }
 
                         // Wait between calls.
-                        Thread.Sleep(_waitTimeMillsecondsBetweenHttpCallsToHtc);
-                        progressBarLoading.Invoke(param.updateProgressCallBack);
+                        Thread.Sleep(WaitTimeMillsecondsBetweenHttpCallsToHtc);
+                        progressBarLoading.Invoke(param.ProgressCallBack);
 
                         //
                         // Load the scores objects.
                         //
-                        HTCPilotScoreSvc scoreSvc = new HTCPilotScoreSvc();
-                        string scoresURL = ConfigurationManager.AppSettings["scoresURL"];
+                        var scoreSvc = new HTCPilotScoreSvc();
+                        var scoresUrl = ConfigurationManager.AppSettings["scoresURL"];
                         try
                         {
-                            param.scoreList.Add(scoreSvc.GetPilotScore(pilotId, tour, param.proxySettings, scoresURL));
+                            param.ScoreList.Add(scoreSvc.GetPilotScore(pilotId, tour, param.ProxySettings, scoresUrl));
                         }
                         catch (Exception e)
                         {
-                            LoaderError error = new LoaderError();
-                            error.tourId = tour.TourId;
-                            error.pilotName = pilotId;
-                            error.errorMessage = string.Format(" - could not load scores objects for pilot {0} for {1} tour {2}.", pilotId, tour.TourType.ToString(), tour.TourId);
-                            param.scoreErrorList.Add(error);
+                            var error = new LoaderError
+                            {
+                                TourId = tour.TourId,
+                                PilotName = pilotId,
+                                ErrorMessage =
+                                    string.Format(" - could not load scores objects for pilot {0} for {1} tour {2}.",
+                                        pilotId, tour.TourType, tour.TourId)
+                            };
+                            param.ScoreErrorList.Add(error);
                             Utility.WriteDebugTraceFile(e);
                         }
 
-                        progressBarLoading.Invoke(param.updateProgressCallBack);
+                        progressBarLoading.Invoke(param.ProgressCallBack);
 
                         if (!onlyOneToLoad)
-                            Thread.Sleep(_waitTimeMillsecondsBetweenHttpCallsToHtc);
+                            Thread.Sleep(WaitTimeMillsecondsBetweenHttpCallsToHtc);
                     }
                 }
 
             }
             finally
             {
-                btnLoad.Invoke(param.loadCompletedCallBack);
+                btnLoad.Invoke(param.CompletedCallBack);
             }
         }
 
@@ -554,20 +512,21 @@ namespace My2Cents.HTC.AHPilotStats
         /// </summary>
         private void LoadTourDefs()
         {
-            WaitDialog waitDlg = new WaitDialog();
-            waitDlg.MdiParent = _parent;
+            var waitDlg = new WaitDialog
+            {
+                MdiParent = _parent,
+                UseWaitCursor = true
+            };
             waitDlg.Show();
-            
-            waitDlg.UseWaitCursor = true;
             waitDlg.Update();
 
-            string scoresURL = ConfigurationManager.AppSettings["scoresURL"];
-            string statsURL = ConfigurationManager.AppSettings["statsURL"];
+            var scoresUrl = ConfigurationManager.AppSettings["scoresURL"];
+            var statsUrl = ConfigurationManager.AppSettings["statsURL"];
 
             if (Registry.Instance.TourDefinitions == null)
             {
-                HTCTourDefinitionsSvc tourDefsSvc = new HTCTourDefinitionsSvc();
-                Registry.Instance.TourDefinitions = tourDefsSvc.GetTourDefinitions(ProxySettingsDTO.GetProxySettings(), scoresURL, statsURL);
+                var tourDefsSvc = new HTCTourDefinitionsSvc();
+                Registry.Instance.TourDefinitions = tourDefsSvc.GetTourDefinitions(ProxySettingsDTO.GetProxySettings(), scoresUrl, statsUrl);
             }
 
             waitDlg.Hide();
@@ -576,7 +535,7 @@ namespace My2Cents.HTC.AHPilotStats
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         private void txtbxStartTour_Validating(object sender, CancelEventArgs e)
@@ -611,24 +570,24 @@ namespace My2Cents.HTC.AHPilotStats
         {
             ValidateTourTypeComboBox();
             ValidatePilotToLoadTextBox();
-            ValidateTourTextBoxEntry(this.txtbxEndTour, _EndTourErrorProvider);
-            ValidateTourTextBoxEntry(this.txtbxStartTour, _StartTourErrorProvider);
+            ValidateTourTextBoxEntry(txtbxEndTour, _endTourErrorProvider);
+            ValidateTourTextBoxEntry(txtbxStartTour, _startTourErrorProvider);
         }
 
         private void ValidateTourTextBoxEntry(TextBox txtBox, ErrorProvider errorProvider)
         {
-            if (cmboxTourType.SelectedItem.ToString() == _selectTourTypeText)
+            if (cmboxTourType.SelectedItem.ToString() == SelectTourTypeText)
                 return;
 
-            bool isValid = true;
-            int selectedTour = 0;
-            int minLegalTourSelection = GetMinTourForSelectedTourType();
-            int maxLegalTourSelection = GetMaxTourForSelectedTourType();
+            var isValid = true;
+            var selectedTour = 0;
+            var minLegalTourSelection = GetMinTourForSelectedTourType();
+            var maxLegalTourSelection = GetMaxTourForSelectedTourType();
 
             try
             {
                 if (txtBox.Text != string.Empty)
-                    selectedTour = System.Convert.ToInt32(txtBox.Text);
+                    selectedTour = Convert.ToInt32(txtBox.Text);
             }
             catch
             {
@@ -641,9 +600,9 @@ namespace My2Cents.HTC.AHPilotStats
             }
             else
             {
-                string errorMsg = string.Format("There is no tour {0} in {1}. Please enter a number between {2} and {3}", 
+                var errorMsg = string.Format("There is no tour {0} in {1}. Please enter a number between {2} and {3}", 
                                                     selectedTour, 
-                                                    cmboxTourType.SelectedItem.ToString(), 
+                                                    cmboxTourType.SelectedItem, 
                                                     minLegalTourSelection, 
                                                     maxLegalTourSelection);
 
@@ -652,39 +611,39 @@ namespace My2Cents.HTC.AHPilotStats
             }
         }
 
-        private bool WithinTourBoundaries(int selectedTour, int MinTour, int MaxTour)
+        private bool WithinTourBoundaries(int selectedTour, int minTour, int maxTour)
         {
-            return ( selectedTour >= MinTour
+            return ( selectedTour >= minTour
                      &&
-                     selectedTour <= MaxTour
+                     selectedTour <= maxTour
                     );
         }
 
         private void ValidateTourTypeComboBox() 
         {
-            if (this.cmboxTourType.Text.Length > 0)
+            if (cmboxTourType.Text.Length > 0)
             {
                 EnableLoadButton(true);
-                _TourTypeSelectorErrorProvider.SetError(this.cmboxTourType,"");
+                _tourTypeSelectorErrorProvider.SetError(cmboxTourType,"");
             }
             else
             {
                 EnableLoadButton(false);
-                _TourTypeSelectorErrorProvider.SetError(this.cmboxTourType, "Must select a tour type");
+                _tourTypeSelectorErrorProvider.SetError(cmboxTourType, "Must select a tour type");
             }
         }
 
         private void ValidatePilotToLoadTextBox()
         {
-            if (this.txtbxPilotToLoad.Text.Length > 0 || cmbBoxSquadSelect.SelectedItem.ToString() != _notSelectedText)
+            if (txtbxPilotToLoad.Text.Length > 0 || cmbBoxSquadSelect.SelectedItem.ToString() != NotSelectedText)
             {
                 EnableLoadButton(true);
-                _PilotNameErrorProvider.SetError(this.txtbxPilotToLoad, "");
+                _pilotNameErrorProvider.SetError(txtbxPilotToLoad, "");
             }
             else
             {
                 EnableLoadButton(false);
-                _PilotNameErrorProvider.SetError(this.txtbxPilotToLoad, "Must select a pilot game id");
+                _pilotNameErrorProvider.SetError(txtbxPilotToLoad, "Must select a pilot game id");
             }
         }
 
@@ -692,24 +651,24 @@ namespace My2Cents.HTC.AHPilotStats
         {
             if (enable)
             {
-                if (_PilotNameErrorProvider.GetError(txtbxPilotToLoad) == "" &&
-                    _TourTypeSelectorErrorProvider.GetError(cmboxTourType) == "" &&
-                    _StartTourErrorProvider.GetError(txtbxStartTour) == "" &&
-                    _EndTourErrorProvider.GetError(txtbxEndTour) == "")
+                if (_pilotNameErrorProvider.GetError(txtbxPilotToLoad) == "" &&
+                    _tourTypeSelectorErrorProvider.GetError(cmboxTourType) == "" &&
+                    _startTourErrorProvider.GetError(txtbxStartTour) == "" &&
+                    _endTourErrorProvider.GetError(txtbxEndTour) == "")
                 {
-                    this.btnLoad.Enabled = true;
+                    btnLoad.Enabled = true;
                 }
             }
             else
             {
-                this.btnLoad.Enabled = false;
+                btnLoad.Enabled = false;
             }
         }
 
         private void cmbBoxSquadSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
-            this.txtbxPilotToLoad.Text = "";
-            if (cmbBoxSquadSelect.SelectedItem.ToString() != _notSelectedText)
+            txtbxPilotToLoad.Text = "";
+            if (cmbBoxSquadSelect.SelectedItem.ToString() != NotSelectedText)
             {
                 txtbxPilotToLoad.Enabled = false;
                 txtbxEndTour.Text = txtbxStartTour.Text;
@@ -727,7 +686,7 @@ namespace My2Cents.HTC.AHPilotStats
 
         private void txtbxPilotToLoad_TextChanged(object sender, EventArgs e)
         {
-            cmbBoxSquadSelect.SelectedItem = _notSelectedText;
+            cmbBoxSquadSelect.SelectedItem = NotSelectedText;
         }
 
         private void txtbxStartTour_TextChanged(object sender, EventArgs e)
@@ -748,63 +707,44 @@ namespace My2Cents.HTC.AHPilotStats
 
         private int GetMinTourForSelectedTourType()
         {
-            string selectedTour = cmboxTourType.SelectedItem.ToString();
+            var selectedTour = cmboxTourType.SelectedItem.ToString();
             return GetMinTourForTourType(Registry.Instance.TourDefinitions.Tours[selectedTour]);
         }
 
 
         private int GetMinTourForTourType(Dictionary<int, TourNode> tourDef)
         {
-            int mintour = 10000;
-            foreach (TourNode tour in tourDef.Values)
-            {
-                if (tour.TourId < mintour)
-                    mintour = tour.TourId;
-            }
-
-            return mintour;
+            return tourDef.Min(td => td.Value.TourId);
         }
 
 
         private int GetMaxTourForSelectedTourType()
         {
-            string selectedTour = cmboxTourType.SelectedItem.ToString();
+            var selectedTour = cmboxTourType.SelectedItem.ToString();
             return GetMaxTourForTourType(Registry.Instance.TourDefinitions.Tours[selectedTour]);
         }
 
 
         private int GetMaxTourForTourType(Dictionary<int, TourNode> tourDef)
         {
-            int maxTour = 0;
-            foreach (TourNode tour in tourDef.Values)
-            {
-                if (tour.TourId > maxTour)
-                    maxTour = tour.TourId;
-            }
-
-            return maxTour;
+            return tourDef.Max(td => td.Value.TourId);
         }
 
 
 
         private void UpdateStartAndEndTourValidations()
         {
-            if (cmboxTourType.SelectedItem.ToString() != _selectTourTypeText)
+            if (cmboxTourType.SelectedItem.ToString() != SelectTourTypeText)
             {
-                this.txtbxStartTour.Enabled = true;
-
-                if(cmbBoxSquadSelect.SelectedItem.ToString() == _notSelectedText)
-                    this.txtbxEndTour.Enabled = true;
-                else
-                    this.txtbxEndTour.Enabled = false;
-
-                this.txtbxStartTour.Text = GetMinTourForSelectedTourType().ToString();
+                txtbxStartTour.Enabled = true;
+                txtbxEndTour.Enabled = cmbBoxSquadSelect.SelectedItem.ToString() == NotSelectedText;
+                txtbxStartTour.Text = GetMinTourForSelectedTourType().ToString();
                 ValidateForm();
             }
             else
             {
-                this.txtbxStartTour.Enabled = false;
-                this.txtbxEndTour.Enabled = false;
+                txtbxStartTour.Enabled = false;
+                txtbxEndTour.Enabled = false;
                 EnableLoadButton(false);
             }
         }

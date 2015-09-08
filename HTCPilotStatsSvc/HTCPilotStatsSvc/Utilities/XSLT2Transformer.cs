@@ -1,15 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Saxon.Api;
 using System.Xml;
+using Saxon.Api;
 
 namespace My2Cents.HTC.PilotScoreSvc.Utilities
 {
-    class XSLT2Transformer
+    internal class XSLT2Transformer
     {
-        XmlDocument _docToTransform = null;
-        XmlTextReader _xsltDocReader = null;
+        private readonly XmlDocument _docToTransform;
+        private readonly XmlTextReader _xsltDocReader;
 
         public XSLT2Transformer(XmlDocument docToTransform, XmlTextReader xsltDocReader)
         {
@@ -19,26 +16,25 @@ namespace My2Cents.HTC.PilotScoreSvc.Utilities
 
         public XmlDocument DoTransform()
         {
-            Processor processor = new Processor();
+            var processor = new Processor();
 
-            XdmNode input = processor.NewDocumentBuilder().Wrap(_docToTransform);
+            var input = processor.NewDocumentBuilder().Wrap(_docToTransform);
 
             // Create a compiler
-            XsltCompiler compiler = processor.NewXsltCompiler();
+            var compiler = processor.NewXsltCompiler();
 
-            DocumentBuilder builder = processor.NewDocumentBuilder();
-            XdmNode xsltSheetNode = builder.Build(_xsltDocReader);
+            var builder = processor.NewDocumentBuilder();
+            var xsltSheetNode = builder.Build(_xsltDocReader);
 
             // Compile the stylesheet
-            XsltTransformer transformer = compiler.Compile(xsltSheetNode).Load();
+            var transformer = compiler.Compile(xsltSheetNode).Load();
 
             // Run the transformation
             transformer.InitialContextNode = input;
-            DomDestination result = new DomDestination();
+            var result = new DomDestination();
             transformer.Run(result);
 
             return result.XmlDocument;
         }
-
     }
 }

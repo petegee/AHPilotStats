@@ -1,9 +1,8 @@
 using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
-using System.IO;
 using My2Cents.HTC.PilotScoreSvc.Types;
 
 namespace My2Cents.HTC.PilotScoreSvc.Utilities
@@ -12,36 +11,37 @@ namespace My2Cents.HTC.PilotScoreSvc.Utilities
     {
         public static string BuildTourDetailsTag(TourNode tour)
         {
-            string shortStartDate = string.Format("{1}-{0}-{2}", tour.TourStartDate.Day, tour.TourStartDate.Month, tour.TourStartDate.Year);
-            string shortEndDate = string.Format("{1}-{0}-{2}", tour.TourEndDate.Day, tour.TourEndDate.Month, tour.TourEndDate.Year);
+            var shortStartDate = string.Format("{1}-{0}-{2}", tour.TourStartDate.Day, tour.TourStartDate.Month,
+                tour.TourStartDate.Year);
+            var shortEndDate = string.Format("{1}-{0}-{2}", tour.TourEndDate.Day, tour.TourEndDate.Month,
+                tour.TourEndDate.Year);
             return string.Format("Tour {0}   {1} to {2}", tour.TourId, shortStartDate, shortEndDate);
         }
 
 
         public object DeserialiseFromXmlDoc(Type type, XmlDocument doc)
         {
-            XmlSerializer serilizer = new XmlSerializer(type);
-            UTF8Encoding enc = new UTF8Encoding();
-            byte[] byteArray = enc.GetBytes(doc.InnerXml);
-            MemoryStream memStream = new MemoryStream(byteArray);
+            var serilizer = new XmlSerializer(type);
+            var enc = new UTF8Encoding();
+            var byteArray = enc.GetBytes(doc.InnerXml);
+            var memStream = new MemoryStream(byteArray);
             return serilizer.Deserialize(memStream);
         }
 
         public static string ToUpperFirstChar(string str)
         {
-            string capd1stLetter = str.Length > 0 ?
-            (
-                char.ToUpper(str[0]) +
-                (
-                    str.Length > 1 ? str.Substring(1)
-                    : ""
-                )
-            )
-            : str;
+            var capd1stLetter = str.Length > 0
+                ? (
+                    char.ToUpper(str[0]) +
+                    (
+                        str.Length > 1
+                            ? str.Substring(1)
+                            : ""
+                        )
+                    )
+                : str;
 
             return capd1stLetter;
         }
     }
-
-
 }

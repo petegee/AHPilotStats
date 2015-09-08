@@ -62,8 +62,7 @@ namespace My2Cents.HTC.AHPilotStats
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(69, 13);
             this.label2.TabIndex = 2;
-            this.label2.Text = "Version 1.7.0";
-            this.label2.Click += new System.EventHandler(this.label2_Click);
+            this.label2.Text = "";
             // 
             // pictureBox1
             // 
