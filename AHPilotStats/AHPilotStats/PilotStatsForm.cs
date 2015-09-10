@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using DgvFilterPopup;
 using My2Cents.HTC.AHPilotStats.DomainObjects;
 using My2Cents.HTC.AHPilotStats.ExtensionMethods;
+using My2Cents.HTC.AHPilotStats.Collections;
 
 namespace My2Cents.HTC.AHPilotStats
 {

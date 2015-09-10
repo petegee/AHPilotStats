@@ -84,7 +84,7 @@
     <Compile Include="About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
-    <Compile Include="CaseInsensitiveDictionary.cs" />
+    <Compile Include="Collections\CaseInsensitiveDictionary.cs" />
     <Compile Include="DefineSquadronForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -202,8 +202,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="SortableBindingList.cs" />
-    <Compile Include="SortableList.cs" />
+    <Compile Include="Collections\SortableBindingList.cs" />
+    <Compile Include="Collections\SortableList.cs" />
     <Compile Include="SquadScoreStatsBuilder.cs" />
     <Compile Include="Registry.cs" />
     <Compile Include="DomainObjects\UpdateNotification.cs" />

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
-namespace My2Cents.HTC.AHPilotStats
+namespace My2Cents.HTC.AHPilotStats.Collections
 {
     public class SortableList<T> : List<T>
     {

@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 
-namespace My2Cents.HTC.AHPilotStats
+namespace My2Cents.HTC.AHPilotStats.Collections
 {
     public class SortableBindingList<T> : BindingList<T>
     {

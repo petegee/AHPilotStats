@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace My2Cents.HTC.AHPilotStats
+namespace My2Cents.HTC.AHPilotStats.Collections
 {
     public class CaseInsensitiveDictionary<TValue>
     {

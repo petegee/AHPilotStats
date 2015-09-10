@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Linq;
 using NPlot;
 using My2Cents.HTC.AHPilotStats.DomainObjects;
+using My2Cents.HTC.AHPilotStats.Collections;
 
 namespace My2Cents.HTC.AHPilotStats
 {

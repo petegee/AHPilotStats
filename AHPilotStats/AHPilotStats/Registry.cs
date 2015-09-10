@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 using My2Cents.HTC.AHPilotStats.DomainObjects;
 using My2Cents.HTC.PilotScoreSvc.Types;
 using My2Cents.HTC.PilotScoreSvc.Utilities;
+using My2Cents.HTC.AHPilotStats.Collections;
 
 namespace My2Cents.HTC.AHPilotStats
 {
