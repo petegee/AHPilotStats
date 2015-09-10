@@ -78,23 +78,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="About.cs">
+    <Compile Include="Forms\About.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="About.Designer.cs">
+    <Compile Include="Forms\About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
     <Compile Include="Collections\CaseInsensitiveDictionary.cs" />
-    <Compile Include="DefineSquadronForm.cs">
+    <Compile Include="Forms\DefineSquadronForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DefineSquadronForm.Designer.cs">
+    <Compile Include="Forms\DefineSquadronForm.Designer.cs">
       <DependentUpon>DefineSquadronForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DeleteForm.cs">
+    <Compile Include="Forms\DeleteForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DeleteForm.Designer.cs">
+    <Compile Include="Forms\DeleteForm.Designer.cs">
       <DependentUpon>DeleteForm.cs</DependentUpon>
     </Compile>
     <Compile Include="DomainObjects\AttackScoresDO.cs" />
@@ -113,57 +113,57 @@
     <Compile Include="ExtensionMethods\EnumerableExtensions.cs" />
     <Compile Include="GraphBuilder.cs" />
     <Compile Include="GridHelperAttribute.cs" />
-    <Compile Include="MainMDI.cs">
+    <Compile Include="Forms\MainMDI.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainMDI.Designer.cs">
+    <Compile Include="Forms\MainMDI.Designer.cs">
       <DependentUpon>MainMDI.cs</DependentUpon>
     </Compile>
-    <Compile Include="NetConnectionSelectorForm.cs">
+    <Compile Include="Forms\NetConnectionSelectorForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NetConnectionSelectorForm.Designer.cs">
+    <Compile Include="Forms\NetConnectionSelectorForm.Designer.cs">
       <DependentUpon>NetConnectionSelectorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="PilotDataLoaderForm.cs">
+    <Compile Include="Forms\PilotDataLoaderForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PilotDataLoaderForm.Designer.cs">
+    <Compile Include="Forms\PilotDataLoaderForm.Designer.cs">
       <DependentUpon>PilotDataLoaderForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="PilotStatsForm.cs">
+    <Compile Include="Forms\PilotStatsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PilotStatsForm.Designer.cs">
+    <Compile Include="Forms\PilotStatsForm.Designer.cs">
       <DependentUpon>PilotStatsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="About.resx">
+    <EmbeddedResource Include="Forms\About.resx">
       <SubType>Designer</SubType>
       <DependentUpon>About.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DefineSquadronForm.resx">
+    <EmbeddedResource Include="Forms\DefineSquadronForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>DefineSquadronForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DeleteForm.resx">
+    <EmbeddedResource Include="Forms\DeleteForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>DeleteForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainMDI.resx">
+    <EmbeddedResource Include="Forms\MainMDI.resx">
       <SubType>Designer</SubType>
       <DependentUpon>MainMDI.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="NetConnectionSelectorForm.resx">
+    <EmbeddedResource Include="Forms\NetConnectionSelectorForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>NetConnectionSelectorForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="PilotDataLoaderForm.resx">
+    <EmbeddedResource Include="Forms\PilotDataLoaderForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>PilotDataLoaderForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="PilotStatsForm.resx">
+    <EmbeddedResource Include="Forms\PilotStatsForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>PilotStatsForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -172,10 +172,10 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="StartupTips.resx">
+    <EmbeddedResource Include="Forms\StartupTips.resx">
       <DependentUpon>StartupTips.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="WaitDialog.resx">
+    <EmbeddedResource Include="Forms\WaitDialog.resx">
       <SubType>Designer</SubType>
       <DependentUpon>WaitDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -207,17 +207,17 @@
     <Compile Include="SquadScoreStatsBuilder.cs" />
     <Compile Include="Registry.cs" />
     <Compile Include="DomainObjects\UpdateNotification.cs" />
-    <Compile Include="StartupTips.cs">
+    <Compile Include="Forms\StartupTips.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="StartupTips.Designer.cs">
+    <Compile Include="Forms\StartupTips.Designer.cs">
       <DependentUpon>StartupTips.cs</DependentUpon>
     </Compile>
     <Compile Include="Utility.cs" />
-    <Compile Include="WaitDialog.cs">
+    <Compile Include="Forms\WaitDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="WaitDialog.Designer.cs">
+    <Compile Include="Forms\WaitDialog.Designer.cs">
       <DependentUpon>WaitDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="XMLObjectSerialiser.cs" />

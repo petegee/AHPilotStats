@@ -1,5 +1,6 @@
 using My2Cents.HTC.AHPilotStats.DomainObjects;
 using System;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace My2Cents.HTC.AHPilotStats
@@ -17,7 +18,7 @@ namespace My2Cents.HTC.AHPilotStats
         {
             grpBoxSquadDetails.Enabled = false;
             squad_SquadMemberDataGridView.Visible = false;
-            cmbBoxSquadPicker.DataSource = Registry.Instance.SquadNamesSet;
+            cmbBoxSquadPicker.DataSource = Registry.Instance.SquadNamesSet.ToList();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
