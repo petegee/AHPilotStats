@@ -523,7 +523,7 @@ namespace My2Cents.HTC.AHPilotStats
             var scoresUrl = ConfigurationManager.AppSettings["scoresURL"];
             var statsUrl = ConfigurationManager.AppSettings["statsURL"];
 
-            if (Registry.Instance.TourDefinitions == null)
+            if (Registry.Instance.AreTourDefinitionsInitialised() == false)
             {
                 var tourDefsSvc = new HTCTourDefinitionsSvc();
                 Registry.Instance.TourDefinitions = tourDefsSvc.GetTourDefinitions(ProxySettingsDTO.GetProxySettings(), scoresUrl, statsUrl);

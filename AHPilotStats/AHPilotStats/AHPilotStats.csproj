@@ -110,6 +110,7 @@
     <Compile Include="DomainObjects\VehicleBoatScoresDO.cs" />
     <Compile Include="DomainObjects\VehicleBoatStatsDO.cs" />
     <Compile Include="Exceptions.cs" />
+    <Compile Include="ExtensionMethods\EnumerableExtensions.cs" />
     <Compile Include="GraphBuilder.cs" />
     <Compile Include="GridHelperAttribute.cs" />
     <Compile Include="MainMDI.cs">

@@ -14,9 +14,9 @@ namespace My2Cents.HTC.AHPilotStats
     {
         private Registry()
         {
-            PilotNamesSet = new List<string>();
-            SquadNamesSet = new List<string>();
-            ModelList = new List<string>();
+            PilotNamesSet = new HashSet<string>();
+            SquadNamesSet = new HashSet<string>();
+            ModelSet = new HashSet<string>();
             TourDefinitions = new TourDefinitions();
 
             PopulatePilotList();
@@ -93,17 +93,10 @@ namespace My2Cents.HTC.AHPilotStats
                 return;
             }
 
-            var xmlFileNames = Directory.GetFiles(@"data", "*.xml");
-
-            foreach (var xmlFileName in xmlFileNames)
+            foreach (var xmlFileName in Directory.GetFiles(@"data", "*.xml"))
             {
                 var pilotName = xmlFileName.Substring(0, xmlFileName.IndexOf('_', 0)).Substring(xmlFileName.IndexOf(@"\") + 1);
-
-                pilotName = CommonUtils.ToUpperFirstChar(pilotName);
-                if (!PilotNamesSet.Contains(pilotName))
-                {
-                    PilotNamesSet.Add(pilotName);
-                }
+                PilotNamesSet.Add(CommonUtils.ToUpperFirstChar(pilotName));
             }
         }
 
@@ -115,20 +108,14 @@ namespace My2Cents.HTC.AHPilotStats
                 return;
             }
 
-            var xmlFileNames = Directory.GetFiles(@"squads", "*.xml");
-
-            foreach (var xmlFileName in xmlFileNames)
+            foreach (var xmlFileName in Directory.GetFiles(@"squads", "*.xml"))
             {
                 var squadFileName =
                     xmlFileName.Substring(0, xmlFileName.IndexOf('_', 0)).Substring(xmlFileName.IndexOf(@"\") + 1);
 
                 var squad = Squad.LoadSquad(squadFileName);
                 _squadList.Add(squad);
-
-                if (!SquadNamesSet.Contains(squad.SquadName))
-                {
-                    SquadNamesSet.Add(squad.SquadName);
-                }
+                SquadNamesSet.Add(squad.SquadName);
             }
         }
 
@@ -170,11 +157,10 @@ namespace My2Cents.HTC.AHPilotStats
             foreach (var objScore in stats.VsObjects.ObjectScore)
             {
                 // build mathmatical set of models (eg no duplicate entries).
-                AddToModelList(objScore.Model);
+                ModelSet.Add(objScore.Model);
 
                 // add objVsObj score to our complete list.
-                var objVsObjDo = new ObjectVsObjectDO(objScore, stats.TourDetails, stats.TourType,
-                    int.Parse(stats.TourId));
+                var objVsObjDo = new ObjectVsObjectDO(objScore, stats.TourDetails, stats.TourType, int.Parse(stats.TourId));
                 GetPilotStats(pilotName).ObjVsObjCompleteList.Add(objVsObjDo);
             }
         }
@@ -259,13 +245,9 @@ namespace My2Cents.HTC.AHPilotStats
                 _pilotStatsObjMap.Add(selectedPilot, stats);
         }
 
-        private void AddToModelList(string model)
+        public bool AreTourDefinitionsInitialised()
         {
-            if (model == null)
-                throw new ArgumentNullException("Cant add a null model to model list!!!");
-
-            if (!ModelList.Contains(model))
-                ModelList.Add(model);
+            return TourDefinitions != null && TourDefinitions.IsTourDefinitionsComplete();
         }
 
         public class PilotStatsRegistry
@@ -325,11 +307,11 @@ namespace My2Cents.HTC.AHPilotStats
 
         #region Properties
 
-        public List<string> PilotNamesSet { get; set; }
+        public HashSet<string> PilotNamesSet { get; set; }
 
-        public List<string> SquadNamesSet { get; set; }
+        public HashSet<string> SquadNamesSet { get; set; }
 
-        public List<string> ModelList { get; set; }
+        public HashSet<string> ModelSet { get; set; }
 
         public TourDefinitions TourDefinitions { get; set; }
 

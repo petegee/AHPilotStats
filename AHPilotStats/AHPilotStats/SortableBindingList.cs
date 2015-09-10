@@ -6,6 +6,13 @@ namespace My2Cents.HTC.AHPilotStats
 {
     public class SortableBindingList<T> : BindingList<T>
     {
+        public SortableBindingList() { }
+
+        public SortableBindingList(IList<T> items)
+            : base(items)
+        {
+        }
+
         private bool _isSorted;
         private ListSortDirection _sortDirection;
         private PropertyDescriptor _sortProperty;

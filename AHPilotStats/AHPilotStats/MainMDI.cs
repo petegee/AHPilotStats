@@ -47,29 +47,29 @@ namespace My2Cents.HTC.AHPilotStats
         public void PopulatePilotDropDownMenuItems()
         {
             // delete all items to start with
-            ((ToolStripMenuItem)menuStrip1.Items[1]).DropDownItems.Clear();
+            PilotsMenuItems.Clear();
 
             // now reconstruct the lot.
             var deletePilotsItem = new ToolStripMenuItem("&Delete Pilot");
             deletePilotsItem.Click += OnDeletePilotClicked;
-            ((ToolStripMenuItem)menuStrip1.Items[1]).DropDownItems.Add(deletePilotsItem);
+            PilotsMenuItems.Add(deletePilotsItem);
 
             var seperator = new ToolStripSeparator();
-            ((ToolStripMenuItem)menuStrip1.Items[1]).DropDownItems.Add(seperator);
+            PilotsMenuItems.Add(seperator);
 
             foreach (var item in Registry.Instance.PilotNamesSet.Select(pilot => new ToolStripMenuItem(pilot)))
             {
                 item.Click += OnPilotClicked;
-                ((ToolStripMenuItem)menuStrip1.Items[1]).DropDownItems.Add(item);
+                PilotsMenuItems.Add(item);
             }
         }
 
         public void PopulateSquadDropDownMenuItems()
         {
-            foreach (var item in from squad in Registry.Instance.SquadNamesSet where !IsInDropDownList(squad, 2) select new ToolStripMenuItem(squad))
+            foreach (var item in Registry.Instance.SquadNamesSet.Select(name => new ToolStripMenuItem(name)))
             {
                 item.Click += OnSquadClicked;
-                ((ToolStripMenuItem)menuStrip1.Items[2]).DropDownItems.Add(item);
+                SquadsMenuItem.Add(item);
             }
         }
 
@@ -79,45 +79,22 @@ namespace My2Cents.HTC.AHPilotStats
             PopulateSquadDropDownMenuItems();
         }
 
-
-        private bool IsInDropDownList(string name, int menuIndex)
-        {
-            return ((ToolStripMenuItem) menuStrip1.Items[menuIndex]).DropDownItems
-                .Cast<ToolStripItem>()
-                .Any(item => item.Text == name);
-        }
-
-
         private void OnDeletePilotClicked(object sender, EventArgs args)
         {
-            if (FindAndWarnOnOpenDeletePilotWindowDialog())
+            if (FindAndWarnOnOpenDeletePilotWindowDialog() || FindAndWarnOnOpenLoaderDialog() || FindAndWarnOnOpenStatsWindowDialog())
                 return;
 
-            if (FindAndWarnOnOpenLoaderDialog())
-                return;
-
-            if (FindAndWarnOnOpenStatsWindowDialog())
-                return;
-
-            var deleteForm = new DeleteForm {MdiParent = this};
-
-            deleteForm.Show();
+            new DeleteForm {MdiParent = this}.Show();
         }
 
 
         private void OnPilotClicked(object sender, EventArgs args)
         {
-            foreach (var item in ((ToolStripMenuItem)menuStrip1.Items[1]).DropDownItems.Cast<ToolStripItem>()
-                .Where(item => item.Pressed))
-            {
-                if (FindAndWarnOnOpenLoaderDialog())
-                    return;
+            if (FindAndWarnOnOpenLoaderDialog() || FindAndWarnOnOpenDeletePilotWindowDialog())
+                return;
 
-                if (FindAndWarnOnOpenDeletePilotWindowDialog())
-                    return;
-
-                OpenPilotStats(CommonUtils.ToUpperFirstChar(item.ToString()));
-            }
+            var clicked = PilotsMenuItems.Cast<ToolStripItem>().SingleOrDefault(item => item.Pressed);
+            OpenPilotStats(CommonUtils.ToUpperFirstChar(clicked.Text));
         }
 
         private void OnSquadClicked(object sender, EventArgs args)
@@ -125,16 +102,13 @@ namespace My2Cents.HTC.AHPilotStats
             var selectedSquad = "";
             try
             {
-                foreach (var item in ((ToolStripMenuItem)menuStrip1.Items[2]).DropDownItems.Cast<ToolStripMenuItem>()
-                    .Where(item => item.Pressed))
-                {
-                    if (FindAndWarnOnOpenLoaderDialog())
-                        return;
-                    if (FindAndWarnOnOpenDeletePilotWindowDialog())
-                        return;
+                if (FindAndWarnOnOpenLoaderDialog() || FindAndWarnOnOpenDeletePilotWindowDialog())
+                    return;
 
-                    BuildAndDisplaySquadForm(selectedSquad, Registry.Instance.GetSquad(item.ToString()));
-                }
+                var clicked = SquadsMenuItem.Cast<ToolStripItem>().SingleOrDefault(item => item.Pressed);
+
+                selectedSquad = clicked.Text;
+                BuildAndDisplaySquadForm(selectedSquad, Registry.Instance.GetSquad(selectedSquad));
             }
             catch (SquadDoesNotExistInRegistryException e)
             {
@@ -180,13 +154,16 @@ namespace My2Cents.HTC.AHPilotStats
 
         private bool FindAndDisplayStatsWindow(string selectedPilot)
         {
-            foreach (var childForm in MdiChildren.OfType<PilotStatsForm>()
-                .Where(childForm => childForm.PilotName == selectedPilot))
+            var childForm = MdiChildren.OfType<PilotStatsForm>()
+                .SingleOrDefault(form => form.PilotName == selectedPilot);
+
+            if (childForm != null)
             {
                 childForm.Show();
                 childForm.Focus();
                 return true;
             }
+
             return false;
         }
 
@@ -204,20 +181,11 @@ namespace My2Cents.HTC.AHPilotStats
 
         private void loadNewPilotToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (FindAndWarnOnOpenStatsWindowDialog())
+            if (FindAndWarnOnOpenStatsWindowDialog() || FindAndWarnOnOpenLoaderDialog() || 
+                FindAndWarnOnOpenStatsWindowDialog() || FindAndWarnOnOpenDeletePilotWindowDialog())
                 return;
 
-            if (FindAndWarnOnOpenLoaderDialog())
-                return;
-
-            if (FindAndWarnOnOpenStatsWindowDialog())
-                return;
-
-            if (FindAndWarnOnOpenDeletePilotWindowDialog())
-                return;
-
-            _loaderForm = new PilotDataLoaderForm(this) {MdiParent = this};
-            _loaderForm.Show();            
+            new PilotDataLoaderForm(this) {MdiParent = this}.Show();            
         }
 
         private void BuildAndDisplaySquadForm(string squadName, Squad squad)
@@ -258,7 +226,6 @@ namespace My2Cents.HTC.AHPilotStats
                 inException = true;
             }
 
-
             if (FindAndDisplayStatsWindow(squadName) || inException) 
                 return;
 
@@ -291,6 +258,16 @@ namespace My2Cents.HTC.AHPilotStats
         private void tipsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new StartupTips().ShowDialog(this);
+        }
+
+        private ToolStripItemCollection PilotsMenuItems
+        {
+            get { return ((ToolStripMenuItem)menuStrip1.Items[1]).DropDown.Items; }
+        }
+
+        private ToolStripItemCollection SquadsMenuItem
+        {
+            get { return ((ToolStripMenuItem)menuStrip1.Items[2]).DropDown.Items; }
         }
     }
 }

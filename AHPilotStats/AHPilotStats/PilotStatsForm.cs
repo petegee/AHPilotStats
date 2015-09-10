@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using DgvFilterPopup;
 using My2Cents.HTC.AHPilotStats.DomainObjects;
+using My2Cents.HTC.AHPilotStats.ExtensionMethods;
 
 namespace My2Cents.HTC.AHPilotStats
 {
@@ -132,7 +133,7 @@ namespace My2Cents.HTC.AHPilotStats
 
             PopulateTourTypeFilterComboBox();
 
-            foreach (var model in Registry.Instance.ModelList)
+            foreach (var model in Registry.Instance.ModelSet)
                 cmboxModelSelector.Items.Add(model);
 
             PopulateObjVsObjTourDropDownList();
@@ -282,22 +283,17 @@ namespace My2Cents.HTC.AHPilotStats
 
         private void PopulateObjVsObjTourDropDownList()
         {
-            Registry.Instance.GetPilotStats(PilotName)
-                .FighterStatsList.SortList("TourNumber", ListSortDirection.Descending);
+            var pilotsFighterStats = Registry.Instance.GetPilotStats(PilotName)
+                .FighterStatsList
+                .Where(stats => stats.TourType != "[UNKNOWN]")
+                .DistinctBy(stats => stats.TourIdentfier)
+                .OrderBy(stats => stats.TourIdentfier)
+                .Select(stats => new NameValuePair(stats.TourNumber, string.Format("{1} ({0})", stats.TourType, stats.TourNumber)))
+                .Cast<object>()
+                .ToArray();
 
-
-            foreach (var fs in Registry.Instance.GetPilotStats(PilotName).FighterStatsList)
-            {
-                // if we try to process an empty (due to missing data?) then silently ignore and dont add to drop down.
-                if (fs.TourType == "[UNKNOWN]")
-                    continue;
-
-                var pair = new NameValuePair(fs.TourNumber, string.Format("{1} ({0})", fs.TourType, fs.TourNumber));
-                cmbBoxObjVObjTourList.Items.Add(pair);
-            }
-
-            var allPair = new NameValuePair("ALL", "All Tours");
-            cmbBoxObjVObjTourList.Items.Add(allPair);
+            cmbBoxObjVObjTourList.Items.AddRange(pilotsFighterStats);
+            cmbBoxObjVObjTourList.Items.Add(new NameValuePair("ALL", "All Tours"));
         }
 
 
@@ -350,16 +346,9 @@ namespace My2Cents.HTC.AHPilotStats
             {
                 // Collate all the kills, killed by, kills in for each model. Build a temorary list 
                 // for this one.
-
-                var compositeList = new SortableBindingList<ObjectVsObjectDO>();
-                Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList.Clear();
-
-                // build a temp place holder object for each model.
-                foreach (var objScore in Registry.Instance.GetPilotStats(PilotName).ObjVsObjCompleteList
-                        .Where(objScore => compositeList.Any(score => score.Model == objScore.Model)))
-                {
-                    compositeList.Add(
-                        new ObjectVsObjectDO(objScore.ObjScore, objScore.TourIdentfier, objScore.TourType,objScore.TourNumber)
+                var distinctModelList = Registry.Instance.GetPilotStats(PilotName).ObjVsObjCompleteList
+                    .DistinctBy(ovo => ovo.Model)
+                    .Select(ovo => new ObjectVsObjectDO(ovo.ObjScore, ovo.TourIdentfier, ovo.TourType, ovo.TourNumber)
                         {
                             TourIdentfier = "All Tours", // change the tour id tag.
                             // delete their stats otherwise they get counted twice for the first tour.
@@ -367,11 +356,11 @@ namespace My2Cents.HTC.AHPilotStats
                             KillsIn = 0,
                             KillsOf = 0,
                             DiedIn = 0
-                        });
-                }
+                        })
+                    .ToList();
 
                 // now sum up for each model.
-                foreach (var compositeObjScore in compositeList)
+                foreach (var compositeObjScore in distinctModelList)
                 {
                     var score = compositeObjScore;
                     foreach (var objScore in 
@@ -384,14 +373,13 @@ namespace My2Cents.HTC.AHPilotStats
                     }
                 }
 
-
                 // all done rebind to grid and we off singing!
-                objectVsObjectDOBindingSource.DataSource = compositeList;
+                objectVsObjectDOBindingSource.DataSource = new SortableBindingList<ObjectVsObjectDO>(distinctModelList);
 
                 // Hide the Tour Number column, as it makes no sense in this context.
                 objectVsObjectDODataGridView.Columns[0].Visible = false;
 
-                PopulateObjVObjTotals(compositeList);
+                PopulateObjVObjTotals(distinctModelList);
             }
             else
             {
@@ -420,7 +408,7 @@ namespace My2Cents.HTC.AHPilotStats
         }
 
 
-        private void PopulateObjVObjTotals(SortableBindingList<ObjectVsObjectDO> filteredStatsList)
+        private void PopulateObjVObjTotals(IList<ObjectVsObjectDO> filteredStatsList)
         {
             var totalKills = 0;
             int? totalDeaths = 0;
