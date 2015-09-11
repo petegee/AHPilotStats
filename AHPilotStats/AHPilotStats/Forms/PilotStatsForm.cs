@@ -7,6 +7,8 @@ using DgvFilterPopup;
 using My2Cents.HTC.AHPilotStats.DomainObjects;
 using My2Cents.HTC.AHPilotStats.ExtensionMethods;
 using My2Cents.HTC.AHPilotStats.Collections;
+using My2Cents.HTC.AHPilotStats.DataRepository;
+using Microsoft.Practices.Unity;
 
 namespace My2Cents.HTC.AHPilotStats
 {
@@ -26,6 +28,9 @@ namespace My2Cents.HTC.AHPilotStats
         private readonly DgvFilterManager _vehicleStatsFilterManager = new DgvFilterManager();
 
         public string PilotName { get; private set; }
+
+        [Dependency]
+        public IRegistry Registry { get; set; }
 
         public bool CompositeObjVsObjDataIncomplete
         {
@@ -134,7 +139,7 @@ namespace My2Cents.HTC.AHPilotStats
 
             PopulateTourTypeFilterComboBox();
 
-            foreach (var model in Registry.Instance.ModelSet)
+            foreach (var model in Registry.ModelSet)
                 cmboxModelSelector.Items.Add(model);
 
             PopulateObjVsObjTourDropDownList();
@@ -149,42 +154,42 @@ namespace My2Cents.HTC.AHPilotStats
         private void BindDataToGrids(string pilotName)
         {
             fighterScoresDODataGridView.DataSource =
-                Utility.CreateDataTableFromList(Registry.Instance.GetPilotStats(pilotName).FighterScoresList);
+                Utility.CreateDataTableFromList(Registry.GetPilotStats(pilotName).FighterScoresList);
             _fighterScoreFilterManager.ColumnFilterAdding += ColumnFilterAdding;
             _fighterScoreFilterManager.DataGridView = fighterScoresDODataGridView;
 
             fighterStatsDODataGridView.DataSource =
-                Utility.CreateDataTableFromList(Registry.Instance.GetPilotStats(pilotName).FighterStatsList);
+                Utility.CreateDataTableFromList(Registry.GetPilotStats(pilotName).FighterStatsList);
             _fighterStatsFilterManager.ColumnFilterAdding += ColumnFilterAdding;
             _fighterStatsFilterManager.DataGridView = fighterStatsDODataGridView;
 
             attackScoresDODataGridView.DataSource =
-                Utility.CreateDataTableFromList(Registry.Instance.GetPilotStats(pilotName).AttackScoresList);
+                Utility.CreateDataTableFromList(Registry.GetPilotStats(pilotName).AttackScoresList);
             _attackScoreFilterManager.ColumnFilterAdding += ColumnFilterAdding;
             _attackScoreFilterManager.DataGridView = attackScoresDODataGridView;
 
             attackStatsDODataGridView.DataSource =
-                Utility.CreateDataTableFromList(Registry.Instance.GetPilotStats(pilotName).AttackStatsList);
+                Utility.CreateDataTableFromList(Registry.GetPilotStats(pilotName).AttackStatsList);
             _attackStatsFilterManager.ColumnFilterAdding += ColumnFilterAdding;
             _attackStatsFilterManager.DataGridView = attackStatsDODataGridView;
 
             bomberScoresDODataGridView.DataSource =
-                Utility.CreateDataTableFromList(Registry.Instance.GetPilotStats(pilotName).BomberScoresList);
+                Utility.CreateDataTableFromList(Registry.GetPilotStats(pilotName).BomberScoresList);
             _bomberScoreFilterManager.ColumnFilterAdding += ColumnFilterAdding;
             _bomberScoreFilterManager.DataGridView = bomberScoresDODataGridView;
 
             bomberStatsDODataGridView.DataSource =
-                Utility.CreateDataTableFromList(Registry.Instance.GetPilotStats(pilotName).BomberStatsList);
+                Utility.CreateDataTableFromList(Registry.GetPilotStats(pilotName).BomberStatsList);
             _bomberStatsFilterManager.ColumnFilterAdding += ColumnFilterAdding;
             _bomberStatsFilterManager.DataGridView = bomberStatsDODataGridView;
 
             vehicleBoatScoresDODataGridView.DataSource =
-                Utility.CreateDataTableFromList(Registry.Instance.GetPilotStats(pilotName).VehicleBoatScoresList);
+                Utility.CreateDataTableFromList(Registry.GetPilotStats(pilotName).VehicleBoatScoresList);
             _vehicleScoreFilterManager.ColumnFilterAdding += ColumnFilterAdding;
             _vehicleScoreFilterManager.DataGridView = vehicleBoatScoresDODataGridView;
 
             vehicleBoatStatsDODataGridView.DataSource =
-                Utility.CreateDataTableFromList(Registry.Instance.GetPilotStats(pilotName).VehicleBoatStatsList);
+                Utility.CreateDataTableFromList(Registry.GetPilotStats(pilotName).VehicleBoatStatsList);
             _vehicleStatsFilterManager.ColumnFilterAdding += ColumnFilterAdding;
             _vehicleStatsFilterManager.DataGridView = vehicleBoatStatsDODataGridView;
         }
@@ -204,7 +209,7 @@ namespace My2Cents.HTC.AHPilotStats
             SortableList<StatsDomainObject> pilotStats = null;
             try
             {
-                pilotStats = Registry.Instance.GetPilotStats(PilotName).FighterStatsList;
+                pilotStats = Registry.GetPilotStats(PilotName).FighterStatsList;
             }
             catch (PilotDoesNotExistInRegistryException)
             {
@@ -284,7 +289,7 @@ namespace My2Cents.HTC.AHPilotStats
 
         private void PopulateObjVsObjTourDropDownList()
         {
-            var pilotsFighterStats = Registry.Instance.GetPilotStats(PilotName)
+            var pilotsFighterStats = Registry.GetPilotStats(PilotName)
                 .FighterStatsList
                 .Where(stats => stats.TourType != "[UNKNOWN]")
                 .DistinctBy(stats => stats.TourIdentfier)
@@ -300,15 +305,15 @@ namespace My2Cents.HTC.AHPilotStats
 
         private void cmboxModelSelector_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList.Clear();
+            Registry.GetPilotStats(PilotName).ObjVsObjVisibleList.Clear();
             var selectedModel = (string) cmboxModelSelector.SelectedItem;
-            foreach (var objScore in Registry.Instance.GetPilotStats(PilotName).ObjVsObjCompleteList.Where(objScore => objScore.Model == selectedModel))
+            foreach (var objScore in Registry.GetPilotStats(PilotName).ObjVsObjCompleteList.Where(objScore => objScore.Model == selectedModel))
             {
-                Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList.Add(objScore);
+                Registry.GetPilotStats(PilotName).ObjVsObjVisibleList.Add(objScore);
             }
 
-            objectVsObjectDOBindingSource.DataSource = Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList;
-            PopulateObjVObjTotals(Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList);
+            objectVsObjectDOBindingSource.DataSource = Registry.GetPilotStats(PilotName).ObjVsObjVisibleList;
+            PopulateObjVObjTotals(Registry.GetPilotStats(PilotName).ObjVsObjVisibleList);
             objectVsObjectDOBindingSource.ResetBindings(false);
         }
 
@@ -341,13 +346,13 @@ namespace My2Cents.HTC.AHPilotStats
                 return;
             }
 
-            Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList.Clear();
+            Registry.GetPilotStats(PilotName).ObjVsObjVisibleList.Clear();
 
             if (selectedPair.Name == "ALL")
             {
                 // Collate all the kills, killed by, kills in for each model. Build a temorary list 
                 // for this one.
-                var distinctModelList = Registry.Instance.GetPilotStats(PilotName).ObjVsObjCompleteList
+                var distinctModelList = Registry.GetPilotStats(PilotName).ObjVsObjCompleteList
                     .DistinctBy(ovo => ovo.Model)
                     .Select(ovo => new ObjectVsObjectDO(ovo.ObjScore, ovo.TourIdentfier, ovo.TourType, ovo.TourNumber)
                         {
@@ -365,7 +370,7 @@ namespace My2Cents.HTC.AHPilotStats
                 {
                     var score = compositeObjScore;
                     foreach (var objScore in 
-                        Registry.Instance.GetPilotStats(PilotName).ObjVsObjCompleteList.Where(objScore => score.Model == objScore.Model))
+                        Registry.GetPilotStats(PilotName).ObjVsObjCompleteList.Where(objScore => score.Model == objScore.Model))
                     {
                         compositeObjScore.KilledBy += objScore.KilledBy;
                         compositeObjScore.KillsIn += objScore.KillsIn;
@@ -390,16 +395,16 @@ namespace My2Cents.HTC.AHPilotStats
                 // Else we are just listing from actual stats objects in the registry.
 
                 var selectedTour = Convert.ToInt32(selectedPair.Name);
-                foreach (var objScore in Registry.Instance.GetPilotStats(PilotName).ObjVsObjCompleteList
+                foreach (var objScore in Registry.GetPilotStats(PilotName).ObjVsObjCompleteList
                     .Where(objScore => objScore.TourNumber == selectedTour))
                 {
-                    Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList.Add(objScore);
+                    Registry.GetPilotStats(PilotName).ObjVsObjVisibleList.Add(objScore);
                 }
 
                 objectVsObjectDOBindingSource.DataSource =
-                    Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList;
+                    Registry.GetPilotStats(PilotName).ObjVsObjVisibleList;
 
-                PopulateObjVObjTotals(Registry.Instance.GetPilotStats(PilotName).ObjVsObjVisibleList);
+                PopulateObjVObjTotals(Registry.GetPilotStats(PilotName).ObjVsObjVisibleList);
             }
 
             // Reset bindings

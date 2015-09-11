@@ -2,7 +2,7 @@ using My2Cents.HTC.PilotScoreSvc.Types;
 
 namespace My2Cents.HTC.AHPilotStats.DomainObjects
 {
-    class VehicleBoatScoresDO
+    public class VehicleBoatScoresDO
     {
         readonly AcesHighPilotScore _score;
 

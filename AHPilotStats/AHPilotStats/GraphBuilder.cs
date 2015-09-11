@@ -8,6 +8,7 @@ using System.Linq;
 using NPlot;
 using My2Cents.HTC.AHPilotStats.DomainObjects;
 using My2Cents.HTC.AHPilotStats.Collections;
+using My2Cents.HTC.AHPilotStats.DataRepository;
 
 namespace My2Cents.HTC.AHPilotStats
 {
@@ -92,13 +93,13 @@ namespace My2Cents.HTC.AHPilotStats
 
         public void AddHitPercentageTrendPlot(string pilotName, string plotName, string mode, string tourTypeFilter)
         {
-            Registry.Instance.GetPilotStats(pilotName).FighterScoresList.SortList("TourNumber", ListSortDirection.Ascending);
+            Registry.GetPilotStats(pilotName).FighterScoresList.SortList("TourNumber", ListSortDirection.Ascending);
             var xy = new XyData(pilotName, plotName, mode, tourTypeFilter, null, null, Color.DarkOrange);
             _plots.Add(xy);
 
             // hmmm, im not 100% convinced this will add the data in the correct order?? 
             foreach (var score in 
-                Registry.Instance.GetPilotStats(pilotName)
+                Registry.GetPilotStats(pilotName)
                     .FighterScoresList
                     .Where(score => score.TourType == tourTypeFilter))
             {
@@ -252,16 +253,16 @@ namespace My2Cents.HTC.AHPilotStats
                 switch (mode)
                 {
                     case "Fighter":
-                        list = Registry.Instance.GetPilotStats(_pilotName).FighterStatsList;
+                        list = Registry.GetPilotStats(_pilotName).FighterStatsList;
                         break;
                     case "Attack":
-                        list = Registry.Instance.GetPilotStats(_pilotName).AttackStatsList;
+                        list = Registry.GetPilotStats(_pilotName).AttackStatsList;
                         break;
                     case "Bomber":
-                        list = Registry.Instance.GetPilotStats(_pilotName).BomberStatsList;
+                        list = Registry.GetPilotStats(_pilotName).BomberStatsList;
                         break;
                     case "Vehicle/Boat":
-                        list = Registry.Instance.GetPilotStats(_pilotName).VehicleBoatStatsList;
+                        list = Registry.GetPilotStats(_pilotName).VehicleBoatStatsList;
                         break;
                 }
 

@@ -2,6 +2,7 @@ using System;
 using System.Xml;
 using My2Cents.HTC.PilotScoreSvc.Types;
 using My2Cents.HTC.PilotScoreSvc.Utilities;
+using My2Cents.HTC.PilotScoreSvc.ServiceLayer.Interfaces;
 
 namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
 {
@@ -9,7 +10,7 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
     ///     Implements a service which retrieves the scores for a given pilot, tour, and
     ///     tour-type combination via a formatted HTTP request to http://www.hitechcreations.com/
     /// </summary>
-    public class HTCPilotScoreSvc
+    public class HTCPilotScoreSvc : IHTCPilotScoreSvc
     {
         /// <summary>
         ///     Load a single AcesHighPilotScore objects from HTC web server for a give pilot, tour, and tour type.

@@ -1,42 +1,48 @@
+using Microsoft.Practices.Unity;
+using My2Cents.HTC.AHPilotStats.Collections;
+using My2Cents.HTC.AHPilotStats.DependencyManagement;
+using My2Cents.HTC.AHPilotStats.DomainObjects;
+using My2Cents.HTC.PilotScoreSvc.Types;
+using My2Cents.HTC.PilotScoreSvc.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Serialization;
-using My2Cents.HTC.AHPilotStats.DomainObjects;
-using My2Cents.HTC.PilotScoreSvc.Types;
-using My2Cents.HTC.PilotScoreSvc.Utilities;
-using My2Cents.HTC.AHPilotStats.Collections;
 
-namespace My2Cents.HTC.AHPilotStats
+namespace My2Cents.HTC.AHPilotStats.DataRepository
 {
-    internal sealed class Registry // SINGLETON
+    public class Registry : IRegistry
     {
-        private Registry()
+        public HashSet<string> PilotNamesSet { get; set; }
+        public HashSet<string> SquadNamesSet { get; set; }
+        public HashSet<string> ModelSet { get; set; }
+        public TourDefinitions TourDefinitions { get; set; }
+
+        public Registry()
         {
             PilotNamesSet = new HashSet<string>();
             SquadNamesSet = new HashSet<string>();
             ModelSet = new HashSet<string>();
             TourDefinitions = new TourDefinitions();
 
+            _pilotDictionary = new CaseInsensitiveDictionary<PilotStats>();
+            _pilotScoreObjMap = new CaseInsensitiveDictionary<SortableList<AcesHighPilotScore>>();
+            _pilotStatsObjMap = new CaseInsensitiveDictionary<SortableList<AcesHighPilotStats>>();
+            _squadList = new List<Squad>();
+
             PopulatePilotList();
             PopulateSquadList();
             BuildStatsRegistry();
         }
 
-        public static Registry Instance
+        public bool AreTourDefinitionsInitialised()
         {
-            get
-            {
-                lock (Obj)
-                {
-                    return _instance ?? (_instance = new Registry());
-                }
-            }
+            return TourDefinitions != null && TourDefinitions.IsTourDefinitionsComplete();
         }
 
-        public PilotStatsRegistry GetPilotStats(string pilotName)
+        public PilotStats GetPilotStats(string pilotName)
         {
             if (_pilotDictionary.Count == 0)
                 BuildStatsRegistry();
@@ -63,28 +69,22 @@ namespace My2Cents.HTC.AHPilotStats
             return _pilotDictionary.ContainsKey(pilotName);
         }
 
-        public void AddPilotStatsToRegistry(string pilotName, PilotStatsRegistry stats)
-        {
-            if (!_pilotDictionary.ContainsKey(pilotName))
-                _pilotDictionary.Add(pilotName, stats);
-        }
+        //public void ReloadPilot(string reloadedPilotName)
+        //{
+        //    RemovePilot(reloadedPilotName);
+        //    BuildStatsRegistry();
+        //}
 
-        public void ReloadPilot(string reloadedPilotName)
-        {
-            RemovePilot(reloadedPilotName);
-            BuildStatsRegistry();
-        }
+        //public void RemovePilot(string pilotName)
+        //{
+        //    if (_pilotScoreObjMap.ContainsKey(pilotName))
+        //        _pilotScoreObjMap.Remove(pilotName);
 
-        public void RemovePilot(string pilotName)
-        {
-            if (_pilotScoreObjMap.ContainsKey(pilotName))
-                _pilotScoreObjMap.Remove(pilotName);
+        //    if (_pilotStatsObjMap.ContainsKey(pilotName))
+        //        _pilotStatsObjMap.Remove(pilotName);
 
-            if (_pilotStatsObjMap.ContainsKey(pilotName))
-                _pilotStatsObjMap.Remove(pilotName);
-
-            _pilotDictionary.Remove(pilotName);
-        }
+        //    _pilotDictionary.Remove(pilotName);
+        //}
 
         public void PopulatePilotList()
         {
@@ -98,25 +98,6 @@ namespace My2Cents.HTC.AHPilotStats
             {
                 var pilotName = xmlFileName.Substring(0, xmlFileName.IndexOf('_', 0)).Substring(xmlFileName.IndexOf(@"\") + 1);
                 PilotNamesSet.Add(CommonUtils.ToUpperFirstChar(pilotName));
-            }
-        }
-
-        public void PopulateSquadList()
-        {
-            if (!Directory.Exists(@"squads"))
-            {
-                Directory.CreateDirectory(@"squads");
-                return;
-            }
-
-            foreach (var xmlFileName in Directory.GetFiles(@"squads", "*.xml"))
-            {
-                var squadFileName =
-                    xmlFileName.Substring(0, xmlFileName.IndexOf('_', 0)).Substring(xmlFileName.IndexOf(@"\") + 1);
-
-                var squad = Squad.LoadSquad(squadFileName);
-                _squadList.Add(squad);
-                SquadNamesSet.Add(squad.SquadName);
             }
         }
 
@@ -153,7 +134,6 @@ namespace My2Cents.HTC.AHPilotStats
                 throw new ApplicationException(string.Format("No stats objects can be found for pilot {0} in tour {1}",
                     pilotName, stats.TourDetails));
 
-
             // for each aircraft listed for that tour.
             foreach (var objScore in stats.VsObjects.ObjectScore)
             {
@@ -166,7 +146,6 @@ namespace My2Cents.HTC.AHPilotStats
             }
         }
 
-
         public Squad GetSquad(string squadName)
         {
             var sqaud = _squadList.SingleOrDefault(s => s.SquadName == squadName);
@@ -176,13 +155,33 @@ namespace My2Cents.HTC.AHPilotStats
             return sqaud;
         }
 
+        private void PopulateSquadList()
+        {
+            if (!Directory.Exists(@"squads"))
+            {
+                Directory.CreateDirectory(@"squads");
+                return;
+            }
+
+            foreach (var xmlFileName in Directory.GetFiles(@"squads", "*.xml"))
+            {
+                var squadFileName =
+                    xmlFileName.Substring(0, xmlFileName.IndexOf('_', 0)).Substring(xmlFileName.IndexOf(@"\") + 1);
+
+                var squad = Squad.LoadSquad(squadFileName);
+                _squadList.Add(squad);
+                SquadNamesSet.Add(squad.SquadName);
+            }
+        }
 
         private void BuildStatsRegistry()
         {
             var errors = new List<string>();
             foreach (var pilotName in PilotNamesSet.Where(pilotName => !_pilotScoreObjMap.ContainsKey(pilotName)))
             {
-                AddPilotStatsToRegistry(pilotName, new PilotStatsRegistry());
+                if (!_pilotDictionary.ContainsKey(pilotName))
+                    _pilotDictionary.Add(pilotName, new PilotStats());
+
                 LoadScoreObjects(pilotName);
                 LoadStatsObjects(pilotName);
 
@@ -246,76 +245,14 @@ namespace My2Cents.HTC.AHPilotStats
                 _pilotStatsObjMap.Add(selectedPilot, stats);
         }
 
-        public bool AreTourDefinitionsInitialised()
-        {
-            return TourDefinitions != null && TourDefinitions.IsTourDefinitionsComplete();
-        }
-
-        public class PilotStatsRegistry
-        {
-            public PilotStatsRegistry()
-            {
-                FighterScoresList = new SortableList<FighterScoresDO>();
-                FighterStatsList = new SortableList<StatsDomainObject>();
-                AttackScoresList = new SortableList<AttackScoresDO>();
-                AttackStatsList = new SortableList<StatsDomainObject>();
-                BomberScoresList = new SortableList<BomberScoresDO>();
-                BomberStatsList = new SortableList<StatsDomainObject>();
-                VehicleBoatScoresList = new SortableList<VehicleBoatScoresDO>();
-                VehicleBoatStatsList = new SortableList<StatsDomainObject>();
-                ObjVsObjCompleteList = new SortableList<ObjectVsObjectDO>();
-                ObjVsObjVisibleList = new SortableBindingList<ObjectVsObjectDO>();
-            }
-
-            public SortableList<FighterScoresDO> FighterScoresList { get; set; }
-
-            public SortableList<StatsDomainObject> FighterStatsList { get; set; }
-
-            public SortableList<AttackScoresDO> AttackScoresList { get; set; }
-
-            public SortableList<StatsDomainObject> AttackStatsList { get; set; }
-
-            public SortableList<BomberScoresDO> BomberScoresList { get; set; }
-
-            public SortableList<StatsDomainObject> BomberStatsList { get; set; }
-
-            public SortableList<VehicleBoatScoresDO> VehicleBoatScoresList { get; set; }
-
-            public SortableList<StatsDomainObject> VehicleBoatStatsList { get; set; }
-
-            public SortableList<ObjectVsObjectDO> ObjVsObjCompleteList { get; set; }
-
-            public SortableBindingList<ObjectVsObjectDO> ObjVsObjVisibleList { get; set; }
-        }
-
         #region Fields
 
-        private static readonly object Obj = new object();
-        private static Registry _instance;
-
-        private readonly CaseInsensitiveDictionary<PilotStatsRegistry> _pilotDictionary =
-            new CaseInsensitiveDictionary<PilotStatsRegistry>();
-
-        private readonly CaseInsensitiveDictionary<SortableList<AcesHighPilotScore>> _pilotScoreObjMap =
-            new CaseInsensitiveDictionary<SortableList<AcesHighPilotScore>>();
-
-        private readonly CaseInsensitiveDictionary<SortableList<AcesHighPilotStats>> _pilotStatsObjMap =
-            new CaseInsensitiveDictionary<SortableList<AcesHighPilotStats>>();
-
-        private readonly List<Squad> _squadList = new List<Squad>();
+        private readonly CaseInsensitiveDictionary<PilotStats> _pilotDictionary;
+        private readonly CaseInsensitiveDictionary<SortableList<AcesHighPilotScore>> _pilotScoreObjMap;
+        private readonly CaseInsensitiveDictionary<SortableList<AcesHighPilotStats>> _pilotStatsObjMap;
+        private readonly List<Squad> _squadList; 
 
         #endregion
 
-        #region Properties
-
-        public HashSet<string> PilotNamesSet { get; set; }
-
-        public HashSet<string> SquadNamesSet { get; set; }
-
-        public HashSet<string> ModelSet { get; set; }
-
-        public TourDefinitions TourDefinitions { get; set; }
-
-        #endregion
     }
 }

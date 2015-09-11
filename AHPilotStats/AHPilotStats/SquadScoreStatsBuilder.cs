@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using My2Cents.HTC.AHPilotStats.DomainObjects;
 using My2Cents.HTC.PilotScoreSvc.Types;
+using My2Cents.HTC.AHPilotStats.DataRepository;
 
 namespace My2Cents.HTC.AHPilotStats
 {
@@ -21,14 +22,14 @@ namespace My2Cents.HTC.AHPilotStats
             var numPilots = squad.CountMembersForTour(tourNumber);
 
 
-            foreach (var squadMember in squad.Members.Where(member => Registry.Instance.PilotStatsContains(member.PilotName)))
+            foreach (var squadMember in squad.Members.Where(member => Registry.PilotStatsContains(member.PilotName)))
             {
                 // If Pilot wasnt in this sqaud for this tour, dont count their data
                 if (!squad.WasPilotInSquadForThisTour(tourNumber, squadMember))
                     continue;
 
 
-                var pilotReg = Registry.Instance.GetPilotStats(squadMember.PilotName);
+                var pilotReg = Registry.GetPilotStats(squadMember.PilotName);
 
                 foreach (var attackScore in pilotReg.AttackScoresList
                     .Where(attackScore => attackScore.TourNumber == tourNumber))
@@ -231,10 +232,10 @@ namespace My2Cents.HTC.AHPilotStats
             var tourStats = new Dictionary<string, ObjectScore>();
 
             // FOR EACH PILOT IN SQUAD
-            foreach (var squadMember in squad.Members.Where(member => Registry.Instance.PilotStatsContains(member.PilotName)))
+            foreach (var squadMember in squad.Members.Where(member => Registry.PilotStatsContains(member.PilotName)))
             {
                 // get pilot's registry.
-                var pilotReg = Registry.Instance.GetPilotStats(squadMember.PilotName);
+                var pilotReg = Registry.GetPilotStats(squadMember.PilotName);
 
                 // If Pilot wasnt in this sqaud for this tour, dont count their data
                 if (!squad.WasPilotInSquadForThisTour(tourNumber, squadMember))

@@ -1,3 +1,5 @@
+using Microsoft.Practices.Unity;
+using My2Cents.HTC.AHPilotStats.DataRepository;
 using My2Cents.HTC.AHPilotStats.DomainObjects;
 using System;
 using System.Linq;
@@ -12,13 +14,16 @@ namespace My2Cents.HTC.AHPilotStats
             InitializeComponent();
         }
 
+        [Dependency]
+        public IRegistry Registry { get; set; }
+
         private Squad _squad;
 
         private void DefineSquadronForm_Load(object sender, EventArgs e)
         {
             grpBoxSquadDetails.Enabled = false;
             squad_SquadMemberDataGridView.Visible = false;
-            cmbBoxSquadPicker.DataSource = Registry.Instance.SquadNamesSet.ToList();
+            cmbBoxSquadPicker.DataSource = Registry.SquadNamesSet.ToList();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
@@ -53,7 +58,7 @@ namespace My2Cents.HTC.AHPilotStats
 
             try
             {
-                _squad = Registry.Instance.GetSquad(cmbBoxSquadPicker.SelectedItem.ToString());
+                _squad = Registry.GetSquad(cmbBoxSquadPicker.SelectedItem.ToString());
             }
             catch (SquadDoesNotExistInRegistryException ex)
             {

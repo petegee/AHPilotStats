@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
+using My2Cents.HTC.AHPilotStats.DataRepository;
 
 namespace My2Cents.HTC.AHPilotStats.DomainObjects
 {
@@ -75,11 +76,11 @@ namespace My2Cents.HTC.AHPilotStats.DomainObjects
             var endTourByData = 0;
             foreach (var squadMember in Members)
             {
-                if (!Registry.Instance.PilotStatsContains(squadMember.PilotName)) 
+                if (!Registry.PilotStatsContains(squadMember.PilotName)) 
                     continue;
 
                 endTourByData = 
-                    Registry.Instance.GetPilotStats(squadMember.PilotName)
+                    Registry.GetPilotStats(squadMember.PilotName)
                         .FighterStatsList.Select(obj => Convert.ToInt32(obj.TourNumber))
                         .Concat(new[] {endTourByData})
                         .Max();
@@ -124,10 +125,10 @@ namespace My2Cents.HTC.AHPilotStats.DomainObjects
             {
                 foreach (var member in Members.Where(member => WasPilotInSquadForThisTour(tour, member)))
                 {
-                    Registry.PilotStatsRegistry pilotReg;
+                    PilotStats pilotReg;
                     try
                     {
-                        pilotReg = Registry.Instance.GetPilotStats(member.PilotName);
+                        pilotReg = Registry.GetPilotStats(member.PilotName);
                     }
                     catch (PilotDoesNotExistInRegistryException notExistEx)
                     {

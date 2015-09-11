@@ -8,6 +8,8 @@ using System.Windows.Forms;
 using My2Cents.HTC.PilotScoreSvc.ServiceLayer;
 using My2Cents.HTC.PilotScoreSvc.Types;
 using My2Cents.HTC.PilotScoreSvc.Utilities;
+using My2Cents.HTC.AHPilotStats.DataRepository;
+using Microsoft.Practices.Unity;
 
 namespace My2Cents.HTC.AHPilotStats
 {
@@ -134,6 +136,8 @@ namespace My2Cents.HTC.AHPilotStats
             _tourTypeSelectorErrorProvider.BlinkStyle = ErrorBlinkStyle.AlwaysBlink;
         }
 
+        [Dependency]
+        public IRegistry Registry { get; set; }
 
         /// <summary>
         /// Load button click handler.
@@ -144,13 +148,13 @@ namespace My2Cents.HTC.AHPilotStats
         {
             cmboxTourType.Items.Add(SelectTourTypeText);
 
-            foreach (var tour in Registry.Instance.TourDefinitions.Tours.Keys)
+            foreach (var tour in Registry.TourDefinitions.Tours.Keys)
                 cmboxTourType.Items.Add(tour);  
 
             cmboxTourType.SelectedIndex = 0;
 
             cmbBoxSquadSelect.Items.Add(NotSelectedText);
-            foreach(var squadName in Registry.Instance.SquadNamesSet)
+            foreach(var squadName in Registry.SquadNamesSet)
                 cmbBoxSquadSelect.Items.Add(squadName);
 
             cmbBoxSquadSelect.SelectedItem = NotSelectedText;
@@ -334,7 +338,7 @@ namespace My2Cents.HTC.AHPilotStats
                 }
                 else // its a squad - so add each member of the sqaud to the list.
                 {
-                    var squad = Registry.Instance.GetSquad(cmbBoxSquadSelect.SelectedItem.ToString());
+                    var squad = Registry.GetSquad(cmbBoxSquadSelect.SelectedItem.ToString());
                     foreach (var squadMember in squad.Members.Where(squadMember => squadMember.StartTour <= tourStart && squadMember.EndTour >= tourStart))
                     {
                         _threadParam.PilotIdList.Add(CommonUtils.ToUpperFirstChar(squadMember.PilotName));
@@ -346,7 +350,7 @@ namespace My2Cents.HTC.AHPilotStats
                 // build the list of tours to load.
                 for (var tourId = tourStart; tourId <= tourEnd; tourId++)
                 {
-                    _threadParam.ToursToLoad.Add(Registry.Instance.TourDefinitions.FindTour(tourType, tourId));
+                    _threadParam.ToursToLoad.Add(Registry.TourDefinitions.FindTour(tourType, tourId));
                 }
 
                 // Set the thread callbacks.
@@ -371,7 +375,7 @@ namespace My2Cents.HTC.AHPilotStats
                     progressBarLoading.Maximum = (tourEnd - tourStart + 1) * 2;
                 else
                 {
-                    //var squad = Registry.Instance.GetSquad(cmbBoxSquadSelect.SelectedItem.ToString());
+                    //var squad = Registry.GetSquad(cmbBoxSquadSelect.SelectedItem.ToString());
                     progressBarLoading.Maximum = _threadParam.PilotIdList.Count * 2;
                 }
                     
@@ -523,10 +527,10 @@ namespace My2Cents.HTC.AHPilotStats
             var scoresUrl = ConfigurationManager.AppSettings["scoresURL"];
             var statsUrl = ConfigurationManager.AppSettings["statsURL"];
 
-            if (Registry.Instance.AreTourDefinitionsInitialised() == false)
+            if (Registry.AreTourDefinitionsInitialised() == false)
             {
                 var tourDefsSvc = new HTCTourDefinitionsSvc();
-                Registry.Instance.TourDefinitions = tourDefsSvc.GetTourDefinitions(ProxySettingsDTO.GetProxySettings(), scoresUrl, statsUrl);
+                Registry.TourDefinitions = tourDefsSvc.GetTourDefinitions(ProxySettingsDTO.GetProxySettings(), scoresUrl, statsUrl);
             }
 
             waitDlg.Hide();
@@ -708,7 +712,7 @@ namespace My2Cents.HTC.AHPilotStats
         private int GetMinTourForSelectedTourType()
         {
             var selectedTour = cmboxTourType.SelectedItem.ToString();
-            return GetMinTourForTourType(Registry.Instance.TourDefinitions.Tours[selectedTour]);
+            return GetMinTourForTourType(Registry.TourDefinitions.Tours[selectedTour]);
         }
 
 
@@ -721,7 +725,7 @@ namespace My2Cents.HTC.AHPilotStats
         private int GetMaxTourForSelectedTourType()
         {
             var selectedTour = cmboxTourType.SelectedItem.ToString();
-            return GetMaxTourForTourType(Registry.Instance.TourDefinitions.Tours[selectedTour]);
+            return GetMaxTourForTourType(Registry.TourDefinitions.Tours[selectedTour]);
         }
 
 

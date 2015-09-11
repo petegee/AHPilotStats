@@ -1,3 +1,5 @@
+using Microsoft.Practices.Unity;
+using My2Cents.HTC.AHPilotStats.DataRepository;
 using System;
 using System.IO;
 using System.Linq;
@@ -13,9 +15,12 @@ namespace My2Cents.HTC.AHPilotStats
             PopulateDropList();
         }
 
+        [Dependency]
+        public IRegistry Registry { get; set; }
+
         public void PopulateDropList()
         {
-            pilotListCmbBox.DataSource = Registry.Instance.PilotNamesSet;
+            pilotListCmbBox.DataSource = Registry.PilotNamesSet;
             pilotListCmbBox.Update();
         }
 
@@ -37,8 +42,8 @@ namespace My2Cents.HTC.AHPilotStats
             if (result != DialogResult.Yes)
                 return;
 
-            Registry.Instance.RemovePilot(pilotToDelete);
-            Registry.Instance.PilotNamesSet.Remove(pilotToDelete);
+            Registry.RemovePilot(pilotToDelete);
+            Registry.PilotNamesSet.Remove(pilotToDelete);
 
             var found = false;
             try

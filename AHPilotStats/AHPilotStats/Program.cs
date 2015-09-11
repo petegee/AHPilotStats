@@ -1,14 +1,8 @@
+using My2Cents.HTC.AHPilotStats.DependencyManagement;
 using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
 using System.Threading;
-using My2Cents.HTC.PilotScoreSvc.Types;
-using My2Cents.HTC.PilotScoreSvc.Utilities;
-using System.Net;
-using System.IO;
-using System.Text;
-using System.Xml.Serialization;
-using My2Cents.HTC.AHPilotStats.DomainObjects;
+using System.Windows.Forms;
+using Microsoft.Practices.Unity;
 
 namespace My2Cents.HTC.AHPilotStats
 {
@@ -26,7 +20,8 @@ namespace My2Cents.HTC.AHPilotStats
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new MainMDI());
+                UnityBootstrapper.Initialise();
+                Application.Run(ServiceLocator.Instance.Resolve<MainMDI>());
             }
             else
             {

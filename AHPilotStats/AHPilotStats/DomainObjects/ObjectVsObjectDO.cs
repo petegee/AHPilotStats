@@ -3,7 +3,7 @@ using My2Cents.HTC.PilotScoreSvc.Types;
 
 namespace My2Cents.HTC.AHPilotStats.DomainObjects
 {
-    class ObjectVsObjectDO
+    public class ObjectVsObjectDO
     {
         readonly ObjectScore _objScore;
         readonly int _tourNumber;

@@ -2,6 +2,7 @@ using System;
 using System.Xml;
 using My2Cents.HTC.PilotScoreSvc.Types;
 using My2Cents.HTC.PilotScoreSvc.Utilities;
+using My2Cents.HTC.PilotScoreSvc.ServiceLayer.Interfaces;
 
 namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
 {
@@ -9,7 +10,7 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
     ///     Implements a service which retrieves the Obj Vs Obj statistics for a given pilot, tour, and
     ///     tour-type combination via a formatted HTTP request to http://www.hitechcreations.com/cgi-bin/105score/105stats.pl
     /// </summary>
-    public class HTCPilotStatsSvc
+    public class HTCPilotStatsSvc : IHTCPilotStatsSvc
     {
         public AcesHighPilotStats GetPilotStats(string pilotId, TourNode tour, ProxySettingsDTO proxySettings,
             string statsUrl)
