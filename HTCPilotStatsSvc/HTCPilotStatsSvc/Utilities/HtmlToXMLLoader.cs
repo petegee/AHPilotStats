@@ -1,41 +1,34 @@
+using My2Cents.HTC.PilotScoreSvc.Types;
+using Sgml;
 using System;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Xml;
-using My2Cents.HTC.PilotScoreSvc.Types;
-using Sgml;
 
 namespace My2Cents.HTC.PilotScoreSvc.Utilities
 {
-    internal class HttpToXMLLoader
+    public class HtmlToXMLLoader : IHtmlToXMLLoader
     {
-        private readonly ProxySettingsDTO _proxySettings;
-
-        public HttpToXMLLoader(ProxySettingsDTO proxySettings)
+        public XmlDocument LoadHtmlPageAsXmlByGet(string uri, ProxySettingsDTO proxySettings)
         {
-            _proxySettings = proxySettings;
+            return LoadHtmlPageAsXmlInternal(string.Empty, uri, "GET", proxySettings);
         }
 
-        public XmlDocument LoadHtmlPageAsXmlByGet(string uri)
+        public XmlDocument LoadHtmlPageAsXmlByPost(string uri, string postData, ProxySettingsDTO proxySettings)
         {
-            return LoadHtmlPageAsXmlInternal(string.Empty, uri, "GET");
+            return LoadHtmlPageAsXmlInternal(postData, uri, "POST", proxySettings);
         }
 
-        public XmlDocument LoadHtmlPageAsXmlByPost(string uri, string postData)
-        {
-            return LoadHtmlPageAsXmlInternal(postData, uri, "POST");
-        }
-
-        private XmlDocument LoadHtmlPageAsXmlInternal(string postData, string uri, string httpMethod)
+        private XmlDocument LoadHtmlPageAsXmlInternal(string postData, string uri, string httpMethod, ProxySettingsDTO proxySettings)
         {
             // Prepare web request...
             var webrequest = (HttpWebRequest) WebRequest.Create(uri);
 
             // Deal with proxy details if any.
-            if (_proxySettings.Option == ProxySettingsDTO.ProxyOption.Custom)
+            if (proxySettings.Option == ProxySettingsDTO.ProxyOption.Custom)
             {
-                var proxy = new WebProxy(_proxySettings.ProxyHost, _proxySettings.ProxyPort);
+                var proxy = new WebProxy(proxySettings.ProxyHost, proxySettings.ProxyPort);
                 webrequest.Proxy = proxy;
             }
             webrequest.Method = httpMethod;

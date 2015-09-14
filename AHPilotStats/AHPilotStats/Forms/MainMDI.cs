@@ -11,15 +11,15 @@ namespace My2Cents.HTC.AHPilotStats
 { 
     public partial class MainMDI : Form
     {
-        public MainMDI()
+        public MainMDI(IRegistry registry)
         {
             InitializeComponent();
+            Registry = registry;
             PopulatePilotDropDownMenuItems();
             PopulateSquadDropDownMenuItems();
         }
 
-        [Dependency]
-        public IRegistry Registry { get; set; }
+        private IRegistry Registry { get; set; }
 
         public void RefreshPilotLists(string reloadedPilotName)
         {
@@ -88,6 +88,7 @@ namespace My2Cents.HTC.AHPilotStats
                 return;
 
             var form = ServiceLocator.Instance.Resolve<DeleteForm>();
+            form.PopulateDropList();
             form.MdiParent = this;
             form.Show();
         }
@@ -166,6 +167,7 @@ namespace My2Cents.HTC.AHPilotStats
                     new ParameterOverride("isCompositeData", isCompositeData)
                 });
             form.MdiParent = this;
+            form.Text += "(Squad)";
             return form;
         }
 
@@ -203,7 +205,9 @@ namespace My2Cents.HTC.AHPilotStats
                 return;
 
             var form = ServiceLocator.Instance.Resolve<PilotDataLoaderForm>();
-            form.Show(this);         
+            form.LoadTourDefinitions(this);
+            form.MdiParent = this;
+            form.Show();         
         }
 
         private void BuildAndDisplaySquadForm(string squadName, Squad squad)

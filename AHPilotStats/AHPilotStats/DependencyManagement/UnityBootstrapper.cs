@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using My2Cents.HTC.AHPilotStats.ExtensionMethods;
 using My2Cents.HTC.AHPilotStats.DataRepository;
+using My2Cents.HTC.PilotScoreSvc.Utilities;
 
 namespace My2Cents.HTC.AHPilotStats.DependencyManagement
 {
@@ -29,12 +30,15 @@ namespace My2Cents.HTC.AHPilotStats.DependencyManagement
             container.RegisterAsPerResolve<StartupTips, StartupTips>();
 
             container.RegisterAsSingleton<SquadScoreStatsBuilder, SquadScoreStatsBuilder>();
+            container.RegisterAsSingleton<GraphBuilder, GraphBuilder>();
             container.RegisterAsSingleton<IRegistry, Registry>();
 
 
             container.RegisterAsSingleton<IHTCTourDefinitionsSvc, HTCTourDefinitionsSvc>();
             container.RegisterAsSingleton<IHTCPilotStatsSvc, HTCPilotStatsSvc>();
-            container.RegisterAsSingleton<IHTCTourDefinitionsSvc, HTCTourDefinitionsSvc>();
+            container.RegisterAsSingleton<IHTCPilotScoreSvc, HTCPilotScoreSvc>();
+
+            container.RegisterAsSingleton<IHtmlToXMLLoader, HtmlToXMLLoader>();
         }
     }
 }

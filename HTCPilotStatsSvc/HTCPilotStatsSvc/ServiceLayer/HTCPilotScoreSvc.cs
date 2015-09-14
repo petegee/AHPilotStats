@@ -12,6 +12,13 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
     /// </summary>
     public class HTCPilotScoreSvc : IHTCPilotScoreSvc
     {
+        private readonly IHtmlToXMLLoader _loader;
+
+        public HTCPilotScoreSvc(IHtmlToXMLLoader loader)
+        {
+            _loader = loader;
+        }
+
         /// <summary>
         ///     Load a single AcesHighPilotScore objects from HTC web server for a give pilot, tour, and tour type.
         /// </summary>
@@ -20,8 +27,7 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
         /// <param name="proxySettings">DTO object detailing how we should connect to the internet.</param>
         /// <param name="scoresURL"></param>
         /// <returns>The score for the nominated pilot/tour/tour-type combination.</returns>
-        public AcesHighPilotScore GetPilotScore(string pilotId, TourNode tour, ProxySettingsDTO proxySettings,
-            string scoresURL)
+        public AcesHighPilotScore GetPilotScore(string pilotId, TourNode tour, string scoresURL, ProxySettingsDTO proxySettings)
         {
             if (tour == null)
                 throw new ArgumentException("tour of type TourNode must be set!");
@@ -31,9 +37,8 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
                 throw new ArgumentException("proxySettings of type ProxySettingsDTO must be set!");
 
             // Grab the web page and turn it into true XML.
-            var loader = new HttpToXMLLoader(proxySettings);
             var postData = "playername=" + pilotId + "&selectTour=" + tour.TourSelectArg + "&action=1&Submit=Get+Scores";
-            var doc = loader.LoadHtmlPageAsXmlByPost(scoresURL, postData);
+            var doc = _loader.LoadHtmlPageAsXmlByPost(scoresURL, postData, proxySettings);
 
             // XSLT 2.0 parse the Xml score page and transform to our public format.
             var xsltDocReader = new XmlTextReader("PilotScoreTransform.xslt");

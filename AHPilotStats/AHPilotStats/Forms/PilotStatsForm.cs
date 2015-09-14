@@ -17,7 +17,6 @@ namespace My2Cents.HTC.AHPilotStats
         private bool _compositeObjVsObjDataIncomplete;
         private readonly bool _isCompositeData;
 
-        private readonly GraphBuilder _grapher;
         private readonly DgvFilterManager _attackScoreFilterManager = new DgvFilterManager();
         private readonly DgvFilterManager _attackStatsFilterManager = new DgvFilterManager();
         private readonly DgvFilterManager _bomberScoreFilterManager = new DgvFilterManager();
@@ -29,8 +28,8 @@ namespace My2Cents.HTC.AHPilotStats
 
         public string PilotName { get; private set; }
 
-        [Dependency]
-        public IRegistry Registry { get; set; }
+        private IRegistry Registry { get; set; }
+        private GraphBuilder GraphBuilder { get; set; }
 
         public bool CompositeObjVsObjDataIncomplete
         {
@@ -125,9 +124,12 @@ namespace My2Cents.HTC.AHPilotStats
         // Construction
         //
         //////////////////////////////////////////////////////////////////////////////////
-        public PilotStatsForm(string pilotName, bool isCompositeData)
+        public PilotStatsForm(string pilotName, bool isCompositeData, IRegistry registry, GraphBuilder grapher)
         {
             InitializeComponent();
+
+            GraphBuilder = grapher;
+            Registry = registry;
 
             BindDataToGrids(pilotName);
 
@@ -135,7 +137,7 @@ namespace My2Cents.HTC.AHPilotStats
             _isCompositeData = isCompositeData;
             PilotName = pilotName;
 
-            _grapher = new GraphBuilder(pilotName);
+            //_grapher = //new GraphBuilder(pilotName);
 
             PopulateTourTypeFilterComboBox();
 
@@ -249,14 +251,14 @@ namespace My2Cents.HTC.AHPilotStats
 
         private void RefreshGraph()
         {
-            _grapher.ResetGraph(plotSurface2D);
+            GraphBuilder.ResetGraph(plotSurface2D);
 
             foreach (int i in chkLstBoxSelectGraph.CheckedIndices)
             {
-                _grapher.AddPlot(plotSurface2D, chkLstBoxSelectGraph.Items[i].ToString(), cmbBoxMode.Text,
+                GraphBuilder.AddPlot(plotSurface2D, chkLstBoxSelectGraph.Items[i].ToString(), cmbBoxMode.Text,
                     cmbxTourTypeFilter.Text);
             }
-            _grapher.RefreshPlots(plotSurface2D);
+            GraphBuilder.RefreshPlots(plotSurface2D);
         }
 
 

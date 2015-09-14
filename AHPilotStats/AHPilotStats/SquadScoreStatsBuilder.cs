@@ -3,11 +3,15 @@ using System.Linq;
 using My2Cents.HTC.AHPilotStats.DomainObjects;
 using My2Cents.HTC.PilotScoreSvc.Types;
 using My2Cents.HTC.AHPilotStats.DataRepository;
+using Microsoft.Practices.Unity;
 
 namespace My2Cents.HTC.AHPilotStats
 {
     internal class SquadScoreStatsBuilder
     {
+        [Dependency]
+        public IRegistry Registry { get; set; }
+
         /// <summary>
         /// </summary>
         /// <param name="squad"></param>
@@ -27,7 +31,6 @@ namespace My2Cents.HTC.AHPilotStats
                 // If Pilot wasnt in this sqaud for this tour, dont count their data
                 if (!squad.WasPilotInSquadForThisTour(tourNumber, squadMember))
                     continue;
-
 
                 var pilotReg = Registry.GetPilotStats(squadMember.PilotName);
 

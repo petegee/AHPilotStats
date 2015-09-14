@@ -12,7 +12,6 @@ namespace My2Cents.HTC.AHPilotStats
         public DeleteForm()
         {
             InitializeComponent();
-            PopulateDropList();
         }
 
         [Dependency]
@@ -20,7 +19,7 @@ namespace My2Cents.HTC.AHPilotStats
 
         public void PopulateDropList()
         {
-            pilotListCmbBox.DataSource = Registry.PilotNamesSet;
+            pilotListCmbBox.DataSource = Registry.PilotNamesSet.ToList();
             pilotListCmbBox.Update();
         }
 

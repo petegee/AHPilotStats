@@ -4,6 +4,6 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer.Interfaces
 {
     public interface IHTCPilotStatsSvc
     {
-        AcesHighPilotStats GetPilotStats(string pilotId, TourNode tour, ProxySettingsDTO proxySettings,string statsUrl);
+        AcesHighPilotStats GetPilotStats(string pilotId, TourNode tour, string statsUrl, ProxySettingsDTO proxySettings);
     }
 }

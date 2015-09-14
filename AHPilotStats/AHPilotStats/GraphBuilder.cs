@@ -9,10 +9,11 @@ using NPlot;
 using My2Cents.HTC.AHPilotStats.DomainObjects;
 using My2Cents.HTC.AHPilotStats.Collections;
 using My2Cents.HTC.AHPilotStats.DataRepository;
+using Microsoft.Practices.Unity;
 
 namespace My2Cents.HTC.AHPilotStats
 {
-    class GraphBuilder
+    public class GraphBuilder
     {
         private readonly List<XyData> _plots;
         private readonly string _pilotName;
@@ -23,6 +24,8 @@ namespace My2Cents.HTC.AHPilotStats
             _plots = new List<XyData>();
         }
 
+        [Dependency]
+        public IRegistry Registry { get; set; }
 
         public void ResetGraph(NPlot.Windows.PlotSurface2D graphSurface)
         {
@@ -33,68 +36,68 @@ namespace My2Cents.HTC.AHPilotStats
 
         public void AddPlot(NPlot.Windows.PlotSurface2D graphSurface, string chosenGraphName, string mode, string tourTypeFilter)
         {
+            var statsList = GetStats(mode, tourTypeFilter);
+
             switch (chosenGraphName)
             {
                 case "Kill/Death Trend":
-                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllKills", "OverAllDeathPlus1", Color.Blue, mode, tourTypeFilter);
+                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllKills", "OverAllDeathPlus1", Color.Blue, statsList);
                     break;
                 case "HTC Kill/Death Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "HTCKillsPerDeath", Color.CadetBlue, mode, tourTypeFilter);
+                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "HTCKillsPerDeath", Color.CadetBlue, statsList);
                     break;
                 case "Kill/Landed Trend":
-                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllKills", "OverAllLanded", Color.Crimson, mode, tourTypeFilter);
+                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllKills", "OverAllLanded", Color.Crimson, statsList);
                     break;
                 case "Kill/Sortie Trend":
-                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllKills", "OverAllSorties", Color.Chartreuse, mode, tourTypeFilter);
+                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllKills", "OverAllSorties", Color.Chartreuse, statsList);
                     break;
                 case "Kill/Hour Trend":
-                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllKills", "OverAllTimeInHours", Color.Chocolate, mode, tourTypeFilter);
+                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllKills", "OverAllTimeInHours", Color.Chocolate, statsList);
                     break;
                 case "Kill/Assist Trend":
-                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllKills", "OverAllAssists", Color.DarkOliveGreen, mode, tourTypeFilter);
+                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllKills", "OverAllAssists", Color.DarkOliveGreen, statsList);
                     break;
                 case "Hit % Trend":
-                    AddHitPercentageTrendPlot(_pilotName, chosenGraphName, mode, tourTypeFilter);
+                    AddHitPercentageTrendPlot(_pilotName, chosenGraphName, tourTypeFilter, statsList);
                     break;
                 case "Sorties/Landed Trend":
-                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllSorties", "OverAllLanded", Color.IndianRed, mode, tourTypeFilter);
+                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllSorties", "OverAllLanded", Color.IndianRed, statsList);
                     break;
                 case "Sorties/Death Trend":
-                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllSorties", "OverAllDeath", Color.DarkRed, mode, tourTypeFilter);
+                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllSorties", "OverAllDeath", Color.DarkRed, statsList);
                     break;
                 case "Total Kills Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllKills", Color.Teal, mode, tourTypeFilter);
+                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllKills", Color.Teal, statsList);
                     break;
                 case "Total Assists Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllAssists", Color.YellowGreen, mode, tourTypeFilter);
+                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllAssists", Color.YellowGreen, statsList);
                     break;
                 case "Total Sorties Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllSorties", Color.DarkMagenta, mode, tourTypeFilter);
+                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllSorties", Color.DarkMagenta, statsList);
                     break;
                 case "Total Landed Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllLanded", Color.Turquoise, mode, tourTypeFilter);
+                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllLanded", Color.Turquoise, statsList);
                     break;
                 case "Total Bailed Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllBailed", Color.Salmon, mode, tourTypeFilter);
+                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllBailed", Color.Salmon, statsList);
                     break;
                 case "Total Captured Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllCaptured", Color.MidnightBlue, mode, tourTypeFilter);
+                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllCaptured", Color.MidnightBlue, statsList);
                     break;
                 case "Total Death Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllDeath", Color.HotPink, mode, tourTypeFilter);
+                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllDeath", Color.HotPink, statsList);
                     break;
                 case "Total Time Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllTimeInHours", Color.DarkOrchid, mode, tourTypeFilter);
+                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllTimeInHours", Color.DarkOrchid, statsList);
                     break;
             }
         }
 
-
-
-        public void AddHitPercentageTrendPlot(string pilotName, string plotName, string mode, string tourTypeFilter)
+        public void AddHitPercentageTrendPlot(string pilotName, string plotName, string tourTypeFilter, SortableList<StatsDomainObject> statsList)
         {
             Registry.GetPilotStats(pilotName).FighterScoresList.SortList("TourNumber", ListSortDirection.Ascending);
-            var xy = new XyData(pilotName, plotName, mode, tourTypeFilter, null, null, Color.DarkOrange);
+            var xy = new XyData(pilotName, plotName, null, null, Color.DarkOrange, statsList);
             _plots.Add(xy);
 
             // hmmm, im not 100% convinced this will add the data in the correct order?? 
@@ -107,18 +110,15 @@ namespace My2Cents.HTC.AHPilotStats
             }
         }
 
-
-        public void AddRatioTrendPlot(string pilotName, string plotName, string statNameDividend, string statNameDivisor, Color lineColour, string mode, string tourTypeFilter)
+        public void AddRatioTrendPlot(string pilotName, string plotName, string statNameDividend, string statNameDivisor, Color lineColour, SortableList<StatsDomainObject> statsList)
         {
-            var xy = new XyData(pilotName, plotName, mode, tourTypeFilter, statNameDividend, statNameDivisor, lineColour);
+            var xy = new XyData(pilotName, plotName, statNameDividend, statNameDivisor, lineColour, statsList);
             _plots.Add(xy);
         }
 
-
-
-        public void AddSimpleTrendPlot(string pilotName, string plotName, string statName, Color lineColour, string mode, string tourTypeFilter)
+        public void AddSimpleTrendPlot(string pilotName, string plotName, string statName, Color lineColour, SortableList<StatsDomainObject> statsList)
         {
-            var xy = new XyData(pilotName, plotName, mode, tourTypeFilter, statName, null, lineColour);
+            var xy = new XyData(pilotName, plotName, statName, null, lineColour, statsList);
             _plots.Add(xy);
         }
 
@@ -178,7 +178,37 @@ namespace My2Cents.HTC.AHPilotStats
             graphSurface.Refresh();
         }
 
+        private SortableList<StatsDomainObject> GetStats(string mode, string filterTourType)
+        {
+            var list = new SortableList<StatsDomainObject>();
 
+            switch (mode)
+            {
+                case "Fighter":
+                    list = Registry.GetPilotStats(_pilotName).FighterStatsList;
+                    break;
+                case "Attack":
+                    list = Registry.GetPilotStats(_pilotName).AttackStatsList;
+                    break;
+                case "Bomber":
+                    list = Registry.GetPilotStats(_pilotName).BomberStatsList;
+                    break;
+                case "Vehicle/Boat":
+                    list = Registry.GetPilotStats(_pilotName).VehicleBoatStatsList;
+                    break;
+            }
+
+            var filteredList = new SortableList<StatsDomainObject>();
+
+            filteredList.AddRange(list.Where(statsObj => statsObj.TourType == filterTourType));
+
+            if (filteredList.Count > 0)
+            {
+                filteredList.SortList("TourNumber", ListSortDirection.Ascending);
+            }
+
+            return filteredList;
+        }
 
         class XyData // ***** NESTED CLASS ***** //
         {
@@ -189,14 +219,15 @@ namespace My2Cents.HTC.AHPilotStats
             public string PlotName { get; private set; }
             public Color PlotColour { get; private set; }
 
-            public XyData(string pilotName, string name, string mode, string tourTypeFilter, string propertyA, string propertyB, Color plotColour)
+            public XyData(string pilotName, string name, string propertyA, string propertyB, Color plotColour, SortableList<StatsDomainObject> statsList)
             {
                 PlotName = name;
                 PlotColour = plotColour;
                 _pilotName = pilotName;
                 XData = new ArrayList();
                 YData = new ArrayList();
-                foreach (var stats in GetStats(mode, tourTypeFilter))
+                //foreach (var stats in GetStats(mode, tourTypeFilter))
+                foreach (var stats in statsList)
                 {
                     XData.Add(stats.TourNumber);
 
@@ -211,7 +242,6 @@ namespace My2Cents.HTC.AHPilotStats
                     }
                 }
             }
-
 
             private double GetMemberAsDouble(string propName, StatsDomainObject stats)
             {
@@ -235,7 +265,6 @@ namespace My2Cents.HTC.AHPilotStats
                 return value;
             }
 
-
             private double GetRatio(double a, double b)
             {
                 double ratio = 0;
@@ -244,40 +273,6 @@ namespace My2Cents.HTC.AHPilotStats
 
                 return ratio;
             }
-
-
-            private SortableList<StatsDomainObject> GetStats(string mode, string filterTourType)
-            {
-                var list = new SortableList<StatsDomainObject>();
-
-                switch (mode)
-                {
-                    case "Fighter":
-                        list = Registry.GetPilotStats(_pilotName).FighterStatsList;
-                        break;
-                    case "Attack":
-                        list = Registry.GetPilotStats(_pilotName).AttackStatsList;
-                        break;
-                    case "Bomber":
-                        list = Registry.GetPilotStats(_pilotName).BomberStatsList;
-                        break;
-                    case "Vehicle/Boat":
-                        list = Registry.GetPilotStats(_pilotName).VehicleBoatStatsList;
-                        break;
-                }
-
-                var filteredList = new SortableList<StatsDomainObject>();
-
-                filteredList.AddRange(list.Where(statsObj => statsObj.TourType == filterTourType));
-
-                if (filteredList.Count > 0)
-                {
-                    filteredList.SortList("TourNumber", ListSortDirection.Ascending);
-                }
-
-                return filteredList;
-            }
-
         }
     }
 }

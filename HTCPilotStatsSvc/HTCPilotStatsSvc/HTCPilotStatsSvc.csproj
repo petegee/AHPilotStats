@@ -72,12 +72,13 @@
     <Compile Include="ServiceLayer\HTCPilotScoreSvc.cs" />
     <Compile Include="ServiceLayer\HTCPilotStatsSvc.cs" />
     <Compile Include="ServiceLayer\HTCTourDefinitionsSvc.cs" />
-    <Compile Include="Utilities\HttpToXMLLoader.cs" />
+    <Compile Include="Utilities\HtmlToXMLLoader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Types\ProxySettingsDTO.cs" />
     <Compile Include="ServiceLayer\TourDefinitionLoader.cs" />
     <Compile Include="Types\TourDefinitions.cs" />
     <Compile Include="Types\TourNode.cs" />
+    <Compile Include="Utilities\IHtmlToXMLLoader.cs" />
     <Compile Include="Utilities\XSLT2Transformer.cs" />
   </ItemGroup>
   <ItemGroup>

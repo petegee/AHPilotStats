@@ -7,11 +7,13 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
 {
     public class TourDefinitionLoader
     {
+        private readonly IHtmlToXMLLoader _loader;
         private readonly TourDefinitions _definitions;
 
-        public TourDefinitionLoader()
+        public TourDefinitionLoader(IHtmlToXMLLoader loader)
         {
             _definitions = new TourDefinitions();
+            _loader = loader;
         }
 
         public TourDefinitions LoadTourDefinitions(ProxySettingsDTO proxySettings, string scoresUrl, string statsUrl)
@@ -23,8 +25,7 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
 
         private void BuildTourMap(ProxySettingsDTO proxySettings, string scoresURL)
         {
-            var loader = new HttpToXMLLoader(proxySettings);
-            var xDoc = loader.LoadHtmlPageAsXmlByGet(scoresURL);
+            var xDoc = _loader.LoadHtmlPageAsXmlByGet(scoresURL, proxySettings);
 
             var xformer = new XSLT2Transformer(xDoc, new XmlTextReader(@"TourListTransform.xslt"));
             var transformedTourListDoc = xformer.DoTransform();

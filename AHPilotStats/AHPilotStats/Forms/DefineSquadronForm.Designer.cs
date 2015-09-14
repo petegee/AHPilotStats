@@ -53,26 +53,29 @@ namespace My2Cents.HTC.AHPilotStats
             // 
             this.cmbBoxSquadPicker.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbBoxSquadPicker.FormattingEnabled = true;
-            this.cmbBoxSquadPicker.Location = new System.Drawing.Point(233, 9);
+            this.cmbBoxSquadPicker.Location = new System.Drawing.Point(311, 11);
+            this.cmbBoxSquadPicker.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.cmbBoxSquadPicker.Name = "cmbBoxSquadPicker";
-            this.cmbBoxSquadPicker.Size = new System.Drawing.Size(121, 21);
+            this.cmbBoxSquadPicker.Size = new System.Drawing.Size(160, 24);
             this.cmbBoxSquadPicker.TabIndex = 1;
             this.cmbBoxSquadPicker.SelectedIndexChanged += new System.EventHandler(this.cmbBoxSquadPicker_SelectedIndexChanged);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(150, 12);
+            this.label1.Location = new System.Drawing.Point(200, 15);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(77, 13);
+            this.label1.Size = new System.Drawing.Size(100, 17);
             this.label1.TabIndex = 0;
             this.label1.Text = "Pick Squadron";
             // 
             // btnNewSquad
             // 
-            this.btnNewSquad.Location = new System.Drawing.Point(233, 36);
+            this.btnNewSquad.Location = new System.Drawing.Point(311, 44);
+            this.btnNewSquad.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnNewSquad.Name = "btnNewSquad";
-            this.btnNewSquad.Size = new System.Drawing.Size(121, 23);
+            this.btnNewSquad.Size = new System.Drawing.Size(161, 28);
             this.btnNewSquad.TabIndex = 2;
             this.btnNewSquad.Text = "or Define New";
             this.btnNewSquad.UseVisualStyleBackColor = true;
@@ -85,9 +88,11 @@ namespace My2Cents.HTC.AHPilotStats
             this.grpBoxSquadDetails.Controls.Add(this.textBox1);
             this.grpBoxSquadDetails.Controls.Add(this.label2);
             this.grpBoxSquadDetails.Controls.Add(this.txtBoxHomePage);
-            this.grpBoxSquadDetails.Location = new System.Drawing.Point(12, 63);
+            this.grpBoxSquadDetails.Location = new System.Drawing.Point(16, 78);
+            this.grpBoxSquadDetails.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.grpBoxSquadDetails.Name = "grpBoxSquadDetails";
-            this.grpBoxSquadDetails.Size = new System.Drawing.Size(348, 250);
+            this.grpBoxSquadDetails.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpBoxSquadDetails.Size = new System.Drawing.Size(464, 308);
             this.grpBoxSquadDetails.TabIndex = 3;
             this.grpBoxSquadDetails.TabStop = false;
             this.grpBoxSquadDetails.Text = "Squad Details";
@@ -100,12 +105,13 @@ namespace My2Cents.HTC.AHPilotStats
             this.startTourDataGridViewTextBoxColumn,
             this.endTourDataGridViewTextBoxColumn});
             this.squad_SquadMemberDataGridView.DataSource = this.squadMemberBindingSource;
-            this.squad_SquadMemberDataGridView.Location = new System.Drawing.Point(9, 46);
+            this.squad_SquadMemberDataGridView.Location = new System.Drawing.Point(12, 57);
+            this.squad_SquadMemberDataGridView.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.squad_SquadMemberDataGridView.Name = "squad_SquadMemberDataGridView";
-            this.squad_SquadMemberDataGridView.Size = new System.Drawing.Size(333, 150);
+            this.squad_SquadMemberDataGridView.Size = new System.Drawing.Size(444, 185);
             this.squad_SquadMemberDataGridView.TabIndex = 2;
-            this.squad_SquadMemberDataGridView.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.squad_SquadMemberDataGridView_CellValidating);
             this.squad_SquadMemberDataGridView.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.squad_SquadMemberDataGridView_CellEndEdit);
+            this.squad_SquadMemberDataGridView.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.squad_SquadMemberDataGridView_CellValidating);
             // 
             // pilotNameDataGridViewTextBoxColumn
             // 
@@ -132,42 +138,47 @@ namespace My2Cents.HTC.AHPilotStats
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 22);
+            this.label3.Location = new System.Drawing.Point(8, 27);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(69, 13);
+            this.label3.Size = new System.Drawing.Size(90, 17);
             this.label3.TabIndex = 0;
             this.label3.Text = "Squad Name";
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(81, 19);
+            this.textBox1.Location = new System.Drawing.Point(108, 23);
+            this.textBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(261, 20);
+            this.textBox1.Size = new System.Drawing.Size(347, 22);
             this.textBox1.TabIndex = 1;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 199);
+            this.label2.Location = new System.Drawing.Point(8, 245);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(63, 13);
+            this.label2.Size = new System.Drawing.Size(82, 17);
             this.label2.TabIndex = 3;
             this.label2.Text = "Home Page";
             // 
             // txtBoxHomePage
             // 
-            this.txtBoxHomePage.Location = new System.Drawing.Point(7, 215);
+            this.txtBoxHomePage.Location = new System.Drawing.Point(9, 265);
+            this.txtBoxHomePage.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtBoxHomePage.Name = "txtBoxHomePage";
-            this.txtBoxHomePage.Size = new System.Drawing.Size(335, 20);
+            this.txtBoxHomePage.Size = new System.Drawing.Size(445, 22);
             this.txtBoxHomePage.TabIndex = 4;
             this.txtBoxHomePage.TextChanged += new System.EventHandler(this.txtBoxHomePage_TextChanged);
             // 
             // btnSaveClose
             // 
-            this.btnSaveClose.Location = new System.Drawing.Point(260, 319);
+            this.btnSaveClose.Location = new System.Drawing.Point(347, 393);
+            this.btnSaveClose.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnSaveClose.Name = "btnSaveClose";
-            this.btnSaveClose.Size = new System.Drawing.Size(100, 23);
+            this.btnSaveClose.Size = new System.Drawing.Size(133, 28);
             this.btnSaveClose.TabIndex = 5;
             this.btnSaveClose.Text = "Save and Close";
             this.btnSaveClose.UseVisualStyleBackColor = true;
@@ -175,9 +186,10 @@ namespace My2Cents.HTC.AHPilotStats
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(179, 319);
+            this.btnCancel.Location = new System.Drawing.Point(239, 393);
+            this.btnCancel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(75, 23);
+            this.btnCancel.Size = new System.Drawing.Size(100, 28);
             this.btnCancel.TabIndex = 4;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
@@ -185,19 +197,20 @@ namespace My2Cents.HTC.AHPilotStats
             // 
             // DefineSquadronForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(372, 349);
+            this.ClientSize = new System.Drawing.Size(483, 420);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.grpBoxSquadDetails);
             this.Controls.Add(this.btnNewSquad);
             this.Controls.Add(this.btnSaveClose);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.cmbBoxSquadPicker);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(380, 383);
+            this.MaximumSize = new System.Drawing.Size(501, 478);
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(380, 383);
+            this.MinimumSize = new System.Drawing.Size(501, 478);
             this.Name = "DefineSquadronForm";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;

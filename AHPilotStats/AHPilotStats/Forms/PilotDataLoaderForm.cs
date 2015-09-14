@@ -10,6 +10,7 @@ using My2Cents.HTC.PilotScoreSvc.Types;
 using My2Cents.HTC.PilotScoreSvc.Utilities;
 using My2Cents.HTC.AHPilotStats.DataRepository;
 using Microsoft.Practices.Unity;
+using My2Cents.HTC.PilotScoreSvc.ServiceLayer.Interfaces;
 
 namespace My2Cents.HTC.AHPilotStats
 {
@@ -75,8 +76,7 @@ namespace My2Cents.HTC.AHPilotStats
 
         private readonly object _lockObj = new object();
 
-        private readonly ProxySettingsDTO _proxySettings;
-        private readonly Form _parent;
+        private ProxySettingsDTO _proxySettings;
 
         // validation
         private readonly ErrorProvider _startTourErrorProvider;
@@ -96,20 +96,12 @@ namespace My2Cents.HTC.AHPilotStats
 
         #endregion
 
-
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="parent">The MDI parent.</param>
-        public PilotDataLoaderForm(Form parent)
+        public PilotDataLoaderForm()
         {
-            _parent = parent;
-
             InitializeComponent();
-
-            _proxySettings = ProxySettingsDTO.GetProxySettings();
-            
-            LoadTourDefs();
 
             _startTourErrorProvider = new ErrorProvider();
             _startTourErrorProvider.SetIconAlignment(txtbxStartTour, ErrorIconAlignment.MiddleRight);
@@ -138,6 +130,15 @@ namespace My2Cents.HTC.AHPilotStats
 
         [Dependency]
         public IRegistry Registry { get; set; }
+
+        [Dependency]
+        public IHTCTourDefinitionsSvc HTCTourDefinitionsSvc { get; set; }
+        
+        [Dependency]
+        public IHTCPilotStatsSvc HTCPilotStatsSvc { get; set; }
+
+        [Dependency]
+        public IHTCPilotScoreSvc HTCPilotScoreSvc { get; set; }
 
         /// <summary>
         /// Load button click handler.
@@ -450,10 +451,9 @@ namespace My2Cents.HTC.AHPilotStats
                         // Load the Stats objects.
                         //
                         var statsUrl = ConfigurationManager.AppSettings["statsURL"];
-                        var statsSvc = new HTCPilotStatsSvc();
                         try
                         {
-                            param.StatsList.Add(statsSvc.GetPilotStats(pilotId, tour, param.ProxySettings, statsUrl));
+                            param.StatsList.Add(HTCPilotStatsSvc.GetPilotStats(pilotId, tour, statsUrl, param.ProxySettings));
                         }
                         catch (Exception e)
                         {
@@ -476,11 +476,10 @@ namespace My2Cents.HTC.AHPilotStats
                         //
                         // Load the scores objects.
                         //
-                        var scoreSvc = new HTCPilotScoreSvc();
                         var scoresUrl = ConfigurationManager.AppSettings["scoresURL"];
                         try
                         {
-                            param.ScoreList.Add(scoreSvc.GetPilotScore(pilotId, tour, param.ProxySettings, scoresUrl));
+                            param.ScoreList.Add(HTCPilotScoreSvc.GetPilotScore(pilotId, tour, scoresUrl, param.ProxySettings));
                         }
                         catch (Exception e)
                         {
@@ -514,11 +513,13 @@ namespace My2Cents.HTC.AHPilotStats
         /// <summary>
         /// Calls the HTCPilotStatsSvc to load all the current tour definitions.
         /// </summary>
-        private void LoadTourDefs()
+        public void LoadTourDefinitions(Form parent)
         {
+            _proxySettings = ProxySettingsDTO.GetProxySettings();
+
             var waitDlg = new WaitDialog
             {
-                MdiParent = _parent,
+                MdiParent = parent,
                 UseWaitCursor = true
             };
             waitDlg.Show();
@@ -529,8 +530,7 @@ namespace My2Cents.HTC.AHPilotStats
 
             if (Registry.AreTourDefinitionsInitialised() == false)
             {
-                var tourDefsSvc = new HTCTourDefinitionsSvc();
-                Registry.TourDefinitions = tourDefsSvc.GetTourDefinitions(ProxySettingsDTO.GetProxySettings(), scoresUrl, statsUrl);
+                Registry.TourDefinitions = HTCTourDefinitionsSvc.GetTourDefinitions(scoresUrl, statsUrl, ProxySettingsDTO.GetProxySettings());
             }
 
             waitDlg.Hide();

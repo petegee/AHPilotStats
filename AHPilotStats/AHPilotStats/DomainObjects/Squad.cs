@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using My2Cents.HTC.AHPilotStats.DataRepository;
+using My2Cents.HTC.AHPilotStats.DependencyManagement;
+using Microsoft.Practices.Unity;
 
 namespace My2Cents.HTC.AHPilotStats.DomainObjects
 {
@@ -43,6 +45,8 @@ namespace My2Cents.HTC.AHPilotStats.DomainObjects
         #region Fields
 
         private const string SquadFilePrototype = @".\squads\{0}_SquadDef.xml";
+
+        private IRegistry Registry { get { return ServiceLocator.Instance.Resolve<IRegistry>(); } }
 
         #endregion
 

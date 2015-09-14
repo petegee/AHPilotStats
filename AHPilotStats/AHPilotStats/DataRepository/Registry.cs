@@ -69,22 +69,28 @@ namespace My2Cents.HTC.AHPilotStats.DataRepository
             return _pilotDictionary.ContainsKey(pilotName);
         }
 
-        //public void ReloadPilot(string reloadedPilotName)
-        //{
-        //    RemovePilot(reloadedPilotName);
-        //    BuildStatsRegistry();
-        //}
+        public void ReloadPilot(string reloadedPilotName)
+        {
+            RemovePilot(reloadedPilotName);
+            BuildStatsRegistry();
+        }
 
-        //public void RemovePilot(string pilotName)
-        //{
-        //    if (_pilotScoreObjMap.ContainsKey(pilotName))
-        //        _pilotScoreObjMap.Remove(pilotName);
+        public void RemovePilot(string pilotName)
+        {
+            if (_pilotScoreObjMap.ContainsKey(pilotName))
+                _pilotScoreObjMap.Remove(pilotName);
 
-        //    if (_pilotStatsObjMap.ContainsKey(pilotName))
-        //        _pilotStatsObjMap.Remove(pilotName);
+            if (_pilotStatsObjMap.ContainsKey(pilotName))
+                _pilotStatsObjMap.Remove(pilotName);
 
-        //    _pilotDictionary.Remove(pilotName);
-        //}
+            _pilotDictionary.Remove(pilotName);
+        }
+
+        public void AddPilotStatsToRegistry(string pilotName, PilotStats stats)
+        {
+            if (!_pilotDictionary.ContainsKey(pilotName))
+                _pilotDictionary.Add(pilotName, stats);
+        }
 
         public void PopulatePilotList()
         {
@@ -155,7 +161,7 @@ namespace My2Cents.HTC.AHPilotStats.DataRepository
             return sqaud;
         }
 
-        private void PopulateSquadList()
+        public void PopulateSquadList()
         {
             if (!Directory.Exists(@"squads"))
             {
@@ -179,9 +185,7 @@ namespace My2Cents.HTC.AHPilotStats.DataRepository
             var errors = new List<string>();
             foreach (var pilotName in PilotNamesSet.Where(pilotName => !_pilotScoreObjMap.ContainsKey(pilotName)))
             {
-                if (!_pilotDictionary.ContainsKey(pilotName))
-                    _pilotDictionary.Add(pilotName, new PilotStats());
-
+                AddPilotStatsToRegistry(pilotName, new PilotStats());
                 LoadScoreObjects(pilotName);
                 LoadStatsObjects(pilotName);
 

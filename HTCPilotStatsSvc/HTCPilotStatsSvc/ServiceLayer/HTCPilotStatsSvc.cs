@@ -12,8 +12,14 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
     /// </summary>
     public class HTCPilotStatsSvc : IHTCPilotStatsSvc
     {
-        public AcesHighPilotStats GetPilotStats(string pilotId, TourNode tour, ProxySettingsDTO proxySettings,
-            string statsUrl)
+        private readonly IHtmlToXMLLoader _loader;
+
+        public HTCPilotStatsSvc(IHtmlToXMLLoader loader)
+        {
+            _loader = loader;
+        }
+
+        public AcesHighPilotStats GetPilotStats(string pilotId, TourNode tour, string statsUrl, ProxySettingsDTO proxySettings)
         {
             if (tour == null)
                 throw new ArgumentException("tour of type TourNode must be set!");
@@ -25,8 +31,7 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
             var postData = string.Format("playername={1}&selectTour={0}&action=1&Submit=Get+Stats", tour.TourSelectArg,
                 pilotId);
 
-            var loader = new HttpToXMLLoader(proxySettings);
-            var statsPageDoc = loader.LoadHtmlPageAsXmlByPost(statsUrl, postData);
+            var statsPageDoc = _loader.LoadHtmlPageAsXmlByPost(statsUrl, postData, proxySettings);
 
             var xsltDocReader = new XmlTextReader("PilotStatsTransform.xslt");
             var transformer = new XSLT2Transformer(statsPageDoc, xsltDocReader);
