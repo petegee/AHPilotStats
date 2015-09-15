@@ -1,25 +1,18 @@
-using Microsoft.Practices.Unity;
-using My2Cents.HTC.AHPilotStats.Collections;
-using My2Cents.HTC.AHPilotStats.DependencyManagement;
-using My2Cents.HTC.AHPilotStats.DomainObjects;
-using My2Cents.HTC.PilotScoreSvc.Types;
-using My2Cents.HTC.PilotScoreSvc.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Serialization;
+using My2Cents.HTC.AHPilotStats.Collections;
+using My2Cents.HTC.AHPilotStats.DomainObjects;
+using My2Cents.HTC.PilotScoreSvc.Types;
+using My2Cents.HTC.PilotScoreSvc.Utilities;
 
 namespace My2Cents.HTC.AHPilotStats.DataRepository
 {
     public class Registry : IRegistry
     {
-        public HashSet<string> PilotNamesSet { get; set; }
-        public HashSet<string> SquadNamesSet { get; set; }
-        public HashSet<string> ModelSet { get; set; }
-        public TourDefinitions TourDefinitions { get; set; }
-
         public Registry()
         {
             PilotNamesSet = new HashSet<string>();
@@ -36,6 +29,11 @@ namespace My2Cents.HTC.AHPilotStats.DataRepository
             PopulateSquadList();
             BuildStatsRegistry();
         }
+
+        public HashSet<string> PilotNamesSet { get; set; }
+        public HashSet<string> SquadNamesSet { get; set; }
+        public HashSet<string> ModelSet { get; set; }
+        public TourDefinitions TourDefinitions { get; set; }
 
         public bool AreTourDefinitionsInitialised()
         {
@@ -100,9 +98,8 @@ namespace My2Cents.HTC.AHPilotStats.DataRepository
                 return;
             }
 
-            foreach (var xmlFileName in Directory.GetFiles(@"data", "*.xml"))
+            foreach (var pilotName in Directory.GetFiles(@"data", "*.xml").Select(xmlFileName => xmlFileName.Substring(0, xmlFileName.IndexOf('_', 0)).Substring(xmlFileName.IndexOf(@"\") + 1)))
             {
-                var pilotName = xmlFileName.Substring(0, xmlFileName.IndexOf('_', 0)).Substring(xmlFileName.IndexOf(@"\") + 1);
                 PilotNamesSet.Add(CommonUtils.ToUpperFirstChar(pilotName));
             }
         }
@@ -147,7 +144,8 @@ namespace My2Cents.HTC.AHPilotStats.DataRepository
                 ModelSet.Add(objScore.Model);
 
                 // add objVsObj score to our complete list.
-                var objVsObjDo = new ObjectVsObjectDO(objScore, stats.TourDetails, stats.TourType, int.Parse(stats.TourId));
+                var objVsObjDo = new ObjectVsObjectDO(objScore, stats.TourDetails, stats.TourType,
+                    int.Parse(stats.TourId));
                 GetPilotStats(pilotName).ObjVsObjCompleteList.Add(objVsObjDo);
             }
         }
@@ -155,7 +153,7 @@ namespace My2Cents.HTC.AHPilotStats.DataRepository
         public Squad GetSquad(string squadName)
         {
             var sqaud = _squadList.SingleOrDefault(s => s.SquadName == squadName);
-            if(sqaud == null)
+            if (sqaud == null)
                 throw new SquadDoesNotExistInRegistryException(string.Format("Cant find squad {0}", squadName));
 
             return sqaud;
@@ -218,10 +216,11 @@ namespace My2Cents.HTC.AHPilotStats.DataRepository
                 }
             }
 
-            if (errors.Count <= 0) 
+            if (errors.Count <= 0)
                 return;
 
-            MessageBox.Show(string.Format("Some errors were encountered building pilot data:\n{0}", string.Join("\n", errors)),
+            MessageBox.Show(
+                string.Format("Some errors were encountered building pilot data:\n{0}", string.Join("\n", errors)),
                 "Aces High Pilot Stats");
         }
 
@@ -229,9 +228,9 @@ namespace My2Cents.HTC.AHPilotStats.DataRepository
         {
             var scores = new SortableList<AcesHighPilotScore>();
             var xmlFileNames = Directory.GetFiles(@"data", string.Format("{0}*_Score*.xml", selectedPilot));
-            scores.AddRange(from xmlFileName in xmlFileNames 
-                            let xSerializer = new XmlSerializer(typeof (AcesHighPilotScore)) 
-                            select (AcesHighPilotScore) xSerializer.Deserialize(new StreamReader(xmlFileName)));
+            scores.AddRange(from xmlFileName in xmlFileNames
+                let xSerializer = new XmlSerializer(typeof (AcesHighPilotScore))
+                select (AcesHighPilotScore) xSerializer.Deserialize(new StreamReader(xmlFileName)));
 
             if (!_pilotScoreObjMap.ContainsKey(selectedPilot))
                 _pilotScoreObjMap.Add(selectedPilot, scores);
@@ -241,9 +240,9 @@ namespace My2Cents.HTC.AHPilotStats.DataRepository
         {
             var stats = new SortableList<AcesHighPilotStats>();
             var xmlFileNames = Directory.GetFiles(@"data", string.Format("{0}*_Stats*.xml", selectedPilot));
-            stats.AddRange(from xmlFileName in xmlFileNames 
-                           let xSerializer = new XmlSerializer(typeof (AcesHighPilotStats)) 
-                           select (AcesHighPilotStats) xSerializer.Deserialize(new StreamReader(xmlFileName)));
+            stats.AddRange(from xmlFileName in xmlFileNames
+                let xSerializer = new XmlSerializer(typeof (AcesHighPilotStats))
+                select (AcesHighPilotStats) xSerializer.Deserialize(new StreamReader(xmlFileName)));
 
             if (!_pilotStatsObjMap.ContainsKey(selectedPilot))
                 _pilotStatsObjMap.Add(selectedPilot, stats);
@@ -254,9 +253,8 @@ namespace My2Cents.HTC.AHPilotStats.DataRepository
         private readonly CaseInsensitiveDictionary<PilotStats> _pilotDictionary;
         private readonly CaseInsensitiveDictionary<SortableList<AcesHighPilotScore>> _pilotScoreObjMap;
         private readonly CaseInsensitiveDictionary<SortableList<AcesHighPilotStats>> _pilotStatsObjMap;
-        private readonly List<Squad> _squadList; 
+        private readonly List<Squad> _squadList;
 
         #endregion
-
     }
 }

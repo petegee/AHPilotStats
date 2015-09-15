@@ -160,14 +160,13 @@ namespace My2Cents.HTC.AHPilotStats
 
         private PilotStatsForm BuildPilotStatsForm(string selectedPilot, bool isCompositeData)
         {
-            var form = ServiceLocator.Instance.Resolve<PilotStatsForm>(
-                new ResolverOverride[]
-                {
-                    new ParameterOverride("pilotName", selectedPilot),
-                    new ParameterOverride("isCompositeData", isCompositeData)
-                });
+            var form = ServiceLocator.Instance.Resolve<PilotStatsForm>();
+            form.InitialiseForm(selectedPilot, isCompositeData);
             form.MdiParent = this;
-            form.Text += "(Squad)";
+
+            if(isCompositeData)
+                form.Text += "(Squad)";
+
             return form;
         }
 
@@ -176,14 +175,12 @@ namespace My2Cents.HTC.AHPilotStats
             var childForm = MdiChildren.OfType<PilotStatsForm>()
                 .SingleOrDefault(form => form.PilotName == selectedPilot);
 
-            if (childForm != null)
-            {
-                childForm.Show();
-                childForm.Focus();
-                return true;
-            }
+            if (childForm == null) 
+                return false;
 
-            return false;
+            childForm.Show();
+            childForm.Focus();
+            return true;
         }
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)

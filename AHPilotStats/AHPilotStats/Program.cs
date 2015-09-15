@@ -14,8 +14,8 @@ namespace My2Cents.HTC.AHPilotStats
         [STAThread]
         static void Main()
         {
-            bool owned = false;
-            Mutex instanceMutex = new Mutex(false, "My2Cents.HTC.AHPilotStats.App", out owned);
+            var owned = false;
+            var instanceMutex = new Mutex(false, "My2Cents.HTC.AHPilotStats.App", out owned);
             if (owned)
             {
                 Application.EnableVisualStyles();

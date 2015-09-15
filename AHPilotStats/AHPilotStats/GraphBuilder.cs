@@ -16,11 +16,10 @@ namespace My2Cents.HTC.AHPilotStats
     public class GraphBuilder
     {
         private readonly List<XyData> _plots;
-        private readonly string _pilotName;
+        public string PilotName { get; set; }
 
-        public GraphBuilder(string pilotName)
+        public GraphBuilder()
         {
-            _pilotName = pilotName;
             _plots = new List<XyData>();
         }
 
@@ -41,55 +40,55 @@ namespace My2Cents.HTC.AHPilotStats
             switch (chosenGraphName)
             {
                 case "Kill/Death Trend":
-                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllKills", "OverAllDeathPlus1", Color.Blue, statsList);
+                    AddRatioTrendPlot(PilotName, chosenGraphName, "OverAllKills", "OverAllDeathPlus1", Color.Blue, statsList);
                     break;
                 case "HTC Kill/Death Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "HTCKillsPerDeath", Color.CadetBlue, statsList);
+                    AddSimpleTrendPlot(PilotName, chosenGraphName, "HTCKillsPerDeath", Color.CadetBlue, statsList);
                     break;
                 case "Kill/Landed Trend":
-                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllKills", "OverAllLanded", Color.Crimson, statsList);
+                    AddRatioTrendPlot(PilotName, chosenGraphName, "OverAllKills", "OverAllLanded", Color.Crimson, statsList);
                     break;
                 case "Kill/Sortie Trend":
-                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllKills", "OverAllSorties", Color.Chartreuse, statsList);
+                    AddRatioTrendPlot(PilotName, chosenGraphName, "OverAllKills", "OverAllSorties", Color.Chartreuse, statsList);
                     break;
                 case "Kill/Hour Trend":
-                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllKills", "OverAllTimeInHours", Color.Chocolate, statsList);
+                    AddRatioTrendPlot(PilotName, chosenGraphName, "OverAllKills", "OverAllTimeInHours", Color.Chocolate, statsList);
                     break;
                 case "Kill/Assist Trend":
-                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllKills", "OverAllAssists", Color.DarkOliveGreen, statsList);
+                    AddRatioTrendPlot(PilotName, chosenGraphName, "OverAllKills", "OverAllAssists", Color.DarkOliveGreen, statsList);
                     break;
                 case "Hit % Trend":
-                    AddHitPercentageTrendPlot(_pilotName, chosenGraphName, tourTypeFilter, statsList);
+                    AddHitPercentageTrendPlot(PilotName, chosenGraphName, tourTypeFilter, statsList);
                     break;
                 case "Sorties/Landed Trend":
-                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllSorties", "OverAllLanded", Color.IndianRed, statsList);
+                    AddRatioTrendPlot(PilotName, chosenGraphName, "OverAllSorties", "OverAllLanded", Color.IndianRed, statsList);
                     break;
                 case "Sorties/Death Trend":
-                    AddRatioTrendPlot(_pilotName, chosenGraphName, "OverAllSorties", "OverAllDeath", Color.DarkRed, statsList);
+                    AddRatioTrendPlot(PilotName, chosenGraphName, "OverAllSorties", "OverAllDeath", Color.DarkRed, statsList);
                     break;
                 case "Total Kills Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllKills", Color.Teal, statsList);
+                    AddSimpleTrendPlot(PilotName, chosenGraphName, "OverAllKills", Color.Teal, statsList);
                     break;
                 case "Total Assists Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllAssists", Color.YellowGreen, statsList);
+                    AddSimpleTrendPlot(PilotName, chosenGraphName, "OverAllAssists", Color.YellowGreen, statsList);
                     break;
                 case "Total Sorties Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllSorties", Color.DarkMagenta, statsList);
+                    AddSimpleTrendPlot(PilotName, chosenGraphName, "OverAllSorties", Color.DarkMagenta, statsList);
                     break;
                 case "Total Landed Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllLanded", Color.Turquoise, statsList);
+                    AddSimpleTrendPlot(PilotName, chosenGraphName, "OverAllLanded", Color.Turquoise, statsList);
                     break;
                 case "Total Bailed Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllBailed", Color.Salmon, statsList);
+                    AddSimpleTrendPlot(PilotName, chosenGraphName, "OverAllBailed", Color.Salmon, statsList);
                     break;
                 case "Total Captured Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllCaptured", Color.MidnightBlue, statsList);
+                    AddSimpleTrendPlot(PilotName, chosenGraphName, "OverAllCaptured", Color.MidnightBlue, statsList);
                     break;
                 case "Total Death Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllDeath", Color.HotPink, statsList);
+                    AddSimpleTrendPlot(PilotName, chosenGraphName, "OverAllDeath", Color.HotPink, statsList);
                     break;
                 case "Total Time Trend":
-                    AddSimpleTrendPlot(_pilotName, chosenGraphName, "OverAllTimeInHours", Color.DarkOrchid, statsList);
+                    AddSimpleTrendPlot(PilotName, chosenGraphName, "OverAllTimeInHours", Color.DarkOrchid, statsList);
                     break;
             }
         }
@@ -185,16 +184,16 @@ namespace My2Cents.HTC.AHPilotStats
             switch (mode)
             {
                 case "Fighter":
-                    list = Registry.GetPilotStats(_pilotName).FighterStatsList;
+                    list = Registry.GetPilotStats(PilotName).FighterStatsList;
                     break;
                 case "Attack":
-                    list = Registry.GetPilotStats(_pilotName).AttackStatsList;
+                    list = Registry.GetPilotStats(PilotName).AttackStatsList;
                     break;
                 case "Bomber":
-                    list = Registry.GetPilotStats(_pilotName).BomberStatsList;
+                    list = Registry.GetPilotStats(PilotName).BomberStatsList;
                     break;
                 case "Vehicle/Boat":
-                    list = Registry.GetPilotStats(_pilotName).VehicleBoatStatsList;
+                    list = Registry.GetPilotStats(PilotName).VehicleBoatStatsList;
                     break;
             }
 

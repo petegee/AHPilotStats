@@ -15,7 +15,7 @@ namespace My2Cents.HTC.AHPilotStats
     public partial class PilotStatsForm : Form
     {
         private bool _compositeObjVsObjDataIncomplete;
-        private readonly bool _isCompositeData;
+        private bool _isCompositeData;
 
         private readonly DgvFilterManager _attackScoreFilterManager = new DgvFilterManager();
         private readonly DgvFilterManager _attackStatsFilterManager = new DgvFilterManager();
@@ -124,20 +124,24 @@ namespace My2Cents.HTC.AHPilotStats
         // Construction
         //
         //////////////////////////////////////////////////////////////////////////////////
-        public PilotStatsForm(string pilotName, bool isCompositeData, IRegistry registry, GraphBuilder grapher)
+        public PilotStatsForm(IRegistry registry, GraphBuilder grapher)
         {
             InitializeComponent();
-
             GraphBuilder = grapher;
             Registry = registry;
+            cmboxModelSelector.Enabled = false;
+            cmbBoxObjVObjTourList.Enabled = true;
+            plotSurface2D.Hide();
+        }
 
+        public void InitialiseForm(string pilotName, bool isCompositeData)
+        {
             BindDataToGrids(pilotName);
+            _isCompositeData = isCompositeData;
 
             Text = pilotName;
-            _isCompositeData = isCompositeData;
             PilotName = pilotName;
-
-            //_grapher = //new GraphBuilder(pilotName);
+            GraphBuilder.PilotName = pilotName;
 
             PopulateTourTypeFilterComboBox();
 
@@ -145,13 +149,10 @@ namespace My2Cents.HTC.AHPilotStats
                 cmboxModelSelector.Items.Add(model);
 
             PopulateObjVsObjTourDropDownList();
-            cmboxModelSelector.Enabled = false;
-            cmbBoxObjVObjTourList.Enabled = true;
 
             cmbBoxMode.SelectedItem = "Fighter";
-            plotSurface2D.Hide();
-        }
 
+        }
 
         private void BindDataToGrids(string pilotName)
         {
