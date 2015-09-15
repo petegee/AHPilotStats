@@ -15,7 +15,7 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
             _loader = loader;
         }
 
-        public TourDefinitions GetTourDefinitions(string scoresUrl, string statsUrl, ProxySettingsDTO proxySettings)
+        public TourDefinitions GetTourDefinitions(string scoresUrl, ProxySettingsDTO proxySettings)
         {
             var definitions = new TourDefinitions();
 

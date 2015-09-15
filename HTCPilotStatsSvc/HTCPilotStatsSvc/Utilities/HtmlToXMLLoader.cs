@@ -66,6 +66,11 @@ namespace My2Cents.HTC.PilotScoreSvc.Utilities
             var doc = new XmlDocument();
             doc.Load(sgmlReader);
 
+            //var split = uri.Split('/');
+            //var name = httpMethod + "-" + split[split.Length - 1].Replace('.', '-') + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".xml";
+
+            //doc.Save(name);
+
             return doc;
         }
     }

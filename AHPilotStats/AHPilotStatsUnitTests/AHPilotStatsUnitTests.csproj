@@ -55,12 +55,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
+    <Compile Include="Fakes\FakeHtmlToXmlLoader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceTests\HTCTourDefinitionsSvcTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\HTCPilotStatsSvc\HTCPilotStatsSvc\HTCPilotStatsSvc.csproj">
+      <Project>{a7856958-c2c7-469f-abe3-b1fd61db8fa1}</Project>
+      <Name>HTCPilotStatsSvc</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AHPilotStats\AHPilotStats.csproj">
       <Project>{105c1e1b-c4a7-487b-8b30-48e2143c4461}</Project>
       <Name>AHPilotStats</Name>
@@ -68,6 +74,11 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Data\GET-pilot-php20150915-144004.xml" />
+    <Content Include="Data\POST-pilot-php20150915-144024.xml" />
+    <Content Include="Data\POST-players-php20150915-144016.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
