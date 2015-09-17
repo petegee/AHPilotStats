@@ -25,20 +25,22 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
         /// <param name="pilotId">Pilot in-game handle to retrieve score of.</param>
         /// <param name="tour">The tour</param>
         /// <param name="proxySettings">DTO object detailing how we should connect to the internet.</param>
-        /// <param name="scoresURL"></param>
+        /// <param name="scoresUrl"></param>
         /// <returns>The score for the nominated pilot/tour/tour-type combination.</returns>
-        public AcesHighPilotScore GetPilotScore(string pilotId, TourNode tour, string scoresURL, ProxySettingsDTO proxySettings)
+        public AcesHighPilotScore GetPilotScore(string pilotId, TourNode tour, string scoresUrl, ProxySettingsDTO proxySettings)
         {
             if (tour == null)
-                throw new ArgumentException("tour of type TourNode must be set!");
+                throw new ArgumentNullException("tour of type TourNode must be set!");
             if (pilotId == null)
-                throw new ArgumentException("pilotId of type string must be set!");
+                throw new ArgumentNullException("pilotId of type string must be set!");
+            if (scoresUrl == null)
+                throw new ArgumentNullException("scoresUrl of type string must be set!");
             if (proxySettings == null)
-                throw new ArgumentException("proxySettings of type ProxySettingsDTO must be set!");
+                throw new ArgumentNullException("proxySettings of type ProxySettingsDTO must be set!");
 
             // Grab the web page and turn it into true XML.
             var postData = "playername=" + pilotId + "&selectTour=" + tour.TourSelectArg + "&action=1&Submit=Get+Scores";
-            var doc = _loader.LoadHtmlPageAsXmlByPost(scoresURL, postData, proxySettings);
+            var doc = _loader.LoadHtmlPageAsXmlByPost(scoresUrl, postData, proxySettings);
 
             // XSLT 2.0 parse the Xml score page and transform to our public format.
             var xsltDocReader = new XmlTextReader("PilotScoreTransform.xslt");
@@ -46,13 +48,12 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
             var result = xformer.DoTransform(); // may throw Saxon.Api.DynamicError when cant convert 
 
             // Deserialise the XmlDocument to a in-memory object.
-            var score =
-                (AcesHighPilotScore) new CommonUtils().DeserialiseFromXmlDoc(typeof (AcesHighPilotScore), result);
+            var score = result.DeserialiseFromXmlDoc<AcesHighPilotScore>();
 
             // And fill in the rest of the details ourselves.
-            score.GameId = CommonUtils.ToUpperFirstChar(pilotId);
+            score.GameId = pilotId.ToUpperFirstChar();
             score.TourId = tour.TourId.ToString();
-            score.TourDetails = CommonUtils.BuildTourDetailsTag(tour);
+            score.TourDetails = tour.BuildTourDetailsTag();
             score.TourType = tour.TourType;
 
             // Yah! all done.

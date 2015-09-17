@@ -100,7 +100,7 @@ namespace My2Cents.HTC.AHPilotStats.DataRepository
 
             foreach (var pilotName in Directory.GetFiles(@"data", "*.xml").Select(xmlFileName => xmlFileName.Substring(0, xmlFileName.IndexOf('_', 0)).Substring(xmlFileName.IndexOf(@"\") + 1)))
             {
-                PilotNamesSet.Add(CommonUtils.ToUpperFirstChar(pilotName));
+                PilotNamesSet.Add(pilotName.ToUpperFirstChar());
             }
         }
 

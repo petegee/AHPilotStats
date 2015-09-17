@@ -335,14 +335,14 @@ namespace My2Cents.HTC.AHPilotStats
                 // if a single pilot, add single pilot name to the list.
                 if (cmbBoxSquadSelect.SelectedItem.ToString() == NotSelectedText)
                 {
-                    _threadParam.PilotIdList.Add(CommonUtils.ToUpperFirstChar(txtbxPilotToLoad.Text));
+                    _threadParam.PilotIdList.Add(txtbxPilotToLoad.Text.ToUpperFirstChar());
                 }
                 else // its a squad - so add each member of the sqaud to the list.
                 {
                     var squad = Registry.GetSquad(cmbBoxSquadSelect.SelectedItem.ToString());
                     foreach (var squadMember in squad.Members.Where(squadMember => squadMember.StartTour <= tourStart && squadMember.EndTour >= tourStart))
                     {
-                        _threadParam.PilotIdList.Add(CommonUtils.ToUpperFirstChar(squadMember.PilotName));
+                        _threadParam.PilotIdList.Add(squadMember.PilotName.ToUpperFirstChar());
                     }
                 }
 

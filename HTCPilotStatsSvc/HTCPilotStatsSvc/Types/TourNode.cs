@@ -6,6 +6,10 @@ namespace My2Cents.HTC.PilotScoreSvc.Types
 {
     public class TourNode
     {
+        public TourNode()
+        {
+        }
+
         public TourNode(XmlNode node)
         {
             if(node == null)
@@ -18,15 +22,15 @@ namespace My2Cents.HTC.PilotScoreSvc.Types
             TourSelectArg = node.SelectSingleNode("TourSelectArg").InnerXml;
         }
 
-        public int TourId { get; private set; }
+        public int TourId { get; set; }
 
-        public string TourType { get; private set; }
+        public string TourType { get; set; }
 
-        public DateTime TourStartDate { get; private set; }
+        public DateTime TourStartDate { get; set; }
 
-        public DateTime TourEndDate { get; private set; }
+        public DateTime TourEndDate { get; set; }
 
-        public string TourSelectArg { get; private set; }
+        public string TourSelectArg { get; set; }
 
 
         private static DateTime ParseDate(string dateToParse)

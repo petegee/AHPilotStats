@@ -35,7 +35,14 @@ namespace AHPilotStatsUnitTests.ServiceTests
                 Assert.IsTrue(tourDefs.Tours.ContainsKey("MainArenaTour"), "Tour dictionary should contain key MainArenaTour");
                 Assert.IsTrue(tourDefs.Tours.ContainsKey("MWMainArenaTour"), "Tour dictionary should contain key MWMainArenaTour");
                 Assert.IsTrue(tourDefs.Tours.ContainsKey("EWMainArenaTour"), "Tour dictionary should contain key EWMainArenaTour");
+            }
+
+            [Test]
+            public void TourDefinitionsShouldMapBetaToursToUnknown()
+            {
+                var tourDefs = ClassUnderTest.GetTourDefinitions("pilot.php", new ProxySettingsDTO());
                 Assert.IsTrue(tourDefs.Tours.ContainsKey("Unknown"), "Tour dictionary should contain key Unknown");
+                Assert.IsFalse(tourDefs.Tours.Keys.Any(k => k.Contains("BetaTour")), "Tour dictionary should not contain Beta Tours");
             }
 
             [Test]

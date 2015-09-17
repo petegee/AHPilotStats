@@ -100,7 +100,7 @@ namespace My2Cents.HTC.AHPilotStats
                 return;
 
             var clicked = PilotsMenuItems.Cast<ToolStripItem>().SingleOrDefault(item => item.Pressed);
-            OpenPilotStats(CommonUtils.ToUpperFirstChar(clicked.Text));
+            OpenPilotStats(clicked.Text.ToUpperFirstChar());
         }
 
         private void OnSquadClicked(object sender, EventArgs args)

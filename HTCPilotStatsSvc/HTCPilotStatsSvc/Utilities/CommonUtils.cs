@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -7,9 +6,9 @@ using My2Cents.HTC.PilotScoreSvc.Types;
 
 namespace My2Cents.HTC.PilotScoreSvc.Utilities
 {
-    public class CommonUtils
+    public static class CommonUtils
     {
-        public static string BuildTourDetailsTag(TourNode tour)
+        public static string BuildTourDetailsTag(this TourNode tour)
         {
             var shortStartDate = string.Format("{1}-{0}-{2}", tour.TourStartDate.Day, tour.TourStartDate.Month,
                 tour.TourStartDate.Year);
@@ -19,18 +18,18 @@ namespace My2Cents.HTC.PilotScoreSvc.Utilities
         }
 
 
-        public object DeserialiseFromXmlDoc(Type type, XmlDocument doc)
+        public static T DeserialiseFromXmlDoc<T>(this XmlDocument doc)
         {
-            var serilizer = new XmlSerializer(type);
+            var serilizer = new XmlSerializer(typeof(T));
             var enc = new UTF8Encoding();
             var byteArray = enc.GetBytes(doc.InnerXml);
             var memStream = new MemoryStream(byteArray);
-            return serilizer.Deserialize(memStream);
+            return (T)serilizer.Deserialize(memStream);
         }
 
-        public static string ToUpperFirstChar(string str)
+        public static string ToUpperFirstChar(this string str)
         {
-            var capd1stLetter = str.Length > 0
+            var capatilisedFirstLetterString = str.Length > 0
                 ? (
                     char.ToUpper(str[0]) +
                     (
@@ -41,7 +40,7 @@ namespace My2Cents.HTC.PilotScoreSvc.Utilities
                     )
                 : str;
 
-            return capd1stLetter;
+            return capatilisedFirstLetterString;
         }
     }
 }

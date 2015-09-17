@@ -38,14 +38,13 @@ namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
             var result = transformer.DoTransform();
 
             // Deserialise the XmlDocument to a in-memory object.
-            var stats =
-                (AcesHighPilotStats) new CommonUtils().DeserialiseFromXmlDoc(typeof (AcesHighPilotStats), result);
+            var stats = result.DeserialiseFromXmlDoc<AcesHighPilotStats>();
 
             // And fill in the rest of the details ourselves.
-            stats.GameId = CommonUtils.ToUpperFirstChar(pilotId);
+            stats.GameId = pilotId.ToUpperFirstChar();
             stats.TourId = tour.TourId.ToString();
             stats.TourType = tour.TourType;
-            stats.TourDetails = CommonUtils.BuildTourDetailsTag(tour);
+            stats.TourDetails = tour.BuildTourDetailsTag();
 
             return stats;
         }
