@@ -68,7 +68,7 @@ namespace AHPilotStatsUnitTests.ServiceTests
             }
 
             [Test]
-            public void ScoreThrowWhenUrlParameerIsNull()
+            public void ScoreThrowWhenUrlParameterIsNull()
             {
                 Action methodUnderTest = () => _classUnderTest.GetPilotScore(PilotId, _tour, null, new ProxySettingsDTO());
 
