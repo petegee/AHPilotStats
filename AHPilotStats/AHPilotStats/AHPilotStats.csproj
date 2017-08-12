@@ -28,7 +28,7 @@
     <ManifestKeyFile>AHPilotStats_TemporaryKey.pfx</ManifestKeyFile>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
     <SignManifests>false</SignManifests>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <PublishUrl>http://localhost/AHPilotStats/</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Web</InstallFrom>
