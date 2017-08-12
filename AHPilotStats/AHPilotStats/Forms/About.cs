@@ -14,6 +14,11 @@ namespace My2Cents.HTC.AHPilotStats
 
             label2.Text = "Version " + fvi.FileVersion;
         }
+
+        private void textBox1_TextChanged(object sender, System.EventArgs e)
+        {
+
+        }
     }
 
 }
