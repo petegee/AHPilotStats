@@ -1,13 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AHPilotStats", "AHPilotStats\AHPilotStats.csproj", "{105C1E1B-C4A7-487B-8B30-48E2143C4461}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HTCPilotStatsSvc", "..\HTCPilotStatsSvc\HTCPilotStatsSvc\HTCPilotStatsSvc.csproj", "{A7856958-C2C7-469F-ABE3-B1FD61DB8FA1}"
-EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "AHPilotStatsSetup", "AHPilotStatsSetup\AHPilotStatsSetup.vdproj", "{9A75CC77-5935-4669-8F8D-1AF1C4D24499}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SgmlReaderDll", "..\SignedSgmlReader\sgmlreaderdll\SgmlReaderDll.csproj", "{499527FF-AE52-450F-B3E3-4AD53E1712AD}"
 EndProject
@@ -29,8 +27,6 @@ Global
 		{A7856958-C2C7-469F-ABE3-B1FD61DB8FA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7856958-C2C7-469F-ABE3-B1FD61DB8FA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7856958-C2C7-469F-ABE3-B1FD61DB8FA1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9A75CC77-5935-4669-8F8D-1AF1C4D24499}.Debug|Any CPU.ActiveCfg = Debug
-		{9A75CC77-5935-4669-8F8D-1AF1C4D24499}.Release|Any CPU.ActiveCfg = Release
 		{499527FF-AE52-450F-B3E3-4AD53E1712AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{499527FF-AE52-450F-B3E3-4AD53E1712AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{499527FF-AE52-450F-B3E3-4AD53E1712AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
