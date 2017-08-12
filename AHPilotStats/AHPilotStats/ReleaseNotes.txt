@@ -15,16 +15,18 @@
 **
 *******************************************************************************
 Version:
-1.8.0 (Public/Only Version) [XX-SEP-2015]
+1.8.0 (Public/Only Version) [13-AUG-2017]
 ===========================================
 1. Removed check for updates code
 2. Removed code-signing
 3. Removed click-once deployment rubbish.
 4. Upgraded nPlot
 5. Removed the News link on the menu.
-6. Upgraded to .NET 4.5.1
+6. Upgraded to .NET 4.6.1
 7. Misc Refactors/spring-clean
 8. R# refactors.
+9. Added Unity DI/Servicelocator
+10. Added some unit tests
 
 
 
