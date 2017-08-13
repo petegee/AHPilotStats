@@ -1,20 +1,38 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+using My2Cents.HTC.PilotScoreSvc.ServiceLayer.Interfaces;
 using My2Cents.HTC.PilotScoreSvc.Types;
+using My2Cents.HTC.PilotScoreSvc.Utilities;
+using System;
+using System.Xml;
 
 namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
 {
-    internal class HTCTourDefinitionsSvc
+    public class HTCTourDefinitionsSvc : IHTCTourDefinitionsSvc
     {
-        internal HTCTourDefinitionsSvc()
+        private readonly IHtmlToXMLLoader _loader;
+
+        public HTCTourDefinitionsSvc(IHtmlToXMLLoader loader)
         {
+            _loader = loader;
         }
 
-        internal TourDefinitions GetTourDefinitions(ProxySettingsDTO proxySettings, string scoresURL, string statsURL)
+        public TourDefinitions GetTourDefinitions(string scoresUrl, ProxySettingsDTO proxySettings)
         {
-            TourDefinitionLoader loader = new TourDefinitionLoader();
-            return loader.LoadTourDefinitions(proxySettings, scoresURL, statsURL);
+            var definitions = new TourDefinitions();
+
+            var xDoc = _loader.LoadHtmlPageAsXmlByGet(scoresUrl, proxySettings);
+
+            var xformer = new XSLT2Transformer(xDoc, new XmlTextReader(@"TourListTransform.xslt"));
+            var transformedTourListDoc = xformer.DoTransform();
+
+            foreach (XmlNode xNode in transformedTourListDoc.SelectNodes("/AHTourList/AHTourNode"))
+            {
+                definitions.AddTourToMap(new TourNode(xNode));
+            }
+
+            if (!definitions.IsTourDefinitionsComplete())
+                throw new ApplicationException("Failed to build Tour Map!");
+
+            return definitions;
         }
     }
 }

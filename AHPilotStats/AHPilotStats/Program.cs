@@ -1,14 +1,8 @@
+using My2Cents.HTC.AHPilotStats.DependencyManagement;
 using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
 using System.Threading;
-using My2Cents.HTC.PilotScoreSvc.Types;
-using My2Cents.HTC.PilotScoreSvc.Utilities;
-using System.Net;
-using System.IO;
-using System.Text;
-using System.Xml.Serialization;
-using My2Cents.HTC.AHPilotStats.DomainObjects;
+using System.Windows.Forms;
+using Microsoft.Practices.Unity;
 
 namespace My2Cents.HTC.AHPilotStats
 {
@@ -20,14 +14,14 @@ namespace My2Cents.HTC.AHPilotStats
         [STAThread]
         static void Main()
         {
-            bool owned = false;
-            Mutex instanceMutex = new Mutex(false, "My2Cents.HTC.AHPilotStats.App", out owned);
+            var owned = false;
+            var instanceMutex = new Mutex(false, "My2Cents.HTC.AHPilotStats.App", out owned);
             if (owned)
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                if(!UpdateNotifier.CheckForUpdates())
-                    Application.Run(new MainMDI());
+                UnityBootstrapper.Initialise();
+                Application.Run(ServiceLocator.Instance.Resolve<MainMDI>());
             }
             else
             {

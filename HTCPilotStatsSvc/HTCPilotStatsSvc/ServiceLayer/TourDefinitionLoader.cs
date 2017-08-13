@@ -1,50 +1,41 @@
 using System;
-using System.Globalization;
 using System.Xml;
-using System.IO;
-using System.Collections.Generic;
-using System.Text;
-using Sgml;
-using System.Web;
-using System.Net;
 using My2Cents.HTC.PilotScoreSvc.Types;
 using My2Cents.HTC.PilotScoreSvc.Utilities;
 
-
 namespace My2Cents.HTC.PilotScoreSvc.ServiceLayer
 {
-    internal class TourDefinitionLoader
+    public class TourDefinitionLoader
     {
-        private TourDefinitions definitions = null;
-                
-        internal TourDefinitionLoader()
+        private readonly IHtmlToXMLLoader _loader;
+        private readonly TourDefinitions _definitions;
+
+        public TourDefinitionLoader(IHtmlToXMLLoader loader)
         {
-            definitions = new TourDefinitions();
+            _definitions = new TourDefinitions();
+            _loader = loader;
         }
 
-        internal TourDefinitions LoadTourDefinitions(ProxySettingsDTO proxySettings, string scoresURL, string statsURL)
+        public TourDefinitions LoadTourDefinitions(ProxySettingsDTO proxySettings, string scoresUrl, string statsUrl)
         {
-            BuildTourMap(proxySettings, scoresURL);
-            return definitions;
+            BuildTourMap(proxySettings, scoresUrl);
+            return _definitions;
         }
 
 
         private void BuildTourMap(ProxySettingsDTO proxySettings, string scoresURL)
         {
-            HttpToXMLLoader loader = new HttpToXMLLoader(proxySettings);
-            XmlDocument xDoc = loader.LoadHtmlPageAsXMLByGet(scoresURL);
+            var xDoc = _loader.LoadHtmlPageAsXmlByGet(scoresURL, proxySettings);
 
-            XSLT2Transformer xformer = new XSLT2Transformer(xDoc, new XmlTextReader(@"TourListTransform.xslt"));
-            XmlDocument transformedTourListDoc = xformer.DoTransform();
+            var xformer = new XSLT2Transformer(xDoc, new XmlTextReader(@"TourListTransform.xslt"));
+            var transformedTourListDoc = xformer.DoTransform();
 
             foreach (XmlNode xNode in transformedTourListDoc.SelectNodes("/AHTourList/AHTourNode"))
             {
-                TourNode node = new TourNode(xNode);
-
-                definitions.AddTourToMap(new TourNode(xNode));
+                _definitions.AddTourToMap(new TourNode(xNode));
             }
 
-            if (!definitions.IsTourDefinitionsComplete())
+            if (!_definitions.IsTourDefinitionsComplete())
                 throw new ApplicationException("Failed to build Tour Map!");
         }
     }

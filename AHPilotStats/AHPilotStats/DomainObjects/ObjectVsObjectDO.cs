@@ -1,78 +1,49 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using My2Cents.HTC.PilotScoreSvc.Types;
 
 
 namespace My2Cents.HTC.AHPilotStats.DomainObjects
 {
-    class ObjectVsObjectDO
+    public class ObjectVsObjectDO
     {
-        ObjectScore _ObjScore;
-        string _TourId;
-        int _TourNumber;
-        string _TourType;
-        int _killsOf;
-        int _killsIn;
-        int _killedBy;
-        int? _diedIn; //can be null
+        readonly ObjectScore _objScore;
+        readonly int _tourNumber;
+        readonly string _tourType;
 
         public ObjectVsObjectDO(ObjectScore objScore, string tourId, string tourType, int tourNumber)
         {
-            _ObjScore = objScore;
-            _TourType = tourType;
-            _TourId = tourId;
-            _TourNumber = tourNumber;
+            _objScore = objScore;
+            _tourType = tourType;
+            TourIdentfier = tourId;
+            _tourNumber = tourNumber;
 
-            _killsOf = _ObjScore.KillsOf;
-            _killsIn = _ObjScore.KillsIn;
-            _killedBy = _ObjScore.KilledBy;
-            _diedIn = _ObjScore.DiedIn;
+            KillsOf = _objScore.KillsOf;
+            KillsIn = _objScore.KillsIn;
+            KilledBy = _objScore.KilledBy;
+            DiedIn = _objScore.DiedIn;
         }
 
-        public string TourIdentfier 
-        { 
-            get { return _TourId;   }
-            set { _TourId = value;  }
-        }
+        public string TourIdentfier { get; set; }
+        public int TourNumber { get { return _tourNumber;  } }
+        public string TourType { get { return _tourType; } }
 
-        public int TourNumber { get { return _TourNumber;  } }
-        public string TourType      { get { return _TourType; } }
-
-        public string Model { get { return _ObjScore.Model;    } }
+        public string Model { get { return _objScore.Model;    } }
 
 
-        public int KillsOf  
-        {
-            get { return _killsOf; }
-            set { _killsOf = value; }
-        }
-        
-        public int KillsIn  
-        {
-            get { return _killsIn; }
-            set { _killsIn = value; }
-        }
+        public int KillsOf { get; set; }
 
-        public int KilledBy
-        {
-            get { return _killedBy; }
-            set { _killedBy = value; }
-        }
+        public int KillsIn { get; set; }
 
-        public int? DiedIn
-        {
-            get { return _diedIn; }
-            set { _diedIn = value; }
-        }
+        public int KilledBy { get; set; }
+
+        public int? DiedIn { get; set; }
 
         public decimal? KillsToDeath
         {
             get 
             {
-                if (_diedIn != null)
+                if (DiedIn != null)
                 {
-                    return decimal.Round((decimal)_killsIn / ((decimal)_diedIn + 1),2); 
+                    return decimal.Round(KillsIn / ((decimal)DiedIn + 1),2); 
                 }
 
                 return null;
@@ -81,7 +52,7 @@ namespace My2Cents.HTC.AHPilotStats.DomainObjects
 
         public ObjectScore ObjScore
         {
-            get { return _ObjScore;  }
+            get { return _objScore;  }
         }
     }
 }

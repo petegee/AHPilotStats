@@ -1,45 +1,37 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
-
 
 namespace My2Cents.HTC.PilotScoreSvc.Types
 {
-    internal class TourDefinitions
+    public class TourDefinitions
     {
-        internal TourDefinitions()
-        { 
+        public TourDefinitions()
+        {
+            Tours = new Dictionary<string, Dictionary<int, TourNode>>();
         }
 
-        private Dictionary<string, Dictionary<int, TourNode>> tours = new Dictionary<string, Dictionary<int, TourNode>>();
+        public Dictionary<string, Dictionary<int, TourNode>> Tours { get; private set; }
 
-        internal Dictionary<string, Dictionary<int, TourNode>> Tours
+        public bool IsTourDefinitionsComplete()
         {
-            get { return tours; }
+            return Tours.Count > 1;
         }
 
-        internal bool IsTourDefinitionsComplete()
+        public TourNode FindTour(string tourType, int tourid)
         {
-            return tours.Count > 1;
-        }
-
-        internal TourNode FindTour(string tourType, int tourid)
-        {
-            Dictionary<int, TourNode> tourDictionary = tours[tourType];
+            var tourDictionary = Tours[tourType];
             return tourDictionary[tourid];
         }
 
-        internal void AddTourToMap(TourNode tour)
+        public void AddTourToMap(TourNode tour)
         {
-            if (tours.ContainsKey(tour.TourType))
+            if (Tours.ContainsKey(tour.TourType))
             {
-                tours[tour.TourType].Add(tour.TourId, tour);
+                Tours[tour.TourType].Add(tour.TourId, tour);
             }
             else
-            { 
-                Dictionary<int,TourNode> newTour = new Dictionary<int,TourNode>();
-                newTour.Add(tour.TourId, tour);
-                tours.Add(tour.TourType, newTour);
+            {
+                var newTour = new Dictionary<int, TourNode> {{tour.TourId, tour}};
+                Tours.Add(tour.TourType, newTour);
             }
         }
     }

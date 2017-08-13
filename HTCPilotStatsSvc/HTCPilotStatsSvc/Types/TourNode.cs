@@ -1,77 +1,55 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
 using System.Globalization;
+using System.Xml;
 
 namespace My2Cents.HTC.PilotScoreSvc.Types
 {
-    internal class TourNode
+    public class TourNode
     {
-        private int _tourId;
-        private string _tourStartDate;
-        private string _tourEndDate;
-        private string _tourType;
-        private string _tourSelectArg;
+        public TourNode()
+        {
+        }
 
         public TourNode(XmlNode node)
         {
-            _tourId = int.Parse(node.SelectSingleNode("TourNumber").InnerXml);
-            _tourStartDate = node.SelectSingleNode("TourStartDate").InnerXml;
-            _tourEndDate = node.SelectSingleNode("TourEndDate").InnerXml;
-            _tourType = node.SelectSingleNode("TourType").InnerXml;
-            _tourSelectArg = node.SelectSingleNode("TourSelectArg").InnerXml;
+            if(node == null)
+                throw new ArgumentException("node cannot be null");
+
+            TourId = int.Parse(node.SelectSingleNode("TourNumber").InnerXml);
+            TourStartDate = ParseDate(node.SelectSingleNode("TourStartDate").InnerXml);
+            TourEndDate = ParseDate(node.SelectSingleNode("TourEndDate").InnerXml);
+            TourType = node.SelectSingleNode("TourType").InnerXml;
+            TourSelectArg = node.SelectSingleNode("TourSelectArg").InnerXml;
         }
 
-        public int TourId
-        {
-            get { return _tourId; }
-        }
+        public int TourId { get; set; }
 
-        public string TourType
-        {
-            get { return _tourType; }
-        }
+        public string TourType { get; set; }
 
-        public DateTime TourStartDate
-        {
-            get 
-            { 
-                return ParseDate(_tourStartDate); 
-            }
-        }
+        public DateTime TourStartDate { get; set; }
 
-        public DateTime TourEndDate
-        {
-            get 
-            {
-                return ParseDate(_tourEndDate); 
-            }
-        }
+        public DateTime TourEndDate { get; set; }
 
-        public string TourSelectArg
-        {
-            get
-            {
-                return _tourSelectArg; 
-            }
-        }
+        public string TourSelectArg { get; set; }
 
 
         private static DateTime ParseDate(string dateToParse)
         {
             DateTime result;
-            bool success = false;
-            success = DateTime.TryParseExact(dateToParse, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out result);
+            var success = false;
+            success = DateTime.TryParseExact(dateToParse, "yyyy-MM-dd", CultureInfo.InvariantCulture,
+                DateTimeStyles.AllowWhiteSpaces, out result);
 
             if (!success)
-                success = DateTime.TryParseExact(dateToParse, "MM-dd-yy", CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out result);
+                success = DateTime.TryParseExact(dateToParse, "MM-dd-yy", CultureInfo.InvariantCulture,
+                    DateTimeStyles.AllowWhiteSpaces, out result);
 
             if (!success)
-                success = DateTime.TryParseExact(dateToParse, "M-dd-yy", CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out result);
+                success = DateTime.TryParseExact(dateToParse, "M-dd-yy", CultureInfo.InvariantCulture,
+                    DateTimeStyles.AllowWhiteSpaces, out result);
 
             if (!success)
-                throw new System.FormatException(string.Format("Failed to convert date {0}", dateToParse));
+                throw new FormatException(string.Format("Failed to convert date {0}", dateToParse));
 
             return result;
         }

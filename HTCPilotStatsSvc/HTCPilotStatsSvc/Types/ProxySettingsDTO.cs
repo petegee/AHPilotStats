@@ -1,64 +1,52 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml.Serialization;
 using System.IO;
-
+using System.Xml.Serialization;
 
 namespace My2Cents.HTC.PilotScoreSvc.Types
 {
-    [Serializable()]
+    [Serializable]
     public class ProxySettingsDTO
     {
-        public enum ProxyOption {Direct, UseIESettings, Custom };
-
-        public ProxySettingsDTO() 
-        { 
-        }
-
-        private ProxyOption _option = ProxyOption.Direct;
-        private string _proxyName = "";
-        private int _proxyPort = 8080;
-
-        public ProxyOption Option
+        public enum ProxyOption
         {
-            get { return _option;  }
-            set { _option = value; }
+            Direct,
+            Custom
+        };
+
+        public ProxySettingsDTO()
+        {
+            Option = ProxyOption.Direct;
+            ProxyHost = "";
+            ProxyPort = 8080;
         }
 
-        public string ProxyHost
-        {
-            get { return _proxyName; }
-            set { _proxyName = value; }
-        }
+        public ProxyOption Option { get; set; }
 
-        public int ProxyPort
-        {
-            get { return _proxyPort; }
-            set { _proxyPort = value; }
-        }
+        public string ProxyHost { get; set; }
+
+        public int ProxyPort { get; set; }
 
 
         public static ProxySettingsDTO GetProxySettings()
         {
-            ProxySettingsDTO proxySettings = new ProxySettingsDTO();
+            var proxySettings = new ProxySettingsDTO();
             StreamReader reader = null;
             try
             {
                 reader = new StreamReader(".\\netconxsettings.xml");
-                XmlSerializer xSerializer = new XmlSerializer(typeof(ProxySettingsDTO));
-                proxySettings = (ProxySettingsDTO)xSerializer.Deserialize(reader);
+                var xSerializer = new XmlSerializer(typeof (ProxySettingsDTO));
+                proxySettings = (ProxySettingsDTO) xSerializer.Deserialize(reader);
                 reader.Close();
             }
             catch
             {
-                if(reader != null)
+                if (reader != null)
                     reader.Close();
 
-                TextWriter writer = new StreamWriter(".\\netconxsettings.xml");
+                var writer = new StreamWriter(".\\netconxsettings.xml");
                 try
                 {
-                    XmlSerializer serializer = new XmlSerializer(typeof(ProxySettingsDTO));
+                    var serializer = new XmlSerializer(typeof (ProxySettingsDTO));
                     serializer.Serialize(writer, proxySettings);
                 }
                 finally

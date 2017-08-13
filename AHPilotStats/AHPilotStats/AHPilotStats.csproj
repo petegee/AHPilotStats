@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -12,9 +12,10 @@
     <AssemblyName>AHPilotStats</AssemblyName>
     <ApplicationIcon>AppIcon.ico</ApplicationIcon>
     <TargetZone>LocalIntranet</TargetZone>
-    <GenerateManifests>true</GenerateManifests>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>AKUAG.snk</AssemblyOriginatorKeyFile>
+    <GenerateManifests>false</GenerateManifests>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
     <Win32Resource>
     </Win32Resource>
     <FileUpgradeFlags>
@@ -26,8 +27,8 @@
     <ManifestCertificateThumbprint>338356FD2F36C2AE3287290B9944C94912A6A43F</ManifestCertificateThumbprint>
     <ManifestKeyFile>AHPilotStats_TemporaryKey.pfx</ManifestKeyFile>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
-    <SignManifests>true</SignManifests>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <SignManifests>false</SignManifests>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <PublishUrl>http://localhost/AHPilotStats/</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Web</InstallFrom>
@@ -43,6 +44,7 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -52,6 +54,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -60,11 +63,21 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NPlot, Version=0.9.9.2, Culture=neutral, PublicKeyToken=4eda430eb4395eb1">
+    <Reference Include="Microsoft.Practices.Unity, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\3rdPartyAssemblies\nPlot0992\NPlot.dll</HintPath>
+      <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.Configuration">
+      <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.RegistrationByConvention">
+      <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
+    </Reference>
+    <Reference Include="NPlot">
+      <HintPath>..\..\nPlot\NPlot.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -75,28 +88,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="About.cs">
+    <Compile Include="DataRepository\PilotStats.cs" />
+    <Compile Include="DependencyManagement\ServiceLocator.cs" />
+    <Compile Include="DependencyManagement\UnityBootstrapper.cs" />
+    <Compile Include="ExtensionMethods\UnityExtensionMethods.cs" />
+    <Compile Include="Forms\About.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="About.Designer.cs">
+    <Compile Include="Forms\About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
-    <Compile Include="AKUAGStatsPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="AKUAGStatsPanel.Designer.cs">
-      <DependentUpon>AKUAGStatsPanel.cs</DependentUpon>
-    </Compile>
-    <Compile Include="DefineSquadronForm.cs">
+    <Compile Include="Collections\CaseInsensitiveDictionary.cs" />
+    <Compile Include="Forms\DefineSquadronForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DefineSquadronForm.Designer.cs">
+    <Compile Include="Forms\DefineSquadronForm.Designer.cs">
       <DependentUpon>DefineSquadronForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DeleteForm.cs">
+    <Compile Include="Forms\DeleteForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DeleteForm.Designer.cs">
+    <Compile Include="Forms\DeleteForm.Designer.cs">
       <DependentUpon>DeleteForm.cs</DependentUpon>
     </Compile>
     <Compile Include="DomainObjects\AttackScoresDO.cs" />
@@ -112,63 +124,60 @@
     <Compile Include="DomainObjects\VehicleBoatScoresDO.cs" />
     <Compile Include="DomainObjects\VehicleBoatStatsDO.cs" />
     <Compile Include="Exceptions.cs" />
+    <Compile Include="ExtensionMethods\EnumerableExtensions.cs" />
     <Compile Include="GraphBuilder.cs" />
     <Compile Include="GridHelperAttribute.cs" />
-    <Compile Include="MainMDI.cs">
+    <Compile Include="Forms\MainMDI.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainMDI.Designer.cs">
+    <Compile Include="Forms\MainMDI.Designer.cs">
       <DependentUpon>MainMDI.cs</DependentUpon>
     </Compile>
-    <Compile Include="NetConnectionSelectorForm.cs">
+    <Compile Include="Forms\NetConnectionSelectorForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NetConnectionSelectorForm.Designer.cs">
+    <Compile Include="Forms\NetConnectionSelectorForm.Designer.cs">
       <DependentUpon>NetConnectionSelectorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="PilotDataLoaderForm.cs">
+    <Compile Include="Forms\PilotDataLoaderForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PilotDataLoaderForm.Designer.cs">
+    <Compile Include="Forms\PilotDataLoaderForm.Designer.cs">
       <DependentUpon>PilotDataLoaderForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="PilotStatsForm.cs">
+    <Compile Include="Forms\PilotStatsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PilotStatsForm.Designer.cs">
+    <Compile Include="Forms\PilotStatsForm.Designer.cs">
       <DependentUpon>PilotStatsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="About.resx">
+    <EmbeddedResource Include="Forms\About.resx">
       <SubType>Designer</SubType>
       <DependentUpon>About.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="AKUAGStatsPanel.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>AKUAGStatsPanel.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="DefineSquadronForm.resx">
+    <EmbeddedResource Include="Forms\DefineSquadronForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>DefineSquadronForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DeleteForm.resx">
+    <EmbeddedResource Include="Forms\DeleteForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>DeleteForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainMDI.resx">
+    <EmbeddedResource Include="Forms\MainMDI.resx">
       <SubType>Designer</SubType>
       <DependentUpon>MainMDI.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="NetConnectionSelectorForm.resx">
+    <EmbeddedResource Include="Forms\NetConnectionSelectorForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>NetConnectionSelectorForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="PilotDataLoaderForm.resx">
+    <EmbeddedResource Include="Forms\PilotDataLoaderForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>PilotDataLoaderForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="PilotStatsForm.resx">
+    <EmbeddedResource Include="Forms\PilotStatsForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>PilotStatsForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -177,13 +186,10 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="StartupTips.resx">
+    <EmbeddedResource Include="Forms\StartupTips.resx">
       <DependentUpon>StartupTips.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UpdateNotificationForm.resx">
-      <DependentUpon>UpdateNotificationForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="WaitDialog.resx">
+    <EmbeddedResource Include="Forms\WaitDialog.resx">
       <SubType>Designer</SubType>
       <DependentUpon>WaitDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -192,6 +198,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\DataSources\AHPilotStats.DomainObjects.AttackScoresDO.datasource" />
     <None Include="Properties\DataSources\AHPilotStats.DomainObjects.AttackStatsDO.datasource" />
     <None Include="Properties\DataSources\AHPilotStats.DomainObjects.BomberScoresDO.datasource" />
@@ -210,29 +217,23 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="SortableBindingList.cs" />
-    <Compile Include="SortableList.cs" />
+    <Compile Include="Collections\SortableBindingList.cs" />
+    <Compile Include="Collections\SortableList.cs" />
+    <Compile Include="DataRepository\IRegistry.cs" />
     <Compile Include="SquadScoreStatsBuilder.cs" />
-    <Compile Include="Registry.cs" />
+    <Compile Include="DataRepository\Registry.cs" />
     <Compile Include="DomainObjects\UpdateNotification.cs" />
-    <Compile Include="StartupTips.cs">
+    <Compile Include="Forms\StartupTips.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="StartupTips.Designer.cs">
+    <Compile Include="Forms\StartupTips.Designer.cs">
       <DependentUpon>StartupTips.cs</DependentUpon>
     </Compile>
-    <Compile Include="UpdateNotificationForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UpdateNotificationForm.Designer.cs">
-      <DependentUpon>UpdateNotificationForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UpdateNotifier.cs" />
     <Compile Include="Utility.cs" />
-    <Compile Include="WaitDialog.cs">
+    <Compile Include="Forms\WaitDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="WaitDialog.Designer.cs">
+    <Compile Include="Forms\WaitDialog.Designer.cs">
       <DependentUpon>WaitDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="XMLObjectSerialiser.cs" />
@@ -263,10 +264,8 @@
     <Content Include="AppIcon.ico" />
     <Content Include="netconxsettings.xml" />
     <Content Include="ReleaseNotes.txt" />
-    <None Include="AHPilotStats_TemporaryKey.pfx" />
     <None Include="Properties\app.manifest" />
     <None Include="Resources\AKUAG2.gif" />
-    <None Include="AKUAG.snk" />
     <None Include="App.config" />
     <None Include="Properties\DataSources\My2Cents.HTC.AHPilotStats.DomainObjects.Squad+SquadMember.datasource" />
     <None Include="Properties\DataSources\My2Cents.HTC.AHPilotStats.DomainObjects.Squad+SquadMember1.datasource" />

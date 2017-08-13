@@ -6,6 +6,7 @@
 *.user
 *.sln.docstates
 
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -187,3 +188,8 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+
+
+# saxon bin
+!saxonb8-9n/bin/*.dll
+
